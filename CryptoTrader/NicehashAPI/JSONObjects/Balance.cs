@@ -42,5 +42,9 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		public double GetBTCValue () {
 			return Available * BTCRate;
 		}
+
+		public override string ToString () {
+			return $"Balance {Currencies.GetCurrencyToken (Currency)}\n\tTotal {TotalBalance}\n\tAvailable {Available}\n\tPending {Pending}";
+		}
 	}
 }

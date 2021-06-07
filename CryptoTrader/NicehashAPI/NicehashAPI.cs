@@ -6,7 +6,7 @@ namespace CryptoTrader.NicehashAPI {
 	public class Accounting {
 
 		public static Balances GetBalances () {
-			return new Balances (NicehashURLs.Accounting.balances);
+			return new Balances (NicehashWeb.Get (NicehashURLs.Accounting.balances));
 		}
 
 	}
@@ -44,9 +44,11 @@ namespace CryptoTrader.NicehashAPI {
 	}
 
 	public class ExchangePublic {
+
 		public static PriceFrame GetPrices () {
 			return new PriceFrame (NicehashWeb.Get (NicehashURLs.ExchangePublic.prices, true));
 		}
+
 	}
 
 }
