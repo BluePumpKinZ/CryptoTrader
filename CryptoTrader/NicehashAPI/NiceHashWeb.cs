@@ -20,12 +20,12 @@ namespace CryptoTrader.NicehashAPI.Utils {
 
 			if (auth) {
 				string nonce = NicehashSystem.GenerateNonce ();
-				string digest = HashBySegments (KeyValues.apiSecret, KeyValues.apiKey, time, nonce, KeyValues.organizationID, "GET", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), null);
+				string digest = HashBySegments (KeyValues.ApiSecret, KeyValues.ApiKey, time, nonce, KeyValues.OrganizationID, "GET", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), null);
 
 				request.AddHeader ("X-Time", time);
 				request.AddHeader ("X-Nonce", nonce);
-				request.AddHeader ("X-Auth", KeyValues.apiKey + ":" + digest);
-				request.AddHeader ("X-Organization-Id", KeyValues.organizationID);
+				request.AddHeader ("X-Auth", KeyValues.ApiKey + ":" + digest);
+				request.AddHeader ("X-Organization-Id", KeyValues.OrganizationID);
 			}
 
 			var response = client.Execute (request, RestSharp.Method.GET);
@@ -40,7 +40,7 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			request.AddHeader ("Content-type", "application/json");
 
 			string nonce = NicehashSystem.GenerateNonce ();
-			string digest = HashBySegments (KeyValues.apiSecret, KeyValues.apiKey, time, nonce, KeyValues.organizationID, "POST", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), payload);
+			string digest = HashBySegments (KeyValues.ApiSecret, KeyValues.ApiKey, time, nonce, KeyValues.OrganizationID, "POST", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), payload);
 
 			if (payload != null) {
 				request.AddJsonBody (payload);
@@ -48,8 +48,8 @@ namespace CryptoTrader.NicehashAPI.Utils {
 
 			request.AddHeader ("X-Time", time);
 			request.AddHeader ("X-Nonce", nonce);
-			request.AddHeader ("X-Auth", KeyValues.apiKey + ":" + digest);
-			request.AddHeader ("X-Organization-Id", KeyValues.organizationID);
+			request.AddHeader ("X-Auth", KeyValues.ApiKey + ":" + digest);
+			request.AddHeader ("X-Organization-Id", KeyValues.OrganizationID);
 
 			if (requestId) {
 				request.AddHeader ("X-Request-Id", Guid.NewGuid ().ToString ());
@@ -65,12 +65,12 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			var request = new RestSharp.RestRequest (url);
 
 			string nonce = NicehashSystem.GenerateNonce ();
-			string digest = HashBySegments (KeyValues.apiSecret, KeyValues.apiKey, time, nonce, KeyValues.organizationID, "DELETE", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), null);
+			string digest = HashBySegments (KeyValues.ApiSecret, KeyValues.ApiKey, time, nonce, KeyValues.OrganizationID, "DELETE", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), null);
 
 			request.AddHeader ("X-Time", time);
 			request.AddHeader ("X-Nonce", nonce);
-			request.AddHeader ("X-Auth", KeyValues.apiKey + ":" + digest);
-			request.AddHeader ("X-Organization-Id", KeyValues.organizationID);
+			request.AddHeader ("X-Auth", KeyValues.ApiKey + ":" + digest);
+			request.AddHeader ("X-Organization-Id", KeyValues.OrganizationID);
 
 			if (requestId) {
 				request.AddHeader ("X-Request-Id", Guid.NewGuid ().ToString ());

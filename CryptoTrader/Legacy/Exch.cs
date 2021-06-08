@@ -11,9 +11,9 @@ namespace connect {
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger ();
 
         private static string URL_ROOT = "https://api-test.nicehash.com"; //use https://api2.nicehash.com for production
-        private static string ORG_ID = CryptoTrader.Keys.KeyValues.organizationID;
-        private static string API_KEY = CryptoTrader.Keys.KeyValues.apiKey;
-        private static string API_SECRET = CryptoTrader.Keys.KeyValues.apiSecret;
+        private static string ORG_ID = CryptoTrader.Keys.KeyValues.OrganizationID;
+        private static string API_KEY = CryptoTrader.Keys.KeyValues.ApiKey;
+        private static string API_SECRET = CryptoTrader.Keys.KeyValues.ApiSecret;
 
         private static string CURRENCY_SELL = "TBTC"; // use BTC for production
         private static string CURRENCY_BUY = "TLTC"; // use LTC for production

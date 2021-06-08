@@ -37,11 +37,11 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			string queryStr = GetQuery (url);
 
 			List<string> segments = new List<string> ();
-			segments.Add (KeyValues.apiKey);
+			segments.Add (KeyValues.ApiKey);
 			segments.Add (time);
 			segments.Add (nonce);
 			segments.Add (null);
-			segments.Add (KeyValues.organizationID);
+			segments.Add (KeyValues.OrganizationID);
 			segments.Add (null);
 			segments.Add ("GET");
 			segments.Add (null);
@@ -50,7 +50,7 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			if (bodyStr != null && bodyStr.Length > 0) {
 				segments.Add (bodyStr);
 			}
-			return CalcHMACSHA256Hash (JoinSegments (segments), KeyValues.apiKey);
+			return CalcHMACSHA256Hash (JoinSegments (segments), KeyValues.ApiKey);
 		}
 
 		public static string GetPath (string url) {
@@ -90,7 +90,7 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			byte[]
 			baText2BeHashed = enc.GetBytes (plaintext),
 			baSalt = enc.GetBytes (salt);
-			System.Security.Cryptography.HMACSHA256 hasher = new System.Security.Cryptography.HMACSHA256 (baSalt);
+			HMACSHA256 hasher = new HMACSHA256 (baSalt);
 			byte[] baHashedText = hasher.ComputeHash (baText2BeHashed);
 			result = string.Join ("", baHashedText.ToList ().Select (b => b.ToString ("x2")).ToArray ());
 			return result;
