@@ -13,19 +13,21 @@ namespace CryptoTrader {
 
 	public class PriceWatcher {
 
-		private readonly List<PriceGraph> graphs = new List<PriceGraph> ();
-		private string priceStoragePath;
-		private Thread priceWatchThread;
-		private bool stopPriceWatchThread = false;
+		private static readonly List<PriceGraph> graphs = new List<PriceGraph> ();
+		private static string priceStoragePath;
+		private static Thread priceWatchThread;
+		private static bool stopPriceWatchThread = false;
+		public static bool HasPrices { get { return graphs.Count != 0; } }
 
-		public void SetPath (string path) {
+		public static void SetPath (string path) {
 			priceStoragePath = path;
 			string folderPath = Path.GetDirectoryName (priceStoragePath);
 			if (!Directory.Exists (folderPath))
 				throw new DirectoryNotFoundException ($"The directory '{folderPath}' could not be found");
 		}
 
-		public void Start () {
+		public static void Start () {
+			UpdateFeeStatusGuaranteed ();
 			if (string.IsNullOrEmpty (priceStoragePath))
 				throw new FileLoadException ("The path given loading price data has not been set. Use SetPath () for assigning the path used for price data storage.");
 			if (File.Exists (priceStoragePath)) {
@@ -37,32 +39,61 @@ namespace CryptoTrader {
 			priceWatchThread.Start ();
 		}
 
-		private void PriceWatchThread () {
-			int samplesTaken = 0;
+		private static void PriceWatchThread () {
+
+			int min = DateTime.Now.Minute;
+			int hour = DateTime.Now.Hour;
+			int day = DateTime.Now.Day;
+			bool failing = false;
 			for (; ; ) {
 				try {
-					AddPriceSlice (ExchangePublic.GetPrices ());
-					UpdateFeeStatus ();
+
+					// Record prices every minute
+					if (min != DateTime.Now.Minute) {
+						AddPriceSlice (ExchangePublic.GetPrices ());
+						min = DateTime.Now.Minute;
+					}
 
 					// Save price data every hour
-					samplesTaken++;
-					if (samplesTaken % 60 == 0)
+					if (hour != DateTime.Now.Hour) {
 						SavePrices ();
-
-					int min = DateTime.Now.Minute;
-					while (min == DateTime.Now.Minute) {
-						if (stopPriceWatchThread)
-							return;
-						Thread.Sleep (50);
+						hour = DateTime.Now.Hour;
 					}
-				} catch (Exception e) {
-					Console.WriteLine (e);
+
+					// Update fees every day
+					if (day != DateTime.Now.Day) {
+						UpdateFeeStatus ();
+						day = DateTime.Now.Day;
+					}
+
+					failing = false;
+
+					// Stop thread when stopPriceThread is set to true
+					if (stopPriceWatchThread)
+						return;
+
+					Thread.Sleep (50);
+				} catch (Exception) {
+					if (!failing) {
+						Console.Write ("Error ");
+						failing = true;
+					}
+					Console.Write ("|");
 					Thread.Sleep (1000);
 				}
 			}
 		}
 
-		public Currency[] GetMonitoredCurrencies () {
+		private static void UpdateFeeStatusGuaranteed () {
+			try {
+				UpdateFeeStatus ();
+			} catch (Exception) {
+				Thread.Sleep (1000);
+				UpdateFeeStatusGuaranteed ();
+			}
+		}
+
+		public static Currency[] GetMonitoredCurrencies () {
 			Currency[] currencies = new Currency[graphs.Count];
 			for (int i = 0; i < graphs.Count; i++) {
 				currencies[i] = graphs[i].Currency;
@@ -70,18 +101,18 @@ namespace CryptoTrader {
 			return currencies;
 		}
 
-		public bool IsMonitoring () {
+		public static bool IsMonitoring () {
 			return priceWatchThread != null;
 		}
 
-		public void StopAndSave () {
+		public static void StopAndSave () {
 			stopPriceWatchThread = true;
 			priceWatchThread.Join ();
 			priceWatchThread = null;
 			SavePrices ();
 		}
 
-		private void AddPriceSlice (PriceFrame priceFrame) {
+		private static void AddPriceSlice (PriceFrame priceFrame) {
 			foreach (KeyValuePair<string, double> kvp in priceFrame.Prices) {
 				if (!Currencies.TryGetCurrencyFromBTCPair (kvp.Key, out Currency c))
 					continue;
@@ -89,11 +120,11 @@ namespace CryptoTrader {
 			}
 		}
 
-		private void AddPriceUnit (PriceUnit priceUnit) {
+		private static void AddPriceUnit (PriceUnit priceUnit) {
 			GetGraphForCurrency (priceUnit.Currency).AddPriceValue (priceUnit.MilliTime, priceUnit.Price);
 		}
 
-		public Balance ConvertToCurrency (Balance balance, Currency currency) {
+		public static Balance ConvertToCurrency (Balance balance, Currency currency) {
 
 			double btcPrice;
 			if (balance.BTCRate != 0) {
@@ -106,11 +137,11 @@ namespace CryptoTrader {
 			return new Balance (currency, btcValue * btcRate, btcRate);
 		}
 
-		public double GetBTCPrice (Currency c) {
+		public static double GetBTCPrice (Currency c) {
 			return GetGraphForCurrency (c).GetLastPrice ();
 		}
 
-		public PriceGraph GetGraphForCurrency (Currency currency) {
+		public static PriceGraph GetGraphForCurrency (Currency currency) {
 			if (graphs == null)
 				return null;
 			for (int i = 0; i < graphs.Count; i++) {
@@ -122,16 +153,16 @@ namespace CryptoTrader {
 			return graph;
 		}
 
-		public FeeStatus FeeStatus { private set; get; }
+		public static FeeStatus FeeStatus { private set; get; }
 
-		public void UpdateFeeStatus () {
+		public static void UpdateFeeStatus () {
 			FeeStatus = ExchangePrivate.GetFees ();
 		}
 
 		// Currency (4 bytes)
 		// Time (8 bytes)
 		// Price (8 bytes)
-		private void LoadPrices () {
+		private static void LoadPrices () {
 			byte[] data = File.ReadAllBytes (priceStoragePath);
 			uint hash;
 			long milliTime;
@@ -146,7 +177,7 @@ namespace CryptoTrader {
 			Console.WriteLine ($"Loaded prices from {priceStoragePath}");
 		}
 
-		public void SavePrices () {
+		public static void SavePrices () {
 
 			List<PriceUnit> priceUnits = new List<PriceUnit> ();
 			for (int i = 0; i < graphs.Count; i++) {
