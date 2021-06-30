@@ -158,6 +158,12 @@ namespace CryptoTrader.NicehashAPI {
 			return c;
 		}
 
+		public static string GetPair (Currency c) {
+			if (c == Currency.Bitcoin)
+				return "BTC" + GetCurrencyToken(c);
+			return GetCurrencyToken (c) + "BTC";
+		}
+
 		public static int CountMarkets () {
 			return coinTokens.Keys.Count;
 		}
