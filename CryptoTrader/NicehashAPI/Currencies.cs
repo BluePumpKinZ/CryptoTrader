@@ -160,7 +160,7 @@ namespace CryptoTrader.NicehashAPI {
 
 		public static string GetPair (Currency c) {
 			if (c == Currency.Bitcoin)
-				return "BTC" + GetCurrencyToken(c);
+				return GetCurrencyToken(c) + GetCurrencyToken(Currency.Tether);
 			return GetCurrencyToken (c) + "BTC";
 		}
 
