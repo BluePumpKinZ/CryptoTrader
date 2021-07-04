@@ -2,49 +2,58 @@
 using System.Collections.Generic;
 using System.Text;
 using CryptoTrader.NicehashAPI;
+using CryptoTrader.Keys;
 
 namespace CryptoTrader {
 
-	public enum OrderType { Market, Limit }
+	public enum OrderType { BuyMarket, BuyLimit, SellMarket, SellLimit }
 	public class Trader {
 
-		private PriceWatcher priceWatcher;
+		public static Trader Instance { private set; get; }
 
 		public void Initialize () {
-			priceWatcher = new PriceWatcher ();
+			Instance = this;
 		}
 
 		public void Start () {
-			priceWatcher.Start ();
+			PriceWatcher.Start ();
 		}
 
 		public void StopAndSave () {
-			priceWatcher.StopAndSave ();
+			PriceWatcher.StopAndSave ();
 		}
 
 		public void SetPriceWatcherPath (string path) {
-			priceWatcher.SetPath (path);
+			PriceWatcher.SetPath (path);
+		}
+
+		public void ReadKeysFromPath (string path) {
+			KeyValues.SetPath (path);
+			KeyValues.ReadKeys ();
+		}
+
+		public void SetKeySet (string setName) {
+			KeyValues.SelectKeySet (setName);
 		}
 
 		public string GetStatusPrintOut () {
-			Currency[] monitoredCurrencies = priceWatcher.GetMonitoredCurrencies ();
+			Currency[] monitoredCurrencies = PriceWatcher.GetMonitoredCurrencies ();
 			StringBuilder sb = new StringBuilder ();
-			sb.Append ("Monitoring: ");
-			if (priceWatcher.IsMonitoring ()) {
+			sb.Append ("Price monitoring: ");
+			if (PriceWatcher.IsMonitoring ()) {
 				sb.Append ("Enabled\n");
+				sb.Append ("Monitored currencies: ");
+				for (int i = 0; i < monitoredCurrencies.Length; i++) {
+					sb.Append (Currencies.GetCurrencyToken (monitoredCurrencies[i]) + ", ");
+				}
 			} else {
-				sb.Append ("Disabled\n");
+				sb.Append ("Disabled");
 			}
-			sb.Append ("Monitored currencies: ");
-			for (int i = 0; i < monitoredCurrencies.Length; i++) {
-				sb.Append (Currencies.GetCurrencyToken (monitoredCurrencies[i]) + ", ");
-			}
-			sb.Append ("\n");
 			return sb.ToString ();
 		}
 
 		public void SavePrices () {
-			priceWatcher.SavePrices ();
+			PriceWatcher.SavePrices ();
 		}
 
 	}
