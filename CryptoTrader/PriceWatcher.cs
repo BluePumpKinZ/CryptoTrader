@@ -18,6 +18,7 @@ namespace CryptoTrader {
 		private static Thread priceWatchThread;
 		private static bool stopPriceWatchThread = false;
 		public static bool HasPrices { get { return graphs.Count != 0; } }
+		public static FeeStatus FeeStatus { private set; get; }
 
 		public static void SetPath (string path) {
 			priceStoragePath = path;
@@ -152,8 +153,6 @@ namespace CryptoTrader {
 			graphs.Add (graph);
 			return graph;
 		}
-
-		public static FeeStatus FeeStatus { private set; get; }
 
 		public static void UpdateFeeStatus () {
 			FeeStatus = ExchangePrivate.GetFees ();
