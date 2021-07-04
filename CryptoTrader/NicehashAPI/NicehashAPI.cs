@@ -37,6 +37,23 @@ namespace CryptoTrader.NicehashAPI {
 
 	public class ExchangePrivate {
 
+		public static string CreateOrder (Currency currency, OrderType orderType, double value, double price) {
+			string market = Currencies.GetPair (currency);
+			string side = (orderType == OrderType.BuyMarket || orderType == OrderType.BuyLimit) ? "BUY" : "SELL";
+			string type = (orderType == OrderType.BuyMarket || orderType == OrderType.SellMarket) ? "MARKET" : "LIMIT";
+
+			string url = $"{NicehashURLs.ExchangePrivate.createOrder}" +
+				$"?market={market}" +
+				$"&side={side}" +
+				$"&type={type}" +
+				$"&quantity={value}" +
+				$"&price={price}";
+			if (type == "MARKET")
+				url += $"&secQuantity={0.9 * value}";
+			url.Replace (",",".");
+				return NicehashWeb.Post (url, null, NicehashSystem.GetUTCTimeMillis ().ToString (), false);
+		}
+
 		public static FeeStatus GetFees () {
 			return new FeeStatus (NicehashWeb.Get (NicehashURLs.ExchangePrivate.feeStatus, true));
 		}
