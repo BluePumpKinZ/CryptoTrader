@@ -40,8 +40,26 @@ namespace CryptoTrader {
 			return -1;
 		}
 
+		public long GetTimeByIndex (int i) {
+			return prices.ElementAt (i).Key;
+		}
+
+		public double GetPriceByIndex (int i) {
+			return prices.ElementAt (i).Value;
+		}
+
 		public double GetLastPrice () {
 			return prices.Last ().Value;
+		}
+
+		public int GetLength () {
+			return prices.Count;
+		}
+
+		public long GetTimeLength () {
+			long min = prices.Keys.Min ();
+			long max = prices.Keys.Max ();
+			return max - min;
 		}
 
 		public PriceUnit[] ConvertToPriceUnits () {
