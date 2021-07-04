@@ -16,5 +16,13 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		internal override void ParsePart (string key, string value) {
 			Prices.Add (key, double.Parse (value));
 		}
+
+		public override string ToString () {
+			StringBuilder sb = new StringBuilder ("Prices:");
+			foreach (KeyValuePair<string, double> price in Prices) {
+				sb.Append ($"\n{price.Key} - {price.Value}");
+			}
+			return sb.ToString ();
+		}
 	}
 }
