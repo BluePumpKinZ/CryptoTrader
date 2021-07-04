@@ -1,7 +1,5 @@
 ﻿using CryptoTrader.NicehashAPI;
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.IO;
 
 namespace CryptoTrader {
@@ -15,6 +13,10 @@ namespace CryptoTrader {
 			Console.WriteLine ("Trader initialized");
 			// trader.SetPriceWatcherPath ("C:/Users/jonas/Documents/Crypto/pricehistory.data");
 			trader.SetPriceWatcherPath (Directory.GetCurrentDirectory() + "\\pricehistory.data");
+
+			trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
+			trader.SetKeySet ("Company"); // Personal
+			// Console.WriteLine ($"APIKey: {Keys.KeyValues.ApiKey}\nAPISecret: {Keys.KeyValues.ApiSecret}\nOrgID: {Keys.KeyValues.OrganizationID}");
 
 			while (true) {
 				try {
@@ -35,11 +37,16 @@ namespace CryptoTrader {
 					case "status":
 						Console.WriteLine (trader.GetStatusPrintOut ());
 						break;
+					case "readprices":
+						Console.WriteLine (ExchangePublic.GetPrices ());
+						break;
 					case "readbalances":
 						Console.WriteLine (Accounting.GetBalances ());
 						break;
 					case "save":
 						trader.SavePrices ();
+						break;
+					case "":
 						break;
 					default:
 						Console.WriteLine ($"Command \"{command}\" not recognized.");
