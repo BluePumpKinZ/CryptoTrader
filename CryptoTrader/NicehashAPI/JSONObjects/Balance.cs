@@ -69,7 +69,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 
 		public void Add (Balance balance) {
 			if (Currency != balance.Currency) {
-				balance = ToCurrency (Currency, BTCRate);
+				balance = balance.ToCurrency (Currency, BTCRate);
 			}
 			Available += balance.Available;
 			Pending += balance.Pending;
@@ -82,8 +82,11 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		public void ApplyFee (double fee) {
-			Available *= 1 - fee;
-			Pending *= 1 - fee;
+			if (fee < 0 || fee > 1)
+				throw new ArgumentException ($"{fee} is not a valid fee value, it should be between 0 and 1 inclusive.");
+			double multiplier = 1 - fee;
+			Available *= 1 - multiplier;
+			Pending *= 1 - multiplier;
 		}
 
 		public void UpdateBTCRate () {

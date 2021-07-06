@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CryptoTrader.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {
 
@@ -38,17 +38,19 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		public Balance GetBalanceForCurrency (Currency currency) {
 			int index = GetBalanceIndex (currency);
 			if (index == -1) {
-				Balance balance = new Balance (currency, 0, 0, PriceWatcher.GetBTCPrice (currency));
-				balances.Add (balance);
-				return balance;
+				throw new NoPricesFoundException ($"No balance could be found for currency {Currencies.GetCurrencyToken(currency)}");
 			}
 			return balances[index];
 		}
 
 		public void AddBalance (Balance balance) {
-			Balance baseBalance = GetBalanceForCurrency (balance.Currency);
-			baseBalance.Add (balance);
-			SetBalance (baseBalance);
+			try {
+				Balance baseBalance = GetBalanceForCurrency (balance.Currency);
+				baseBalance.Add (balance);
+				SetBalance (baseBalance);
+			} catch (NoPricesFoundException) {
+				balances.Add (balance);
+			}
 		}
 
 		public void SubtractBalance (Balance balance) {
