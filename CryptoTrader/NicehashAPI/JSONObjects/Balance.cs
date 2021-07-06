@@ -89,6 +89,10 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			Pending *= 1 - multiplier;
 		}
 
+		public void UpdateBTCRate (double btcRate) {
+			BTCRate = btcRate;
+		}
+
 		public void UpdateBTCRate () {
 			BTCRate = PriceWatcher.GetBTCPrice (Currency);
 		}

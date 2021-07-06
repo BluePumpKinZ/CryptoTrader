@@ -77,6 +77,14 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			return -1;
 		}
 
+		public void UpdateBTCRateForCurrency (Currency currency, double price) {
+			try {
+				GetBalanceForCurrency (currency).UpdateBTCRate (price);
+			} catch (NoPricesFoundException) {
+				throw new NoPricesFoundException ($"Couldn't update the btc rate for currency {currency}.");
+			}
+		}
+
 		public void UpdateBTCRates () {
 			balances.ForEach ((balance) => balance.UpdateBTCRate ());
 		}
