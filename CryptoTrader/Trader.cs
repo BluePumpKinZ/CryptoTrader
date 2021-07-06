@@ -13,6 +13,7 @@ namespace CryptoTrader {
 
 		public void Initialize () {
 			Instance = this;
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler (SavePrices);
 		}
 
 		public void Start () {
@@ -52,8 +53,11 @@ namespace CryptoTrader {
 			return sb.ToString ();
 		}
 
-		public void SavePrices () {
-			PriceWatcher.SavePrices ();
+		public void SavePrices (object sender = null, EventArgs e = null) {
+			if (PriceWatcher.HasPrices)
+				PriceWatcher.SavePrices ();
+			else
+				Console.WriteLine ("Autosave cancelled because the pricewatcher was never started.");
 		}
 
 	}
