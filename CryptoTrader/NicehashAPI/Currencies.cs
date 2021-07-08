@@ -16,6 +16,8 @@ namespace CryptoTrader.NicehashAPI {
 		Bitcoin,
 		Bitcoin_Gold,
 		Civic,
+		Chiliz,
+		Curve_DAO,
 		Dash,
 		Streamr_DATAcoin,
 		Dogecoin,
@@ -27,6 +29,7 @@ namespace CryptoTrader.NicehashAPI {
 		Fetch,
 		Fantom,
 		Gifto,
+		HOT,
 		Selfkey,
 		KyberNetwork,
 		Cred,
@@ -35,8 +38,10 @@ namespace CryptoTrader.NicehashAPI {
 		Litecoin,
 		Polygon,
 		Mithril,
+		Maker,
 		Metal,
 		Nexo,
+		Ocean_Protocol,
 		OmiseGO,
 		One_Inch,
 		Polymath,
@@ -75,6 +80,8 @@ namespace CryptoTrader.NicehashAPI {
 			{ Currency.Bitcoin,            "BTC"},
 			{ Currency.Bitcoin_Gold,       "BTG"},
 			{ Currency.Civic,              "CVC"},
+			{ Currency.Chiliz,             "CHZ"},
+			{ Currency.Curve_DAO,          "CRV"},
 			{ Currency.Dash,               "DASH"},
 			{ Currency.Streamr_DATAcoin,   "DATA"},
 			{ Currency.Dogecoin,           "DOGE"},
@@ -86,6 +93,7 @@ namespace CryptoTrader.NicehashAPI {
 			{ Currency.Fetch,              "FET"},
 			{ Currency.Fantom,             "FTM"},
 			{ Currency.Gifto,              "GTO"},
+			{ Currency.HOT,                "HOT"},
 			{ Currency.Selfkey,            "KEY"},
 			{ Currency.KyberNetwork,       "KNC"},
 			{ Currency.Cred,               "LBA"},
@@ -94,8 +102,10 @@ namespace CryptoTrader.NicehashAPI {
 			{ Currency.Litecoin,           "LTC"},
 			{ Currency.Polygon,            "MATIC"},
 			{ Currency.Mithril,            "MITH"},
+			{ Currency.Maker,              "MKR"},
 			{ Currency.Metal,              "MTL"},
 			{ Currency.Nexo,               "NEXO"},
+			{ Currency.Ocean_Protocol,     "OCEAN"},
 			{ Currency.OmiseGO,            "OMG"},
 			{ Currency.One_Inch,           "ONEINCH"},
 			{ Currency.Polymath,           "POLY"},
@@ -128,7 +138,11 @@ namespace CryptoTrader.NicehashAPI {
 		}
 
 		public static bool TryGetCurrencyFromBTCPair (string pair, out Currency currency) {
-			if (pair.Contains ("USDT")) {
+			if (pair == "BTCUSDT") {
+				currency = Currency.Tether;
+				return true;
+			}
+			else if (pair.Contains ("USDT")) {
 				currency = Currency.AaveToken;
 				return false;
 			}
