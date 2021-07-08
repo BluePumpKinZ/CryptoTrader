@@ -11,7 +11,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		public Currency Currency { private set; get; }
 		public double Available { private set; get; }
 		public double Pending { private set; get; }
-		public double TotalBalance { get { return Available + Pending; } }
+		public double Total { get { return Available + Pending; } }
 		public double BTCRate { private set; get; }
 
 		public Balance (Currency c, double available, double pending, double btcRate) {
@@ -102,7 +102,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		public override string ToString () {
-			return $"Balance {Currencies.GetCurrencyToken (Currency)}\n\tTotal {TotalBalance}\n\tAvailable {Available}\n\tPending {Pending}";
+			return $"Balance {Currencies.GetCurrencyToken (Currency)}\n\tTotal {Total}\n\tAvailable {Available}\n\tPending {Pending}";
 		}
 	}
 }
