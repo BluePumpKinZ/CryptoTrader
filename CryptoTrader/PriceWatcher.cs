@@ -133,12 +133,15 @@ namespace CryptoTrader {
 			} else {
 				btcPrice = GetBTCPrice (balance.Currency);
 			}
-			double btcValue = balance.TotalBalance / btcPrice;
+			double btcAvailableValue = balance.Available / btcPrice;
+			double btcPendingValue = balance.Pending / btcPrice;
 			double btcRate = GetBTCPrice (currency);
-			return new Balance (currency, btcValue * btcRate, btcRate);
+			return new Balance (currency, btcAvailableValue * btcRate, btcPendingValue * btcRate, btcRate);
 		}
 
 		public static double GetBTCPrice (Currency c) {
+			if (c == Currency.Bitcoin)
+				return 1;
 			return GetGraphForCurrency (c).GetLastPrice ();
 		}
 
@@ -161,7 +164,7 @@ namespace CryptoTrader {
 		// Currency (4 bytes)
 		// Time (8 bytes)
 		// Price (8 bytes)
-		private static void LoadPrices () {
+		public static void LoadPrices () {
 			byte[] data = File.ReadAllBytes (priceStoragePath);
 			uint hash;
 			long milliTime;
