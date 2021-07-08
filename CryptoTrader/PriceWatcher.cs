@@ -106,10 +106,14 @@ namespace CryptoTrader {
 			return priceWatchThread != null;
 		}
 
-		public static void StopAndSave () {
+		public static void Stop () {
 			stopPriceWatchThread = true;
 			priceWatchThread.Join ();
 			priceWatchThread = null;
+		}
+
+		public static void StopAndSave () {
+			Stop ();
 			SavePrices ();
 		}
 
@@ -180,6 +184,11 @@ namespace CryptoTrader {
 		}
 
 		public static void SavePrices () {
+
+			if (!HasPrices) {
+				Console.WriteLine ("Did not save prices because there was nothing to save");
+				return;
+			}
 
 			List<PriceUnit> priceUnits = new List<PriceUnit> ();
 			for (int i = 0; i < graphs.Count; i++) {

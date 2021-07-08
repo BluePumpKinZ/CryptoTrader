@@ -13,15 +13,24 @@ namespace CryptoTrader {
 
 		public void Initialize () {
 			Instance = this;
-			AppDomain.CurrentDomain.ProcessExit += new EventHandler (SavePrices);
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
 		}
 
 		public void Start () {
 			PriceWatcher.Start ();
 		}
 
+		public void Stop () {
+			PriceWatcher.Stop ();
+		}
+
+		public void Save () {
+			PriceWatcher.SavePrices ();
+		}
+
 		public void StopAndSave () {
-			PriceWatcher.StopAndSave ();
+			Save ();
+			Stop ();
 		}
 
 		public void SetPriceWatcherPath (string path) {
@@ -53,7 +62,7 @@ namespace CryptoTrader {
 			return sb.ToString ();
 		}
 
-		public void SavePrices (object sender = null, EventArgs e = null) {
+		protected void AutoSavePrices (object sender = null, EventArgs e = null) {
 			if (PriceWatcher.HasPrices)
 				PriceWatcher.SavePrices ();
 			else
