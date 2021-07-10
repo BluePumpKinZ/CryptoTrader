@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {
@@ -43,6 +44,27 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			return balances[index];
 		}
 
+		public bool CanBuy (Currency currency, double value) {
+			return CanBuy (currency, value, GetBalanceForCurrency (currency).BTCRate);
+		}
+
+		public bool CanSell (Currency currency, double value) {
+			return CanSell (currency, value, GetBalanceForCurrency (currency).BTCRate);
+		}
+
+		public bool CanBuy (Currency currency, double value, double price) {
+			return value * price >= GetBalanceForCurrency (Currency.Bitcoin).Available;
+		}
+
+		public bool CanSell (Currency currency, double value, double price) {
+			try {
+				Balance balance = GetBalanceForCurrency (currency);
+				return value <= balance.Available;
+			} catch (NoPricesFoundException) {
+				return false;
+			}
+		}
+
 		public void AddBalance (Balance balance) {
 			try {
 				Balance baseBalance = GetBalanceForCurrency (balance.Currency);
@@ -75,6 +97,10 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 					return i;
 			}
 			return -1;
+		}
+
+		public void AddEmptyBalance (Currency c, double price) {
+			AddBalance (new Balance (c, 0, 0, price));
 		}
 
 		public void UpdateBTCRateForCurrency (Currency currency, double price) {
