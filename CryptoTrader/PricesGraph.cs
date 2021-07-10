@@ -1,8 +1,6 @@
 ﻿using CryptoTrader.NicehashAPI;
-using CryptoTrader.NicehashAPI.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -24,18 +22,21 @@ namespace CryptoTrader {
 
 		public double GetPrice (long milliTime) {
 
-			int i = 1;
+			int i = 0;
 			KeyValuePair<long, double> lastPair = prices.ElementAt (0);
-			while (i < prices.Count) {
+			foreach (KeyValuePair<long, double> pair in prices) {
+				if (i++ == 0)
+					continue;
 
-				KeyValuePair<long, double> pair = prices.ElementAt (i);
 				if (pair.Key >= milliTime) {
 					double progress = MoreMath.InverseLerp (lastPair.Key, pair.Key, milliTime);
-					return MoreMath.Lerp (lastPair.Value, lastPair.Value, progress);
+					double interpolatedPrice = MoreMath.Lerp (lastPair.Value, lastPair.Value, progress);
+					if (Currency == Currency.Tether)
+						interpolatedPrice = 1 / interpolatedPrice;
+					return interpolatedPrice;
 				}
 
 				lastPair = pair;
-				i++;
 			}
 			return -1;
 		}
@@ -73,7 +74,7 @@ namespace CryptoTrader {
 
 		public override string ToString () {
 			StringBuilder sb = new StringBuilder ();
-			sb.Append ($"PriceGraph for {Enum.GetName(typeof(Currency), Currency)}:\n");
+			sb.Append ($"PriceGraph for {Enum.GetName (typeof (Currency), Currency)}:\n");
 			foreach (KeyValuePair<long, double> pricePoint in prices) {
 				sb.Append ($"\t{pricePoint.Key} | {pricePoint.Value} \n");
 			}
