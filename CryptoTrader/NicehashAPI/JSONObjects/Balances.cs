@@ -53,7 +53,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		public bool CanBuy (Currency currency, double value, double price) {
-			return value * price >= GetBalanceForCurrency (Currency.Bitcoin).Available;
+			return value * price <= GetBalanceForCurrency (Currency.Bitcoin).Available;
 		}
 
 		public bool CanSell (Currency currency, double value, double price) {
