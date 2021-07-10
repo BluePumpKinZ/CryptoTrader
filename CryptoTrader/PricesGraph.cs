@@ -46,11 +46,17 @@ namespace CryptoTrader {
 		}
 
 		public double GetPriceByIndex (int i) {
-			return prices.ElementAt (i).Value;
+			double price = prices.ElementAt (i).Value;
+			if (Currency == Currency.Tether)
+				price = 1 / price;
+			return price;
 		}
 
 		public double GetLastPrice () {
-			return prices.Last ().Value;
+			double price = prices.Last ().Value;
+			if (Currency == Currency.Tether)
+				price = 1 / price;
+			return price;
 		}
 
 		public int GetLength () {
