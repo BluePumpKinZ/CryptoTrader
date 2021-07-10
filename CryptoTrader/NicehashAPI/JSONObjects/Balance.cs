@@ -76,17 +76,19 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		public void Subtract (Balance balance) {
-			balance.Available = -balance.Available;
-			balance.Pending = -balance.Pending;
-			Add (balance);
+			if (Currency != balance.Currency) {
+				balance = balance.ToCurrency (Currency, BTCRate);
+			}
+			Available -= balance.Available;
+			Pending -= balance.Pending;
 		}
 
 		public void ApplyFee (double fee) {
 			if (fee < 0 || fee > 1)
 				throw new ArgumentException ($"{fee} is not a valid fee value, it should be between 0 and 1 inclusive.");
 			double multiplier = 1 - fee;
-			Available *= 1 - multiplier;
-			Pending *= 1 - multiplier;
+			Available *= multiplier;
+			Pending *= multiplier;
 		}
 
 		public void UpdateBTCRate (double btcRate) {
