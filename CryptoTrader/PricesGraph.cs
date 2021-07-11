@@ -1,7 +1,7 @@
-﻿using CryptoTrader.NicehashAPI;
+﻿using CryptoTrader.Exceptions;
+using CryptoTrader.NicehashAPI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace CryptoTrader {
@@ -9,51 +9,62 @@ namespace CryptoTrader {
 	public class PriceGraph {
 
 		public Currency Currency { get; }
-		private readonly SortedList<long, double> prices;
+		private readonly List<GraphUnit> prices;
 
 		public PriceGraph (Currency currency) {
-			prices = new SortedList<long, double> ();
+			prices = new List<GraphUnit> ();
 			Currency = currency;
 		}
 
 		public void AddPriceValue (long milliTime, double price) {
-			prices.Add (milliTime, price);
+
+			int insertionIndex = prices.Count - 1;
+			while (insertionIndex >= 0 && prices[insertionIndex].Time > milliTime) {
+				insertionIndex--;
+			}
+
+			prices.Insert (Math.Max (insertionIndex, 0), new GraphUnit (milliTime, price));
 		}
 
 		public double GetPrice (long milliTime, bool raw = false) {
 
-			int i = 0;
-			KeyValuePair<long, double> lastPair = prices.ElementAt (0);
-			foreach (KeyValuePair<long, double> pair in prices) {
-				if (i++ == 0)
-					continue;
+			if (prices.Count == 0)
+				throw new NoPricesFoundException ($"Graph for currency \"{Currency}\" is empty.");
 
-				if (pair.Key >= milliTime) {
-					double progress = MoreMath.InverseLerp (lastPair.Key, pair.Key, milliTime);
-					double interpolatedPrice = MoreMath.Lerp (lastPair.Value, lastPair.Value, progress);
-					if (Currency == Currency.Tether && !raw)
-						interpolatedPrice = 1 / interpolatedPrice;
-					return interpolatedPrice;
+			int min = 0, max = prices.Count, searchIndex;
+			while (max - min > 1) {
+				searchIndex = (min + max) / 2;
+				long time = prices[searchIndex].Time;
+				if (milliTime < time) {
+					max = searchIndex;
+				} else {
+					min = searchIndex;
 				}
-
-				lastPair = pair;
 			}
-			return -1;
+
+			GraphUnit minUnit = prices[min];
+			GraphUnit maxUnit = prices[max];
+			double t = MoreMath.InverseLerp (minUnit.Time, maxUnit.Time, milliTime);
+			t = MoreMath.Clamp01 (t);
+			double price = MoreMath.Lerp (minUnit.Value, maxUnit.Value, t);
+			if (Currency == Currency.Tether && !raw)
+				price = 1 / price;
+			return price;
 		}
 
 		public long GetTimeByIndex (int i) {
-			return prices.ElementAt (i).Key;
+			return prices[i].Time;
 		}
 
 		public double GetPriceByIndex (int i, bool raw) {
-			double price = prices.ElementAt (i).Value;
+			double price = prices[i].Value;
 			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
 			return price;
 		}
 
 		public double GetLastPrice (bool raw = false) {
-			double price = prices.Last ().Value;
+			double price = prices[^1].Value;
 			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
 			return price;
@@ -64,16 +75,23 @@ namespace CryptoTrader {
 		}
 
 		public long GetTimeLength () {
-			long min = prices.Keys.Min ();
-			long max = prices.Keys.Max ();
+			long min = long.MaxValue;
+			long max = 0;
+
+			for (int i = 0; i < prices.Count; i++) {
+				long time = prices[i].Time;
+				min = Math.Min (min, time);
+				max = Math.Max (max, time);
+			}
+
 			return max - min;
 		}
 
 		public PriceUnit[] ConvertToPriceUnits () {
 			PriceUnit[] priceUnits = new PriceUnit[prices.Count];
 			int i = 0;
-			foreach (KeyValuePair<long, double> pricePoint in prices) {
-				priceUnits[i++] = new PriceUnit (Currency, pricePoint.Key, pricePoint.Value);
+			foreach (GraphUnit pricePoint in prices) {
+				priceUnits[i++] = new PriceUnit (Currency, pricePoint.Time, pricePoint.Value);
 			}
 			return priceUnits;
 		}
@@ -81,10 +99,29 @@ namespace CryptoTrader {
 		public override string ToString () {
 			StringBuilder sb = new StringBuilder ();
 			sb.Append ($"PriceGraph for {Enum.GetName (typeof (Currency), Currency)}:\n");
-			foreach (KeyValuePair<long, double> pricePoint in prices) {
-				sb.Append ($"\t{pricePoint.Key} | {pricePoint.Value} \n");
+			foreach (GraphUnit pricePoint in prices) {
+				sb.Append ($"\t{pricePoint.Time} | {pricePoint.Value} \n");
 			}
 			return sb.ToString ();
+		}
+
+		protected struct GraphUnit : IComparable<GraphUnit> {
+
+			internal long Time { private set; get; }
+			internal double Value { private set; get; }
+
+			public GraphUnit (long time, double value) {
+				Time = time;
+				Value = value;
+			}
+
+			public int CompareTo (GraphUnit other) {
+				return Time.CompareTo (other.Time);
+			}
+
+			public override string ToString () {
+				return $"{Time} | {Value}";
+			}
 		}
 
 	}

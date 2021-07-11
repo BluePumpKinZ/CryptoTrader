@@ -13,5 +13,13 @@ namespace CryptoTrader {
 			return (1 - t) * min + t * max;
 		}
 
+		public static double Clamp (double s, double min, double max) {
+			return (s < min) ? min : (s > max ? max : s);
+		}
+
+		public static double Clamp01 (double s) {
+			return Clamp (s, 0, 1);
+		}
+
 	}
 }
