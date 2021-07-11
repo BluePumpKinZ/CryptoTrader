@@ -23,7 +23,7 @@ namespace CryptoTrader {
 				insertionIndex--;
 			}
 
-			prices.Insert (Math.Max (insertionIndex, 0), new GraphUnit (milliTime, price));
+			prices.Insert (insertionIndex + 1, new GraphUnit (milliTime, price));
 		}
 
 		public double GetPrice (long milliTime, bool raw = false) {
