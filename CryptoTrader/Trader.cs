@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
-using CryptoTrader.Keys;
+using System;
+using System.Text;
 
 namespace CryptoTrader {
 

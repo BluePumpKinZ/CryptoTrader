@@ -1,8 +1,5 @@
 ﻿using CryptoTrader.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
-using System.Text;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {
 
