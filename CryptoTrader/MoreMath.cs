@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CryptoTrader {
+﻿namespace CryptoTrader {
 	public static class MoreMath {
 
 		public static double InverseLerp (long min, long max, long value) {

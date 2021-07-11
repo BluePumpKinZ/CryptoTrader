@@ -1,6 +1,4 @@
-﻿using NLog.LayoutRenderers;
-
-namespace CryptoTrader.NicehashAPI.Utils {
+﻿namespace CryptoTrader.NicehashAPI.Utils {
 
 	public static class NicehashURLs {
 

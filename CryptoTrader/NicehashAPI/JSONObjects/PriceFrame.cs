@@ -1,6 +1,4 @@
-﻿using CryptoTrader.NicehashAPI.JSONObjects;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {

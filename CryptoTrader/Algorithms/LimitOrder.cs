@@ -1,7 +1,4 @@
 ﻿using CryptoTrader.NicehashAPI;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CryptoTrader.Algorithms {
 
