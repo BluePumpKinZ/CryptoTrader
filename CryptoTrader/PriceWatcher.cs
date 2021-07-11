@@ -151,7 +151,7 @@ namespace CryptoTrader {
 
 		public static PriceGraph GetGraphForCurrency (Currency currency) {
 			if (graphs == null)
-				return null;
+				throw new NoPricesFoundException ($"Graph for currency \"{currency}\" does not exist.");
 			for (int i = 0; i < graphs.Count; i++) {
 				if (graphs[i].Currency == currency)
 					return graphs[i];
