@@ -108,7 +108,8 @@ namespace CryptoTrader {
 
 		public static void Stop () {
 			stopPriceWatchThread = true;
-			priceWatchThread.Join ();
+			if (priceWatchThread != null)
+				priceWatchThread.Join ();
 			priceWatchThread = null;
 		}
 
@@ -230,7 +231,7 @@ namespace CryptoTrader {
 			if (currencyHashesLookUpTable.TryGetValue (hash, out Currency currency))
 				return currency;
 
-			Currency[] currencies = Enum.GetValues (typeof(Currency)) as Currency[];
+			Currency[] currencies = Enum.GetValues (typeof (Currency)) as Currency[];
 			for (int i = 0; i < currencies.Length; i++) {
 				uint newHash = GetCurrencyTokenHash (currencies[i]);
 				if (newHash == hash) {
