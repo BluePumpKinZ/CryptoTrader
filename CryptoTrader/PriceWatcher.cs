@@ -143,10 +143,10 @@ namespace CryptoTrader {
 			return new Balance (currency, btcAvailableValue * btcRate, btcPendingValue * btcRate, btcRate);
 		}
 
-		public static double GetBTCPrice (Currency c) {
+		public static double GetBTCPrice (Currency c, bool raw = false) {
 			if (c == Currency.Bitcoin)
 				return 1;
-			return GetGraphForCurrency (c).GetLastPrice ();
+			return GetGraphForCurrency (c).GetLastPrice (raw);
 		}
 
 		public static PriceGraph GetGraphForCurrency (Currency currency) {

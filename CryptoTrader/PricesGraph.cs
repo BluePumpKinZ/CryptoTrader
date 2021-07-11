@@ -9,10 +9,10 @@ namespace CryptoTrader {
 	public class PriceGraph {
 
 		public Currency Currency { get; }
-		private readonly SortedDictionary<long, double> prices;
+		private readonly SortedList<long, double> prices;
 
 		public PriceGraph (Currency currency) {
-			prices = new SortedDictionary<long, double> ();
+			prices = new SortedList<long, double> ();
 			Currency = currency;
 		}
 
@@ -20,7 +20,7 @@ namespace CryptoTrader {
 			prices.Add (milliTime, price);
 		}
 
-		public double GetPrice (long milliTime) {
+		public double GetPrice (long milliTime, bool raw = false) {
 
 			int i = 0;
 			KeyValuePair<long, double> lastPair = prices.ElementAt (0);
@@ -31,7 +31,7 @@ namespace CryptoTrader {
 				if (pair.Key >= milliTime) {
 					double progress = MoreMath.InverseLerp (lastPair.Key, pair.Key, milliTime);
 					double interpolatedPrice = MoreMath.Lerp (lastPair.Value, lastPair.Value, progress);
-					if (Currency == Currency.Tether)
+					if (Currency == Currency.Tether && !raw)
 						interpolatedPrice = 1 / interpolatedPrice;
 					return interpolatedPrice;
 				}
@@ -45,16 +45,16 @@ namespace CryptoTrader {
 			return prices.ElementAt (i).Key;
 		}
 
-		public double GetPriceByIndex (int i) {
+		public double GetPriceByIndex (int i, bool raw) {
 			double price = prices.ElementAt (i).Value;
-			if (Currency == Currency.Tether)
+			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
 			return price;
 		}
 
-		public double GetLastPrice () {
+		public double GetLastPrice (bool raw = false) {
 			double price = prices.Last ().Value;
-			if (Currency == Currency.Tether)
+			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
 			return price;
 		}
