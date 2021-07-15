@@ -1,4 +1,6 @@
-﻿using CryptoTrader.Exceptions;
+﻿using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -42,25 +44,16 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			return balances[index];
 		}
 
-		public bool CanBuy (Currency currency, double value) {
-			return CanBuy (currency, value, GetBalanceForCurrency (currency).BTCRate);
+		public bool CanBuy (Order order) {
+			if (order.IsSellOrder)
+				throw new ArgumentException ("The order given was not a 'BUY' order");
+			return order.HasSufficientFunds (this);
 		}
 
-		public bool CanSell (Currency currency, double value) {
-			return CanSell (currency, value, GetBalanceForCurrency (currency).BTCRate);
-		}
-
-		public bool CanBuy (Currency currency, double value, double price) {
-			return value * price <= GetBalanceForCurrency (Currency.Bitcoin).Available;
-		}
-
-		public bool CanSell (Currency currency, double value, double price) {
-			try {
-				Balance balance = GetBalanceForCurrency (currency);
-				return value <= balance.Available;
-			} catch (NoPricesFoundException) {
-				return false;
-			}
+		public bool CanSell (Order order) {
+			if (order.IsBuyOrder)
+				throw new ArgumentException ("The order given was not a 'SELL' order");
+			return order.HasSufficientFunds (this);
 		}
 
 		public void AddBalance (Balance balance) {

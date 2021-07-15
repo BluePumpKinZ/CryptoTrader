@@ -1,25 +1,29 @@
-﻿using CryptoTrader.NicehashAPI.JSONObjects;
+﻿using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.NicehashAPI;
+using CryptoTrader.NicehashAPI.JSONObjects;
+using System;
 
 namespace CryptoTrader.Algorithms {
 
 	public class Algo80s : Algorithm {
 
-		internal override void Iterate (PriceGraph graph, ref Balances balance) {
+		internal override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
-			/*Random r = new Random ();
-			double d = r.NextDouble ();
-			if (d < 0.01) {
-				if (balances.CanBuy (Currency.Bitcoin, 0.000005)) {
-					BuyMarket (Currency.Mithril, 0.0005);
-					Console.WriteLine ("Bought");
-				}
+			double price = graph.GetLastPrice ();
+
+			double valuebtc = balances.GetBalanceForCurrency (Currency.Bitcoin).Available;
+			double valueCoin = balances.GetBalanceForCurrency (graph.Currency).Available;
+
+			if (price < 0.00658) {
+
+				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * 0.5);
+				CreateOrder (order);
 			}
-			if (d > 0.99) {
-				if (balances.CanSell (Currency.Mithril, 200)) {
-					SellMarket (Currency.Mithril, 200);
-					Console.WriteLine ("Sold");
-				}
-			}*/
+
+			if (price > 0.00736) {
+				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * 0.5);
+				CreateOrder (order);
+			}
 		}
 	}
 }
