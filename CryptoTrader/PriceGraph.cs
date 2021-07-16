@@ -74,6 +74,14 @@ namespace CryptoTrader {
 			return prices.Count;
 		}
 
+		public long GetStartTime () {
+			return prices[0].Time;
+		}
+
+		public long GetLastTime () {
+			return prices[^1].Time;
+		}
+
 		public long GetTimeLength () {
 			long min = long.MaxValue;
 			long max = 0;
