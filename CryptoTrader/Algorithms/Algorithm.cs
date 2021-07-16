@@ -84,9 +84,13 @@ namespace CryptoTrader.Algorithms {
 					if (order.IsBuyOrder) {
 						source = balances.GetBalanceForCurrency (Currency.Bitcoin);
 						dest = balances.GetBalanceForCurrency (order.Currency);
+						if (source.Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+							return false;
 					} else {
 						source = balances.GetBalanceForCurrency (order.Currency);
 						dest = balances.GetBalanceForCurrency (Currency.Bitcoin);
+						if (source.ToBTCBalance ().Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+							return false;
 					}
 					if (source.Available < order.Value)
 						return false;

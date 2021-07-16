@@ -38,6 +38,8 @@ namespace CryptoTrader.NicehashAPI {
 
 	public class ExchangePrivate {
 
+		public const double MINIMUM_ORDER_QUANTITY_BTC = 0.00010000;
+
 		public static string CreateOrder (Order order) {
 			string url = order.GetOrderUrl ();
 			url = url.Replace (",", ".");
