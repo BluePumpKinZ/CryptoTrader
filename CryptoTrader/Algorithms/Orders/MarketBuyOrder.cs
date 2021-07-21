@@ -33,9 +33,10 @@ namespace CryptoTrader.Algorithms.Orders {
 			}
 		}
 
-		public MarketBuyOrder (Currency currency, double value) {
+		public MarketBuyOrder (Currency currency, double value, long time) {
 			Currency = currency;
 			Value = value;
+			Time = time;
 		}
 	}
 

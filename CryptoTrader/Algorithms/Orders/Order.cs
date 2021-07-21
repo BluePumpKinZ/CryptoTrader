@@ -7,6 +7,7 @@ namespace CryptoTrader.Algorithms.Orders {
 
 		public Currency Currency { protected set; get; }
 		public double Value { protected set; get; }
+		public long Time { protected set; get; }
 
 		public bool IsBuyOrder { get { return IsBuyOrderInternal (); } }
 		public bool IsSellOrder { get { return IsSellOrderInternal (); } }

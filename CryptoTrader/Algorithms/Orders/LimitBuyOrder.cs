@@ -1,8 +1,5 @@
 ﻿using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CryptoTrader.Algorithms.Orders {
 	public class LimitBuyOrder : LimitOrder {
@@ -33,10 +30,11 @@ namespace CryptoTrader.Algorithms.Orders {
 			return balances.GetBalanceForCurrency (Currency).BTCRate <= Price;
 		}
 
-		public LimitBuyOrder (Currency currency, double value, double price) {
+		public LimitBuyOrder (Currency currency, double value, double price, long time) {
 			Currency = currency;
 			Value = value;
 			Price = price;
+			Time = time;
 		}
 	}
 }

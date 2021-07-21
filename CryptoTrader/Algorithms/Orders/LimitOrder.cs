@@ -13,9 +13,9 @@ namespace CryptoTrader.Algorithms.Orders {
 
 		public MarketOrder ToMarketOrder () {
 			if (IsBuyOrder)
-				return new MarketBuyOrder (Currency, Value);
+				return new MarketBuyOrder (Currency, Value, Time);
 			else
-				return new MarketSellOrder (Currency, Value);
+				return new MarketSellOrder (Currency, Value, Time);
 		}
 
 		new public string GetOrderUrl () {
