@@ -106,6 +106,23 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			balances.ForEach ((balance) => balance.UpdateBTCRate ());
 		}
 
+		/// <summary>
+		/// copies the available and pending values from balances.
+		/// </summary>
+		/// <param name="balances">The balances from which to copy.</param>
+		public void UpdateValuesFromBalances (Balances balances) {
+			for (int i = 0; i < this.balances.Count; i++) {
+				try {
+					Balance balance = null;
+					balance = balances.GetBalanceForCurrency (this.balances[i].Currency);
+					if (balance != null)
+						SetBalance (balance);
+				} catch (NoPricesFoundException) {
+
+				}
+			}
+		}
+
 		private Balance GetTotalBalance () {
 			double totalAvailable = 0;
 			double totalPending = 0;

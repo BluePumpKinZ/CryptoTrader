@@ -75,7 +75,10 @@ namespace CryptoTrader.Algorithms {
 
 		internal bool CreateOrder (Order order) {
 			if (!isTraining) {
-				return !ExchangePrivate.CreateOrder (order).Contains ("error");
+				bool succes = !ExchangePrivate.CreateOrder (order).Contains ("error");
+				if (succes)
+					balances.UpdateValuesFromBalances(Accounting.GetBalances ());
+				return succes;
 			} else {
 				if (order.IsMarketOrder) {
 					// Market Order
