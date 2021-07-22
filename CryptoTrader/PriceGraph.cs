@@ -1,4 +1,5 @@
-﻿using CryptoTrader.Exceptions;
+﻿using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.Exceptions;
 using CryptoTrader.NicehashAPI;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,8 @@ namespace CryptoTrader {
 		public void AddPriceValue (long milliTime, double price) {
 
 			int insertionIndex = prices.Count - 1;
-			while (insertionIndex >= 0 && prices[insertionIndex].Time > milliTime) {
+			while (insertionIndex >= 0 && prices[insertionIndex].Time > milliTime)
 				insertionIndex--;
-			}
 
 			prices.Insert (insertionIndex + 1, new GraphUnit (milliTime, price));
 		}
@@ -56,7 +56,7 @@ namespace CryptoTrader {
 			return prices[i].Time;
 		}
 
-		public double GetPriceByIndex (int i, bool raw) {
+		public double GetPriceByIndex (int i, bool raw = false) {
 			double price = prices[i].Value;
 			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
@@ -93,6 +93,88 @@ namespace CryptoTrader {
 			}
 
 			return max - min;
+		}
+
+		public MarketOrder[] GetOptimalTrades (out double totalProfit) {
+			return GetOptimalTrades (GetStartTime (), GetLastTime (), out totalProfit);
+		}
+
+		public MarketOrder[] GetOptimalTrades (long startTime, long endTime, out double totalProfit) {
+
+			long graphStartTime = GetStartTime ();
+			long graphEndTime = GetLastTime ();
+
+			if (startTime < graphStartTime || endTime > graphEndTime || startTime > graphEndTime || endTime < graphStartTime)
+				throw new ArgumentException ($"The requested range is invalid ({startTime} - {endTime}) does not fit in ({graphStartTime} - {graphEndTime}).");
+
+			int startIndex = 0, endIndex = prices.Count - 1;
+
+			while (GetTimeByIndex (startIndex) < startTime)
+				startIndex++;
+
+			while (GetTimeByIndex (endIndex) > endTime)
+				endIndex--;
+
+			List<MarketOrder> orders = new List<MarketOrder> ();
+
+			double backAndForthFee = PriceWatcher.FeeStatus.MakerCoefficient * 2;
+			double profit = 1;
+
+			for (int i = startIndex; i < endIndex; i++) {
+
+				double frameStartPrice = GetPriceByIndex (i);
+				long frameStartTime = GetTimeByIndex (i);
+				int index = i;
+
+				double price = GetPriceByIndex (i) / frameStartPrice;
+				double maxPrice = price;
+				double minPrice = price;
+
+				int maxPriceIndex = index;
+				int minPriceIndex = index;
+
+				while (index < endIndex) {
+
+					price = GetPriceByIndex (index) / frameStartPrice;
+
+					if (price > maxPrice) {
+						maxPrice = price;
+						maxPriceIndex = index;
+					}
+
+					if (price < minPrice) {
+						minPrice = price;
+						minPriceIndex = index;
+					}
+
+					if (maxPrice > 1 + backAndForthFee && price < maxPrice - backAndForthFee) {
+						// Buy
+
+						MarketOrder order = new MarketBuyOrder (Currency, 1, frameStartTime);
+						orders.Add (order);
+
+						i = maxPriceIndex - 1;
+						profit *= maxPrice - backAndForthFee;
+						break;
+					}
+					if (minPrice < 1 - backAndForthFee && price > minPrice + backAndForthFee) {
+						// Sell
+
+						MarketOrder order = new MarketSellOrder (Currency, 1, frameStartTime);
+						orders.Add (order);
+
+						i = minPriceIndex - 1;
+						break;
+					}
+
+					index++;
+				}
+			}
+
+			totalProfit = profit;
+
+			return orders.ToArray ();
+
 		}
 
 		public PriceUnit[] ConvertToPriceUnits () {
