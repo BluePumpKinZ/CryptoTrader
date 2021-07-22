@@ -5,7 +5,6 @@ using System.Text;
 
 namespace CryptoTrader {
 
-	public enum OrderType { BuyMarket, BuyLimit, SellMarket, SellLimit }
 	public class Trader {
 
 		public static Trader Instance { private set; get; }
