@@ -3,8 +3,6 @@ using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace CryptoTrader.Algorithms {
 
