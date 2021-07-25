@@ -1,4 +1,7 @@
-﻿namespace CryptoTrader {
+﻿using System;
+
+namespace CryptoTrader {
+
 	public static class MoreMath {
 
 		public static double InverseLerp (long min, long max, long value) {
@@ -15,6 +18,10 @@
 
 		public static double Clamp01 (double s) {
 			return Clamp (s, 0, 1);
+		}
+
+		public static double Sigmoid (double s) {
+			return -2 * (1 + Math.Pow (2, Math.E * s)) + 1;
 		}
 
 	}
