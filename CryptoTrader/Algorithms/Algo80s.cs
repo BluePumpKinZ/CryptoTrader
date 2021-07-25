@@ -10,18 +10,19 @@ namespace CryptoTrader.Algorithms {
 		internal override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
 			double price = graph.GetLastPrice ();
+			long time = graph.GetLastTime ();
 
 			double valuebtc = balances.GetBalanceForCurrency (Currency.Bitcoin).Available;
 			double valueCoin = balances.GetBalanceForCurrency (graph.Currency).Available;
 
 			if (price < 0.00658) {
 
-				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * 0.5);
+				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * 0.5, time);
 				CreateOrder (order);
 			}
 
 			if (price > 0.00736) {
-				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * 0.5);
+				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * 0.5, time);
 				CreateOrder (order);
 			}
 		}
