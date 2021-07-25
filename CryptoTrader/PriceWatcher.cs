@@ -18,6 +18,7 @@ namespace CryptoTrader {
 		private static Thread priceWatchThread;
 		private static bool stopPriceWatchThread = false;
 		public static bool HasPrices { get { return graphs.Count != 0; } }
+		public static bool HasAddedPrices { private set; get; } = false;
 		public static FeeStatus FeeStatus { private set; get; }
 
 		public static void SetPath (string path) {
@@ -123,6 +124,7 @@ namespace CryptoTrader {
 				if (!Currencies.TryGetCurrencyFromBTCPair (kvp.Key, out Currency c))
 					continue;
 				AddPriceUnit (new PriceUnit (c, NicehashSystem.GetUTCTimeMillis (), kvp.Value));
+				HasAddedPrices = true;
 			}
 		}
 

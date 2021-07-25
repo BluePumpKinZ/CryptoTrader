@@ -61,7 +61,7 @@ namespace CryptoTrader {
 		}
 
 		protected void AutoSavePrices (object sender = null, EventArgs e = null) {
-			if (PriceWatcher.HasPrices)
+			if (PriceWatcher.HasAddedPrices)
 				PriceWatcher.SavePrices ();
 			else
 				Console.WriteLine ("Autosave cancelled because the pricewatcher was never started.");
