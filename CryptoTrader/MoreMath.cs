@@ -24,5 +24,9 @@ namespace CryptoTrader {
 			return -2 / (1 + Math.Pow (2, Math.E * s)) + 1;
 		}
 
+		public static double Square (double s) {
+			return s * s;
+		}
+
 	}
 }
