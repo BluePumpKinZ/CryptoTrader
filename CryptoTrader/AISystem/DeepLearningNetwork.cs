@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace CryptoTrader.AISystem {
@@ -55,20 +54,44 @@ namespace CryptoTrader.AISystem {
 			return weights;
 		}
 
-		public void Randomize () {
+		public void RandomizeWeights () {
 
-			RandomNumberGenerator rng = RandomNumberGenerator.Create ();
+			Random random = new Random ();
 			for (int i = 0; i < weights.Length; i++) {
-				int length = weights[i].Length;
-
-				byte[] bytes = new byte[length * 8];
-				rng.GetBytes (bytes);
 				for (int j = 0; j < weights[i].Length; j++) {
-					weights[i][j] = BitConverter.ToDouble (bytes, j * 8);
+					weights[i][j] = random.NextDouble () * 2 - 1;
 				}
 
 			}
-			rng.Dispose ();
+		}
+
+		private void IterateLayer (ref double[] input, ref double[] output, int layer) {
+
+			if (layer > structure.Length - 1 || input.Length != structure[layer] || output.Length != structure[layer + 1])
+				throw new ArgumentException ("The supplied input data is not valid.");
+
+			for (int i = 0; i < output.Length; i++) {
+
+				double total = 0;
+				for (int j = 0; j < input.Length; j++) {
+					int weightIndex = i * input.Length + j;
+					total += weights[layer][weightIndex] * input[j];
+				}
+				output[i] = MoreMath.Sigmoid (total);
+			}
+		}
+
+		public double[] Iterate (double[] input) {
+			double[] layerIn = input;
+			double[] layerOut = null;
+
+			for (int i = 0; i < weights.Length; i++) {
+				layerOut = new double[structure[i + 1]];
+				IterateLayer (ref layerIn, ref layerOut, i);
+				layerIn = layerOut;
+			}
+
+			return layerOut;
 		}
 
 		public static DeepLearningNetwork Load (string path) {
@@ -102,7 +125,7 @@ namespace CryptoTrader.AISystem {
 			bytes.AddRange (BitConverter.GetBytes (structure.Length));
 			Array.ForEach (structure, (t) => bytes.AddRange (BitConverter.GetBytes (t)));
 
-			Array.ForEach (weights, (t) => Array.ForEach (t, (u) => bytes.AddRange(BitConverter.GetBytes (u))));
+			Array.ForEach (weights, (t) => Array.ForEach (t, (u) => bytes.AddRange (BitConverter.GetBytes (u))));
 
 			File.WriteAllBytes (path, bytes.ToArray ());
 		}
@@ -118,7 +141,7 @@ namespace CryptoTrader.AISystem {
 			for (int i = 0; i < weights.Length; i++) {
 				sb.Append ($"\nLayer {i} {weights[i][0]}");
 				for (int j = 1; j < weights[i].Length; j++) {
-					sb.Append($" | {weights[i][j]}");
+					sb.Append ($" | {weights[i][j]}");
 				}
 			}
 			return sb.ToString ();
