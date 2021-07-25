@@ -21,7 +21,7 @@ namespace CryptoTrader {
 		}
 
 		public static double Sigmoid (double s) {
-			return -2 * (1 + Math.Pow (2, Math.E * s)) + 1;
+			return -2 / (1 + Math.Pow (2, Math.E * s)) + 1;
 		}
 
 	}
