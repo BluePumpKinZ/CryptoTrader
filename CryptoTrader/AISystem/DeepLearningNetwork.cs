@@ -59,7 +59,7 @@ namespace CryptoTrader.AISystem {
 			Random random = new Random ();
 			for (int i = 0; i < weights.Length; i++) {
 				for (int j = 0; j < weights[i].Length; j++) {
-					weights[i][j] = random.NextDouble () * 2 - 1;
+					weights[i][j] = random.NextDouble ();
 				}
 
 			}
@@ -92,6 +92,124 @@ namespace CryptoTrader.AISystem {
 			}
 
 			return layerOut;
+		}
+
+		private double CalculateLoss (ref double[] output, ref double[] desiredOutput) {
+			if (output.Length != desiredOutput.Length)
+				throw new ArgumentException ("Output and desiredOutput must be the same size.");
+
+			double totalLoss = 0;
+			for (int i = 0; i < output.Length; i++) {
+				totalLoss += MoreMath.Square (output[i] - desiredOutput[i]);
+			}
+			return totalLoss;
+		}
+
+		private void ApplyWeightAdjustmentsToModel (double[][] adjustments, double step) {
+			ArgumentException err = new ArgumentException ("The given adjustments do not match the dimensions of the weights of this model.");
+			if (adjustments.Length != weights.Length)
+				throw err;
+			for (int i = 0; i < adjustments.Length; i++) {
+				if (adjustments[i].Length != weights[i].Length)
+					throw err;
+			}
+
+			for (int i = 0; i < adjustments.Length; i++) {
+				for (int j = 0; j < adjustments[i].Length; j++)
+					weights[i][j] += adjustments[i][j] * step;
+			}
+		}
+
+		private double[] CalculateLayerWeightAdjustment (double[] layerIn, double[] requestedBias, out double[] nextBias, int layer) {
+			double[] weights = this.weights[layer];
+			double[] newWeights = new double[weights.Length];
+			double[] inputWeightAverage = new double[layerIn.Length];
+
+			int inputCount = structure[layer];
+			// Loop through output layer
+			for (int i = 0; i < structure[layer + 1]; i++) {
+				// Loop through input layer
+				for (int j = 0; j < inputCount; j++) {
+					int weightIndex = i * inputCount + j;
+					double bias = requestedBias[i] / (layerIn[j] + 1);
+					newWeights[weightIndex] = bias;
+					inputWeightAverage[j] += bias;
+				}
+			}
+
+			Array.ForEach (inputWeightAverage, (t) => t /= inputCount);
+
+			nextBias = inputWeightAverage;
+			return newWeights;
+		}
+
+		private void CalculateWeightAdjustments (ref double[] input, ref double[] desiredOutput, ref double[][] addedWeightAdjustment) {
+			List<double[]> interLayers = new List<double[]> ();
+			double[] inLayer = input;
+			double[] outLayer = null;
+			int layers = structure.Length - 1;
+			for (int i = 0; i < layers; i++) {
+				outLayer = new double[structure[i + 1]];
+				IterateLayer (ref inLayer, ref outLayer, i);
+				interLayers.Add (inLayer);
+				inLayer = outLayer;
+			}
+			interLayers.Add (outLayer);
+
+			// Calculate initial bias
+			double[] changeBias = new double[desiredOutput.Length];
+			for (int i = 0; i < changeBias.Length; i++) {
+				changeBias[i] = desiredOutput[i] - interLayers[^1][i];
+			}
+
+			double[] bias = changeBias;
+			for (int i = layers - 1; i >= 0; i--) {
+
+				double[] weightAdjustment = CalculateLayerWeightAdjustment (interLayers[i], bias, out double[] nextBias, i);
+				bias = nextBias;
+
+				addedWeightAdjustment[i] = weightAdjustment;
+			}
+		}
+
+		public void Train (ref double[][] input, ref double[][] desiredOutput, double step) {
+			if (input.Length != desiredOutput.Length)
+				throw new ArgumentException ("Amount of input arrays does not match the output.");
+
+			int inputLayerSize = structure[0];
+			Array.ForEach (input, (t) => {
+				if (t.Length != inputLayerSize)
+					throw new ArgumentException ("One or more of the input arrays do not match the network structure.");
+			});
+			int outputLayerSize = structure[^1];
+			Array.ForEach (desiredOutput, (t) => {
+				if (t.Length != outputLayerSize)
+					throw new ArgumentException ("One or more of the output arrays do not match the network structure.");
+			});
+
+			// Gather all adjustment values
+			double[][] weightAdjustments = new double[weights.Length][];
+			double[][] addedWeightAdjustment = new double[weights.Length][];
+
+			for (int i = 0; i < weightAdjustments.Length; i++) {
+				weightAdjustments[i] = new double[structure[i] * structure[i + 1]];
+			}
+
+			for (int i = 0; i < weightAdjustments.Length; i++) {
+				CalculateWeightAdjustments (ref input[i], ref desiredOutput[i], ref addedWeightAdjustment);
+				for (int j = 0; j < weightAdjustments.Length; j++) {
+					for (int k = 0; k < weightAdjustments[i].Length; k++) {
+						weightAdjustments[j][k] += addedWeightAdjustment[j][k];
+					}
+				}
+			}
+
+			// Divide adjustment values for average
+			int amountOfAdjustments = input.Length;
+			Array.ForEach (weightAdjustments, (t) => Array.ForEach (t, (u) => u /= amountOfAdjustments));
+			addedWeightAdjustment = null;
+
+			ApplyWeightAdjustmentsToModel (weightAdjustments, step);
 		}
 
 		public static DeepLearningNetwork Load (string path) {
