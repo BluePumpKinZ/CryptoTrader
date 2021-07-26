@@ -86,7 +86,7 @@ namespace CryptoTrader {
 			}
 		}
 
-		private static void UpdateFeeStatusGuaranteed () {
+		public static void UpdateFeeStatusGuaranteed () {
 			try {
 				UpdateFeeStatus ();
 			} catch (Exception) {
