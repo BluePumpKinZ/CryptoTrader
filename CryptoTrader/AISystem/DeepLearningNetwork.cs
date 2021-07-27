@@ -59,7 +59,7 @@ namespace CryptoTrader.AISystem {
 			Random random = new Random ();
 			for (int i = 0; i < weights.Length; i++) {
 				for (int j = 0; j < weights[i].Length; j++) {
-					weights[i][j] = random.NextDouble ();
+					weights[i][j] = 2 * random.NextDouble () - 1;
 				}
 
 			}
@@ -69,7 +69,7 @@ namespace CryptoTrader.AISystem {
 
 			if (layer > structure.Length - 1 || input.Length != structure[layer] || output.Length != structure[layer + 1])
 				throw new ArgumentException ("The supplied input data is not valid.");
-
+			
 			for (int i = 0; i < output.Length; i++) {
 
 				double total = 0;
@@ -116,7 +116,7 @@ namespace CryptoTrader.AISystem {
 
 			for (int i = 0; i < adjustments.Length; i++) {
 				for (int j = 0; j < adjustments[i].Length; j++)
-					weights[i][j] += adjustments[i][j] * step;
+					weights[i][j] = MoreMath.Lerp (weights[i][j], adjustments[i][j], step);
 			}
 		}
 
@@ -131,8 +131,13 @@ namespace CryptoTrader.AISystem {
 				// Loop through input layer
 				for (int j = 0; j < inputCount; j++) {
 					int weightIndex = i * inputCount + j;
-					double bias = requestedBias[i] / (layerIn[j] + 1);
-					newWeights[weightIndex] = bias;
+					double output = layerIn[j] * weights[weightIndex];
+					double requestedOutput = output + requestedBias[i];
+					double requestedWeight = requestedOutput / layerIn[j];
+					if (requestedWeight == double.NaN) requestedWeight = weights[weightIndex];
+					double bias = requestedBias[i] / MoreMath.MaxAmp (layerIn[j], 0.1);
+					newWeights[weightIndex] = requestedWeight;
+					// newWeights[weightIndex] = bias;
 					inputWeightAverage[j] += bias;
 				}
 			}
@@ -144,6 +149,13 @@ namespace CryptoTrader.AISystem {
 		}
 
 		private void CalculateWeightAdjustments (ref double[] input, ref double[] desiredOutput, ref double[][] addedWeightAdjustment) {
+
+			// Fill addedWeightAdjustment with zeros
+			Array.ForEach (addedWeightAdjustment, (t) => {
+				if (t != null)
+					Array.ForEach (t, (u) => u = 0);
+			});
+
 			List<double[]> interLayers = new List<double[]> ();
 			double[] inLayer = input;
 			double[] outLayer = null;
@@ -195,10 +207,10 @@ namespace CryptoTrader.AISystem {
 				weightAdjustments[i] = new double[structure[i] * structure[i + 1]];
 			}
 
-			for (int i = 0; i < weightAdjustments.Length; i++) {
+			for (int i = 0; i < input.Length; i++) {
 				CalculateWeightAdjustments (ref input[i], ref desiredOutput[i], ref addedWeightAdjustment);
 				for (int j = 0; j < weightAdjustments.Length; j++) {
-					for (int k = 0; k < weightAdjustments[i].Length; k++) {
+					for (int k = 0; k < weightAdjustments[j].Length; k++) {
 						weightAdjustments[j][k] += addedWeightAdjustment[j][k];
 					}
 				}
