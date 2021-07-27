@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.Exceptions;
 using CryptoTrader.NicehashAPI;
+using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
