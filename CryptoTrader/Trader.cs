@@ -5,46 +5,43 @@ using System.Text;
 
 namespace CryptoTrader {
 
-	public class Trader {
+	public static class Trader {
 
-		public static Trader Instance { private set; get; }
-
-		public void Initialize () {
-			Instance = this;
+		public static void Initialize () {
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
 		}
 
-		public void Start () {
+		public static void Start () {
 			PriceWatcher.Start ();
 		}
 
-		public void Stop () {
+		public static void Stop () {
 			PriceWatcher.Stop ();
 		}
 
-		public void Save () {
+		public static void Save () {
 			PriceWatcher.SavePrices ();
 		}
 
-		public void StopAndSave () {
+		public static void StopAndSave () {
 			Save ();
 			Stop ();
 		}
 
-		public void SetPriceWatcherPath (string path) {
+		public static void SetPriceWatcherPath (string path) {
 			PriceWatcher.SetPath (path);
 		}
 
-		public void ReadKeysFromPath (string path) {
+		public static void ReadKeysFromPath (string path) {
 			KeyValues.SetPath (path);
 			KeyValues.ReadKeys ();
 		}
 
-		public void SetKeySet (string setName) {
+		public static void SetKeySet (string setName) {
 			KeyValues.SelectKeySet (setName);
 		}
 
-		public string GetStatusPrintOut () {
+		public static string GetStatusPrintOut () {
 			Currency[] monitoredCurrencies = PriceWatcher.GetMonitoredCurrencies ();
 			StringBuilder sb = new StringBuilder ();
 			sb.Append ("Price monitoring: ");
@@ -60,7 +57,7 @@ namespace CryptoTrader {
 			return sb.ToString ();
 		}
 
-		protected void AutoSavePrices (object sender = null, EventArgs e = null) {
+		private static void AutoSavePrices (object sender = null, EventArgs e = null) {
 			if (PriceWatcher.HasAddedPrices)
 				PriceWatcher.SavePrices ();
 			else

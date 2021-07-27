@@ -1,4 +1,5 @@
-﻿using CryptoTrader.NicehashAPI;
+﻿using CryptoTrader.Keys;
+using CryptoTrader.NicehashAPI;
 using System;
 using System.IO;
 
@@ -8,34 +9,43 @@ namespace CryptoTrader {
 
 		static void Main () {
 
-			Trader trader = new Trader ();
-			trader.Initialize ();
-			Console.WriteLine ("Trader initialized");
-			// trader.SetPriceWatcherPath ("C:/Users/jonas/Documents/Crypto/pricehistory.data");
-			trader.SetPriceWatcherPath (Directory.GetCurrentDirectory() + "\\pricehistory.data");
+			Trader.Initialize ();
+			Console.WriteLine ("Trader initialized.");
+			Trader.SetPriceWatcherPath (Directory.GetCurrentDirectory () + "\\pricehistory.data");
 
-			trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
-			trader.SetKeySet ("Company"); // Personal
-			// Console.WriteLine ($"APIKey: {Keys.KeyValues.ApiKey}\nAPISecret: {Keys.KeyValues.ApiSecret}\nOrgID: {Keys.KeyValues.OrganizationID}");
+			Trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
+			Trader.SetKeySet ("Company");
+
+			PriceWatcher.UpdateFeeStatusGuaranteed ();
 
 			while (true) {
 				try {
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.Write (" # ");
+					Console.ResetColor ();
 					string input = Console.ReadLine ();
 					string[] split = input.Split (" ", 2);
 					string command = split[0];
 
 					switch (command) {
 					case "setpricewatchpath":
-						trader.SetPriceWatcherPath (split[1]);
+						Trader.SetPriceWatcherPath (split[1]);
 						break;
 					case "start":
-						trader.Start ();
+						Trader.Start ();
 						break;
 					case "stop":
-						trader.StopAndSave ();
+						Trader.Stop ();
+						Environment.Exit (0);
+						break;
+					case "save":
+						Trader.Save ();
+						break;
+					case "stopandsave":
+						Trader.StopAndSave ();
 						return;
 					case "status":
-						Console.WriteLine (trader.GetStatusPrintOut ());
+						Console.WriteLine (Trader.GetStatusPrintOut ());
 						break;
 					case "readprices":
 						Console.WriteLine (ExchangePublic.GetPrices ());
@@ -43,8 +53,13 @@ namespace CryptoTrader {
 					case "readbalances":
 						Console.WriteLine (Accounting.GetBalances ());
 						break;
-					case "save":
-						trader.SavePrices ();
+					case "readkeys":
+						try {
+							KeyValues.SelectKeySet (split[1]);
+							Console.WriteLine ($"Read keyset \"{split[1]}\"");
+						} catch (ArgumentException) {
+							Console.WriteLine ($"No set by the name \"{split[1]}\" could be found.");
+						}
 						break;
 					case "":
 						break;
@@ -52,7 +67,6 @@ namespace CryptoTrader {
 						Console.WriteLine ($"Command \"{command}\" not recognized.");
 						break;
 					}
-					
 
 				} catch (Exception e) {
 					Console.WriteLine (e);
