@@ -94,7 +94,7 @@ namespace CryptoTrader.AISystem {
 			return layerOut;
 		}
 
-		private double CalculateLoss (ref double[] output, ref double[] desiredOutput) {
+		public static double CalculateLoss (ref double[] output, ref double[] desiredOutput) {
 			if (output.Length != desiredOutput.Length)
 				throw new ArgumentException ("Output and desiredOutput must be the same size.");
 
