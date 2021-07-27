@@ -20,6 +20,7 @@ namespace CryptoTrader {
 		public static bool HasPrices { get { return graphs.Count != 0; } }
 		public static bool HasAddedPrices { private set; get; } = false;
 		public static FeeStatus FeeStatus { private set; get; }
+		private static List<Action> onPriceUpdate = new List<Action> ();
 
 		public static void SetPath (string path) {
 			priceStoragePath = path;
@@ -53,6 +54,7 @@ namespace CryptoTrader {
 					// Record prices every minute
 					if (min != DateTime.Now.Minute) {
 						AddPriceSlice (ExchangePublic.GetPrices ());
+						OnPriceUpdate ();
 						min = DateTime.Now.Minute;
 					}
 
@@ -92,6 +94,22 @@ namespace CryptoTrader {
 			} catch (Exception) {
 				Thread.Sleep (1000);
 				UpdateFeeStatusGuaranteed ();
+			}
+		}
+
+		public static void AddToOnPriceUpdate (Action action) {
+			onPriceUpdate.Add (action);
+		}
+
+		public static void ClearOnPriceUpdate () {
+			onPriceUpdate.Clear ();
+		}
+
+		protected static void OnPriceUpdate () {
+			try {
+				onPriceUpdate.ForEach ((t) => t.Invoke ());
+			} catch (Exception e) {
+				Console.WriteLine (e.StackTrace);
 			}
 		}
 
@@ -168,10 +186,15 @@ namespace CryptoTrader {
 			FeeStatus = ExchangePrivate.GetFees ();
 		}
 
+		private static void Clear () {
+			graphs.Clear ();
+		}
+
 		// Currency (4 bytes)
 		// Time (8 bytes)
 		// Price (8 bytes)
 		public static void LoadPrices () {
+			Clear ();
 			byte[] data = File.ReadAllBytes (priceStoragePath);
 			uint hash;
 			long milliTime;
