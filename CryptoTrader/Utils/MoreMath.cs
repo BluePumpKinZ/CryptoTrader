@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CryptoTrader {
+namespace CryptoTrader.Utils {
 
 	public static class MoreMath {
 
