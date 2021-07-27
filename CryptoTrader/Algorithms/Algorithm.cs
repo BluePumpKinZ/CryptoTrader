@@ -20,9 +20,13 @@ namespace CryptoTrader.Algorithms {
 			isTraining = enableTraining;
 		}
 
+		public virtual void LoadFromBytes (byte[] bytes) { }
+
+		public virtual byte[] SaveToBytes () { return new byte[0]; }
+
 		internal abstract void IterateInternal (PriceGraph graph, ref Balances balances);
 
-		internal void Iterate (PriceGraph graph, ref Balances balances) {
+		public void Iterate (PriceGraph graph, ref Balances balances) {
 			ExecuteLimitOrders (balances);
 			IterateInternal (graph, ref balances);
 		}
