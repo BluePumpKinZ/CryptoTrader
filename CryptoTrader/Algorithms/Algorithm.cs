@@ -8,7 +8,7 @@ namespace CryptoTrader.Algorithms {
 
 	public abstract class Algorithm {
 
-		internal bool isTraining;
+		private bool isTraining;
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
 		internal List<LimitOrder> trainingLimitOrders = new List<LimitOrder> ();
 		internal Balances balances = new Balances ();
