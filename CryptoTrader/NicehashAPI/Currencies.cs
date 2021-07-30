@@ -77,7 +77,7 @@ namespace CryptoTrader.NicehashAPI {
 			{ Currency.Aragon,             "ANT"},
 			{ Currency.Aurora,             "AOA"},
 			{ Currency.AirSwap,            "AST"},
-			{ Currency.Band_Protocol,      "Band"},
+			{ Currency.Band_Protocol,      "BAND"},
 			{ Currency.BAT,                "BAT"},
 			{ Currency.Bitcoin_Cash,       "BCH"},
 			{ Currency.Bancor,             "BNT"},
