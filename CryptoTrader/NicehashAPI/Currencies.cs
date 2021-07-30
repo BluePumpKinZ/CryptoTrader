@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace CryptoTrader.NicehashAPI {
 
 	public enum Currency {
+		Null,
 		AaveToken,
 		Aergo,
 		Aragon,
@@ -143,7 +144,7 @@ namespace CryptoTrader.NicehashAPI {
 				return true;
 			}
 			else if (pair.Contains ("USDT")) {
-				currency = Currency.AaveToken;
+				currency = Currency.Null;
 				return false;
 			}
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
@@ -157,12 +158,12 @@ namespace CryptoTrader.NicehashAPI {
 					return true;
 				}
 			}
-			currency = Currency.AaveToken;
+			currency = Currency.Null;
 			return false;
 		}
 
 		public static Currency GetCurrencyFromToken (string token) {
-			Currency c = Currency.Euro;
+			Currency c = Currency.Null;
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
 			for (int i = 0; i < coinTokens.Count; i++) {
 				if (coinTokens[allCurrencies[i]] == token) {
@@ -179,7 +180,7 @@ namespace CryptoTrader.NicehashAPI {
 		}
 
 		public static int CountMarkets () {
-			return coinTokens.Keys.Count;
+			return coinTokens.Keys.Count - 1;
 		}
 
 	}
