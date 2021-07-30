@@ -189,6 +189,7 @@ namespace CryptoTrader {
 
 		private static void Clear () {
 			graphs.Clear ();
+			HasAddedPrices = false;
 		}
 
 		// Currency (4 bytes)
