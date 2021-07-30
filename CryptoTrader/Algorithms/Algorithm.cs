@@ -12,6 +12,14 @@ namespace CryptoTrader.Algorithms {
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
 		internal List<LimitOrder> trainingLimitOrders = new List<LimitOrder> ();
 		internal Balances balances = new Balances ();
+		public Currency PrimaryCurrency { private set; get; } = Currency.Null;
+
+		public void SetPrimaryCurrency (Currency currency) {
+			if (PrimaryCurrency == Currency.Null)
+				PrimaryCurrency = currency;
+			else
+				throw new ApplicationException ("The primary currency was already set and cannot be changed afterwards.");
+		}
 
 		private void SetTrainingMode (bool enableTraining) {
 			if (enableTraining == isTraining) {
