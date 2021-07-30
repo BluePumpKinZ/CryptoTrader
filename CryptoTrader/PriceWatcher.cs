@@ -5,8 +5,6 @@ using CryptoTrader.NicehashAPI.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 
 namespace CryptoTrader {
@@ -84,6 +82,7 @@ namespace CryptoTrader {
 					}
 					Console.Write ("|");
 					Thread.Sleep (1000);
+					// Console.WriteLine ();
 				}
 			}
 		}
@@ -140,6 +139,8 @@ namespace CryptoTrader {
 		private static void AddPriceSlice (PriceFrame priceFrame) {
 			foreach (KeyValuePair<string, double> kvp in priceFrame.Prices) {
 				if (!Currencies.TryGetCurrencyFromBTCPair (kvp.Key, out Currency c))
+					continue;
+				if (c == Currency.Null)
 					continue;
 				AddPriceUnit (new PriceUnit (c, NicehashSystem.GetUTCTimeMillis (), kvp.Value));
 				HasAddedPrices = true;
@@ -204,7 +205,7 @@ namespace CryptoTrader {
 				milliTime = BitConverter.ToInt64 (data, i + 4);
 				price = BitConverter.ToDouble (data, i + 12);
 
-				AddPriceUnit (new PriceUnit (GetCurrencyFromHash (hash), milliTime, price));
+				AddPriceUnit (new PriceUnit (Currencies.GetCurrencyFromHash (hash), milliTime, price));
 			}
 			Console.WriteLine ($"Loaded prices from {priceStoragePath}");
 		}
@@ -223,7 +224,7 @@ namespace CryptoTrader {
 
 			byte[] data = new byte[20 * priceUnits.Count];
 			for (int i = 0; i < priceUnits.Count; i++) {
-				byte[] currencyBytes = BitConverter.GetBytes (GetCurrencyTokenHash (priceUnits[i].Currency));
+				byte[] currencyBytes = BitConverter.GetBytes (Currencies.GetCurrencyTokenHash (priceUnits[i].Currency));
 				byte[] timeBytes = BitConverter.GetBytes (priceUnits[i].MilliTime);
 				byte[] priceBytes = BitConverter.GetBytes (priceUnits[i].Price);
 
@@ -236,35 +237,6 @@ namespace CryptoTrader {
 
 			File.WriteAllBytes (priceStoragePath, data);
 			Console.WriteLine ($"Saved prices to {priceStoragePath}");
-		}
-
-		private static uint GetCurrencyTokenHash (Currency currency) {
-			string token = Currencies.GetCurrencyToken (currency);
-			using HashAlgorithm algorithm = SHA256.Create ();
-			byte[] fullHashbytes = algorithm.ComputeHash (Encoding.UTF8.GetBytes (token));
-			byte[] shortenedHashBytes = new byte[4];
-			for (byte i = 0; i < fullHashbytes.Length; i++) {
-				shortenedHashBytes[i % 4] ^= fullHashbytes[i];
-			}
-			return BitConverter.ToUInt32 (shortenedHashBytes);
-		}
-
-		private static Dictionary<uint, Currency> currencyHashesLookUpTable;
-		private static Currency GetCurrencyFromHash (uint hash) {
-			if (currencyHashesLookUpTable == null)
-				currencyHashesLookUpTable = new Dictionary<uint, Currency> ();
-			if (currencyHashesLookUpTable.TryGetValue (hash, out Currency currency))
-				return currency;
-
-			Currency[] currencies = Enum.GetValues (typeof (Currency)) as Currency[];
-			for (int i = 0; i < currencies.Length; i++) {
-				uint newHash = GetCurrencyTokenHash (currencies[i]);
-				if (newHash == hash) {
-					currencyHashesLookUpTable.Add (hash, currencies[i]);
-					return currencies[i];
-				}
-			}
-			throw new HashNotFoundException ($"No currency could be found for hash {hash}", hash);
 		}
 
 	}

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using CryptoTrader.Exceptions;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CryptoTrader.NicehashAPI {
 
@@ -149,6 +152,8 @@ namespace CryptoTrader.NicehashAPI {
 			}
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
 			for (int i = 0; i < coinTokens.Count; i++) {
+				if (allCurrencies[i] == Currency.Null)
+					continue;
 				if ($"{coinTokens[allCurrencies[i]]}BTC" == pair) {
 					currency = allCurrencies[i];
 					return true;
@@ -165,7 +170,9 @@ namespace CryptoTrader.NicehashAPI {
 		public static Currency GetCurrencyFromToken (string token) {
 			Currency c = Currency.Null;
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
-			for (int i = 0; i < coinTokens.Count; i++) {
+			for (int i = 0; i < allCurrencies.Length; i++) {
+				if (allCurrencies[i] == Currency.Null)
+					continue;
 				if (coinTokens[allCurrencies[i]] == token) {
 					return allCurrencies[i];
 				}
@@ -181,6 +188,39 @@ namespace CryptoTrader.NicehashAPI {
 
 		public static int CountMarkets () {
 			return coinTokens.Keys.Count - 1;
+		}
+
+		private static HashAlgorithm hashAlgorithm = SHA256.Create ();
+		public static uint GetCurrencyTokenHash (Currency currency) {
+			if (currency == Currency.Null)
+				throw new ArgumentException ("The currency \"Null\" does not have a token");
+			string token = GetCurrencyToken (currency);
+			byte[] fullHashbytes = hashAlgorithm.ComputeHash (Encoding.UTF8.GetBytes (token));
+			byte[] shortenedHashBytes = new byte[4];
+			for (byte i = 0; i < fullHashbytes.Length; i++) {
+				shortenedHashBytes[i % 4] ^= fullHashbytes[i];
+			}
+			return BitConverter.ToUInt32 (shortenedHashBytes);
+		}
+
+		private static Dictionary<uint, Currency> currencyHashesLookUpTable;
+		public static Currency GetCurrencyFromHash (uint hash) {
+			if (currencyHashesLookUpTable == null)
+				currencyHashesLookUpTable = new Dictionary<uint, Currency> ();
+			if (currencyHashesLookUpTable.TryGetValue (hash, out Currency currency))
+				return currency;
+
+			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
+			for (int i = 0; i < allCurrencies.Length; i++) {
+				if (allCurrencies[i] == Currency.Null)
+					continue;
+				uint newHash = GetCurrencyTokenHash (allCurrencies[i]);
+				if (newHash == hash) {
+					currencyHashesLookUpTable.Add (hash, allCurrencies[i]);
+					return allCurrencies[i];
+				}
+			}
+			throw new HashNotFoundException ($"No currency could be found for hash {hash}", hash);
 		}
 
 	}
