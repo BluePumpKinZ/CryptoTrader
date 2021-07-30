@@ -190,7 +190,7 @@ namespace CryptoTrader.NicehashAPI {
 			return coinTokens.Keys.Count - 1;
 		}
 
-		private static HashAlgorithm hashAlgorithm = SHA256.Create ();
+		private static readonly HashAlgorithm hashAlgorithm = SHA256.Create ();
 		public static uint GetCurrencyTokenHash (Currency currency) {
 			if (currency == Currency.Null)
 				throw new ArgumentException ("The currency \"Null\" does not have a token");
