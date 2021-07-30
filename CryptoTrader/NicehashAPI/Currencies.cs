@@ -190,36 +190,38 @@ namespace CryptoTrader.NicehashAPI {
 			return coinTokens.Keys.Count - 1;
 		}
 
-		private static readonly HashAlgorithm hashAlgorithm = SHA256.Create ();
-		public static uint GetCurrencyTokenHash (Currency currency) {
-			if (currency == Currency.Null)
-				throw new ArgumentException ("The currency \"Null\" does not have a token");
-			string token = GetCurrencyToken (currency);
-			byte[] fullHashbytes = hashAlgorithm.ComputeHash (Encoding.UTF8.GetBytes (token));
-			byte[] shortenedHashBytes = new byte[4];
-			for (byte i = 0; i < fullHashbytes.Length; i++) {
-				shortenedHashBytes[i % 4] ^= fullHashbytes[i];
-			}
-			return BitConverter.ToUInt32 (shortenedHashBytes);
-		}
+		private static Dictionary<Currency, uint> currencyToHashLookUpTable;
+		private static Dictionary<uint, Currency> hashToCurrencyLoopUpTable;
 
-		private static Dictionary<uint, Currency> currencyHashesLookUpTable;
-		public static Currency GetCurrencyFromHash (uint hash) {
-			if (currencyHashesLookUpTable == null)
-				currencyHashesLookUpTable = new Dictionary<uint, Currency> ();
-			if (currencyHashesLookUpTable.TryGetValue (hash, out Currency currency))
-				return currency;
-
+		public static void GenerateLookUpTables () {
+			currencyToHashLookUpTable = new Dictionary<Currency, uint> ();
+			hashToCurrencyLoopUpTable = new Dictionary<uint, Currency> ();
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
+			HashAlgorithm hashAlgorithm = SHA256.Create ();
 			for (int i = 0; i < allCurrencies.Length; i++) {
 				if (allCurrencies[i] == Currency.Null)
 					continue;
-				uint newHash = GetCurrencyTokenHash (allCurrencies[i]);
-				if (newHash == hash) {
-					currencyHashesLookUpTable.Add (hash, allCurrencies[i]);
-					return allCurrencies[i];
+				string token = GetCurrencyToken (allCurrencies[i]);
+				byte[] fullHashbytes = hashAlgorithm.ComputeHash (Encoding.UTF8.GetBytes (token));
+				byte[] shortenedHashBytes = new byte[4];
+				for (byte j = 0; j < fullHashbytes.Length; j++) {
+					shortenedHashBytes[j % 4] ^= fullHashbytes[j];
 				}
+				uint hash = BitConverter.ToUInt32 (shortenedHashBytes);
+				hashToCurrencyLoopUpTable.Add (hash, allCurrencies[i]);
+				currencyToHashLookUpTable.Add (allCurrencies[i], hash);
 			}
+		}
+
+		public static uint GetCurrencyTokenHash (Currency currency) {
+			if (currency == Currency.Null)
+				throw new ArgumentException ("The currency \"Null\" does not have a token");
+			return currencyToHashLookUpTable[currency];
+		}
+
+		public static Currency GetCurrencyFromHash (uint hash) {
+			if (hashToCurrencyLoopUpTable.TryGetValue (hash, out Currency currency))
+				return currency;
 			throw new HashNotFoundException ($"No currency could be found for hash {hash}", hash);
 		}
 
