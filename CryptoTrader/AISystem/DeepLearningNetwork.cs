@@ -225,9 +225,7 @@ namespace CryptoTrader.AISystem {
 			ApplyWeightAdjustmentsToModel (weightAdjustments, step);
 		}
 
-		public static DeepLearningNetwork Load (string path) {
-
-			byte[] bytes = File.ReadAllBytes (path);
+		public static DeepLearningNetwork Load (byte[] bytes) {
 
 			int index = 0;
 			int length = BitConverter.ToInt32 (bytes, 0);
@@ -250,15 +248,14 @@ namespace CryptoTrader.AISystem {
 			return new DeepLearningNetwork (structure, weights);
 		}
 
-		public void Save (string path) {
+		public byte[] Save () {
 
 			List<byte> bytes = new List<byte> ();
 			bytes.AddRange (BitConverter.GetBytes (structure.Length));
 			Array.ForEach (structure, (t) => bytes.AddRange (BitConverter.GetBytes (t)));
 
 			Array.ForEach (weights, (t) => Array.ForEach (t, (u) => bytes.AddRange (BitConverter.GetBytes (u))));
-
-			File.WriteAllBytes (path, bytes.ToArray ());
+			return bytes.ToArray ();
 		}
 
 		public override string ToString () {
