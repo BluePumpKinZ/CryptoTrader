@@ -135,7 +135,7 @@ namespace CryptoTrader.AISystem {
 					double output = layerIn[j] * weights[weightIndex];
 					double requestedOutput = output + requestedBias[i];
 					double requestedWeight = requestedOutput / layerIn[j];
-					if (requestedWeight == double.NaN) requestedWeight = weights[weightIndex];
+					if (requestedWeight == double.NaN || !double.IsFinite(requestedWeight)) requestedWeight = weights[weightIndex];
 					double bias = requestedBias[i] / MoreMath.MaxAmp (layerIn[j], 0.1);
 					newWeights[weightIndex] = requestedWeight;
 					// newWeights[weightIndex] = bias;
