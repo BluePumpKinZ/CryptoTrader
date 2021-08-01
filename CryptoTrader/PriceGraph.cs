@@ -11,7 +11,7 @@ namespace CryptoTrader {
 	public class PriceGraph {
 
 		public Currency Currency { get; }
-		private readonly List<GraphUnit> prices;
+		private List<GraphUnit> prices;
 
 		public PriceGraph (Currency currency) {
 			prices = new List<GraphUnit> ();
@@ -51,6 +51,12 @@ namespace CryptoTrader {
 			if (Currency == Currency.Tether && !raw)
 				price = 1 / price;
 			return price;
+		}
+
+		public PriceGraph GetRange (int endIndex) {
+			PriceGraph copy = new PriceGraph (Currency);
+			copy.prices = prices.GetRange (0, endIndex + 1);
+			return copy;
 		}
 
 		public long GetTimeByIndex (int i) {
