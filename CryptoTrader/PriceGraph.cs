@@ -32,7 +32,7 @@ namespace CryptoTrader {
 			if (prices.Count == 0)
 				throw new NoPricesFoundException ($"Graph for currency \"{Currency}\" is empty.");
 
-			int min = 0, max = prices.Count, searchIndex;
+			int min = 0, max = prices.Count - 1, searchIndex;
 			while (max - min > 1) {
 				searchIndex = (min + max) / 2;
 				long time = prices[searchIndex].Time;
