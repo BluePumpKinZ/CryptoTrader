@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Algorithms;
 using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
+using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
@@ -11,19 +12,84 @@ namespace CryptoTrader {
 
 	public static class Trader {
 
-		private static List<Algorithm> algorithms = new List<Algorithm> ();
+		private static readonly List<Algorithm> algorithms = new List<Algorithm> ();
+		private static string algorithmStoragePath;
+		public static bool IsTrading { private set; get; } = false;
+		private static Balances balances;
 
 		public static void Initialize () {
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
-			// LoadAlgorithms ();
+			Currencies.GenerateLookUpTables ();
+			LoadAlgorithms ();
+			PriceWatcher.AddToOnPriceUpdate (() => IterateAlgorithms());
+			GetBalancesGuaranteed ();
 		}
 
-		public static void LoadAlgorithms (string path) {
-			if (!File.Exists (path)) {
+		private static void GetBalancesGuaranteed () {
+			balances = Accounting.GetBalances ();
+		}
+
+		private static void IterateAlgorithms () {
+			if (!IsTrading)
+				return;
+			for (int i = 0; i < algorithms.Count; i++) {
+				if (algorithms[i].PrimaryCurrency == Currency.Null)
+					continue;
+				algorithms[i].Iterate (PriceWatcher.GetGraphForCurrency (algorithms[i].PrimaryCurrency), ref balances);
+			}
+		}
+
+		private static void EnableTrading () {
+			IsTrading = true;
+		}
+
+		private static void DisableTrading () {
+			IsTrading = false;
+		}
+
+		private static int GetIndexForCurrency (Currency currency) {
+			for (int i = 0; i < algorithms.Count; i++) {
+				if (algorithms[i].PrimaryCurrency == currency)
+					return i;
+			}
+			return -1;
+		}
+
+		public static Algorithm GetAlgorithmForCurrency (Currency currency) {
+			int index = GetIndexForCurrency (currency);
+			if (index == -1)
+				throw new ApplicationException ($"Algorithm for currency \"{currency}\" does not exist.");
+			return algorithms[index];
+		}
+
+		public static void SetAlgorithmPath (string path) {
+			algorithmStoragePath = path;
+			string folderPath = Path.GetDirectoryName (algorithmStoragePath);
+			if (!Directory.Exists (folderPath))
+				throw new DirectoryNotFoundException ($"The directory '{folderPath}' could not be found");
+		}
+
+		public static void EnableAlgorithm (Currency currency) {
+			GetAlgorithmForCurrency (currency).IsTraining = false;
+		}
+
+		public static void DisableAlgorithm (Currency currency) {
+			GetAlgorithmForCurrency (currency).IsTraining = true;
+		}
+
+		public static void SetAlgorithm (Algorithm algo) {
+			if (algo.PrimaryCurrency == Currency.Null)
+				throw new ArgumentException ("Algorithm mus have a currency assigned.");
+			algorithms.Add (algo);
+		}
+
+		public static void LoadAlgorithms () {
+			if (!File.Exists (algorithmStoragePath)) {
 				Console.WriteLine ("Trader algorithms could not be loaded, make sure the given path is valid");
+				return;
 			}
 
-			byte[] bytes = File.ReadAllBytes (path);
+			byte[] bytes = File.ReadAllBytes (algorithmStoragePath);
 			algorithms.Clear ();
 
 			int byteIndex = 0;
@@ -50,7 +116,7 @@ namespace CryptoTrader {
 			}
 		}
 
-		public static void SaveAlgorithms (string path) {
+		public static void SaveAlgorithms () {
 			List<byte> bytes = new List<byte> ();
 			bytes.AddRange (BitConverter.GetBytes(algorithms.Count));
 			algorithms.ForEach ((t) => {
@@ -61,11 +127,20 @@ namespace CryptoTrader {
 				bytes.AddRange (BitConverter.GetBytes (algoBytes.Length));
 				bytes.AddRange (algoBytes);
 			});
-			File.WriteAllBytes (path, bytes.ToArray ());
+			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
 		}
 
 		public static void Start () {
 			PriceWatcher.Start ();
+			EnableTrading ();
+		}
+
+		public static void Pause () {
+			DisableTrading ();
+		}
+
+		public static void UnPause () {
+			EnableTrading ();
 		}
 
 		public static void Stop () {

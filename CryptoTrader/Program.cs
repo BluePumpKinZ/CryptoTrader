@@ -9,12 +9,13 @@ namespace CryptoTrader {
 
 		static void Main () {
 
+			Trader.SetAlgorithmPath (Directory.GetCurrentDirectory () + "\\algorithms.data");
+			Trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
+			Trader.SetPriceWatcherPath (Directory.GetCurrentDirectory () + "\\pricehistory.data");
+			Trader.SetKeySet ("Company");
+
 			Trader.Initialize ();
 			Console.WriteLine ("Trader initialized.");
-			Trader.SetPriceWatcherPath (Directory.GetCurrentDirectory () + "\\pricehistory.data");
-
-			Trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
-			Trader.SetKeySet ("Company");
 
 			PriceWatcher.UpdateFeeStatusGuaranteed ();
 
