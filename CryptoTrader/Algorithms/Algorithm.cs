@@ -11,7 +11,7 @@ namespace CryptoTrader.Algorithms {
 		private bool isTraining;
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
 		internal List<LimitOrder> trainingLimitOrders = new List<LimitOrder> ();
-		internal Balances balances = new Balances ();
+		private Balances trainingModeBalances = new Balances ();
 		public Currency PrimaryCurrency { private set; get; } = Currency.Null;
 
 		public void SetPrimaryCurrency (Currency currency) {
@@ -32,7 +32,7 @@ namespace CryptoTrader.Algorithms {
 
 		public virtual byte[] SaveToBytes () { return new byte[0]; }
 
-		internal abstract void IterateInternal (PriceGraph graph, ref Balances balances);
+		private protected abstract void IterateInternal (PriceGraph graph, ref Balances balances);
 
 		public void Iterate (PriceGraph graph, ref Balances balances) {
 			ExecuteLimitOrders (balances);
@@ -47,29 +47,29 @@ namespace CryptoTrader.Algorithms {
 			long endTime = startTime + graph.GetTimeLength ();
 
 			PriceGraph newGraph = new PriceGraph (graph.Currency);
-			balances = new Balances ();
+			trainingModeBalances = new Balances ();
 			PriceGraph tetherGraph = PriceWatcher.GetGraphForCurrency (Currency.Tether);
 			Balance balance = new Balance (Currency.Tether, startWalletValue, tetherGraph.GetPrice (tetherGraph.GetTimeByIndex (0))).ToCurrency (Currency.Bitcoin, 1);
 			double startBtc = balance.Total;
-			balances.AddBalance (balance);
-			balances.AddEmptyBalance (graph.Currency, graph.GetPrice (startTime));
+			trainingModeBalances.AddBalance (balance);
+			trainingModeBalances.AddEmptyBalance (graph.Currency, graph.GetPrice (startTime));
 
 			for (long time = startTime; time < endTime; time += 60 * 1000) {
 				newGraph.AddPriceValue (time, graph.GetPrice (time, true));
-				balances.UpdateBTCRateForCurrency (graph.Currency, newGraph.GetLastPrice ());
-				Iterate (newGraph, ref balances);
+				trainingModeBalances.UpdateBTCRateForCurrency (graph.Currency, newGraph.GetLastPrice ());
+				Iterate (newGraph, ref trainingModeBalances);
 				// Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
 			}
-			double endBtc = balances.TotalBalance.Total;
+			double endBtc = trainingModeBalances.TotalBalance.Total;
 
 			SetTrainingMode (false);
-			Console.WriteLine (balances);
+			Console.WriteLine (trainingModeBalances);
 			return endBtc / startBtc;
 		}
 
 		public void Reset () {
 			trainingLimitOrders.Clear ();
-			balances = new Balances ();
+			trainingModeBalances = new Balances ();
 		}
 
 		private void ExecuteLimitOrders (Balances balances) {
@@ -77,49 +77,45 @@ namespace CryptoTrader.Algorithms {
 				LimitOrder order = trainingLimitOrders[i];
 
 				if (order.HasPriceBeenReached (balances)) {
-					if (CreateOrder (order.ToMarketOrder ()))
+					if (CreateOrder (order.ToMarketOrder (), ref trainingModeBalances))
 						trainingLimitOrders.RemoveAt (i);
 				}
 			}
 		}
 
-		internal bool CreateOrder (Order order) {
+		internal bool CreateOrder (Order order, ref Balances balances) {
 			if (!isTraining) {
 				bool succes = !ExchangePrivate.CreateOrder (order).Contains ("error");
-				if (succes)
-					balances.UpdateValuesFromBalances(Accounting.GetBalances ());
-				return succes;
-			} else {
-				if (order.IsMarketOrder) {
-					// Market Order
-
-					Balance source, dest;
-					if (order.IsBuyOrder) {
-						source = balances.GetBalanceForCurrency (Currency.Bitcoin);
-						dest = balances.GetBalanceForCurrency (order.Currency);
-						if (source.Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
-							return false;
-					} else {
-						source = balances.GetBalanceForCurrency (order.Currency);
-						dest = balances.GetBalanceForCurrency (Currency.Bitcoin);
-						if (source.ToBTCBalance ().Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
-							return false;
-					}
-					if (source.Available < order.Value)
-						return false;
-
-					Balance transactionBalance = new Balance (source.Currency, order.Value, source.BTCRate);
-					source.Subtract (transactionBalance);
-					transactionBalance.ApplyFee (PriceWatcher.FeeStatus.MakerCoefficient);
-					dest.Add (transactionBalance);
-					return true;
-				} else {
-					// Limit Order
-
-					trainingLimitOrders.Add (order as LimitOrder);
-					return true;
-				}
+				if (!succes)
+					return succes;
 			}
+			if (order.IsMarketOrder) {
+				// Market Order
+
+				Balance source, dest;
+				if (order.IsBuyOrder) {
+					source = balances.GetBalanceForCurrency (Currency.Bitcoin);
+					dest = balances.GetBalanceForCurrency (order.Currency);
+					if (source.Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+						return false;
+				} else {
+					source = balances.GetBalanceForCurrency (order.Currency);
+					dest = balances.GetBalanceForCurrency (Currency.Bitcoin);
+					if (source.ToBTCBalance ().Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+						return false;
+				}
+				if (source.Available < order.Value)
+					return false;
+
+				Balance transactionBalance = new Balance (source.Currency, order.Value, source.BTCRate);
+				source.Subtract (transactionBalance);
+				transactionBalance.ApplyFee (PriceWatcher.FeeStatus.MakerCoefficient);
+				dest.Add (transactionBalance);
+			} else {
+				// Limit Order
+				trainingLimitOrders.Add (order as LimitOrder);
+			}
+			return true;
 		}
 
 	}

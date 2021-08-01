@@ -7,7 +7,7 @@ namespace CryptoTrader.Algorithms {
 
 	public class AlgoMedVar : Algorithm {
 
-		internal override void IterateInternal (PriceGraph graph, ref Balances balances) {
+		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
 			long time = graph.GetLastTime ();
 			long startTime = graph.GetStartTime ();

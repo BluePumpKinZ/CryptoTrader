@@ -10,7 +10,7 @@ namespace CryptoTrader.Algorithms {
 
 		public DeepLearningNetwork[] networks;
 
-		internal override void IterateInternal (PriceGraph graph, ref Balances balances) {
+		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
 			throw new NotImplementedException ();
 		}
 

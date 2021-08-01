@@ -7,7 +7,7 @@ namespace CryptoTrader.Algorithms {
 
 	public class Algo80s : Algorithm {
 
-		internal override void IterateInternal (PriceGraph graph, ref Balances balances) {
+		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
 			double price = graph.GetLastPrice ();
 			long time = graph.GetLastTime ();
@@ -18,12 +18,12 @@ namespace CryptoTrader.Algorithms {
 			if (price < 0.00658) {
 
 				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * 0.5, time);
-				CreateOrder (order);
+				CreateOrder (order, ref balances);
 			}
 
 			if (price > 0.00736) {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * 0.5, time);
-				CreateOrder (order);
+				CreateOrder (order, ref balances);
 			}
 		}
 	}
