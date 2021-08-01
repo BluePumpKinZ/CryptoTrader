@@ -84,16 +84,7 @@ namespace CryptoTrader {
 		}
 
 		public long GetTimeLength () {
-			long min = long.MaxValue;
-			long max = 0;
-
-			for (int i = 0; i < prices.Count; i++) {
-				long time = prices[i].Time;
-				min = Math.Min (min, time);
-				max = Math.Max (max, time);
-			}
-
-			return max - min;
+			return GetLastTime () - GetStartTime ();
 		}
 
 		public MarketOrder[] GetOptimalTrades (out double totalProfit) {
