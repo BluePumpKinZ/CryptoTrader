@@ -6,6 +6,39 @@ namespace CryptoTrader.AISystem {
 
 	public static class AIDataConversion {
 
+		public const int INPUT_LAYER_SAMPLES = 5000;
+		public const long TIMEFRAME = 1000L * 60 * 60 * 24 * 30; // One month
+
+		public static void GetTrainingDataBatch (PriceGraph graph, int batchSize, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
+
+			if (batchSize < 0)
+				throw new ArgumentException ("Batch size can't be negative.", "batchSize");
+
+			input = new double[batchSize][];
+			desiredOutput = new double[batchSize][];
+
+			int minIndex = 0;
+			long minimumTime = graph.GetStartTime () + minimumTimeframe;
+			for (int i = 0; i < graph.GetLength (); i++) {
+				if (graph.GetTimeByIndex (i) > minimumTime) {
+					minIndex = i;
+					break;
+				}
+			}
+
+			double[] output = GetDesiredNetworkOutputFromPriceGraph (graph);
+			Random random = new Random ();
+			for (int i = 0; i < batchSize; i++) {
+
+				int randomIndex = random.Next (minIndex, graph.GetLength () - 1);
+
+				PriceGraph rangedGraph = graph.GetRange (randomIndex);
+				input[i] = GetNetworkInputFromPriceGraph (rangedGraph, minimumTimeframe);
+				desiredOutput[i] = new double[] { output[i] };
+			}
+
+		}
+
 		public static Tuple<double[], double[]> GetBuyAndSellsFromOrders (PriceGraph graph, MarketOrder[] orders) {
 
 			int length = graph.GetLength ();
@@ -29,7 +62,7 @@ namespace CryptoTrader.AISystem {
 
 				if (orderCount + 1 >= orders.Length)
 					break;
-				
+
 				order = orders[++orderCount];
 			}
 
@@ -38,13 +71,13 @@ namespace CryptoTrader.AISystem {
 
 		public static double[] GetNetworkInputFromPriceGraph (PriceGraph graph, long timeframe) {
 
-			if (graph.GetTimeLength () < timeframe)
+			if (timeframe > graph.GetTimeLength ())
 				throw new ArgumentException ("The pricegraph does not have enough data to cover the timeframe.");
 
 			double lastPrice = graph.GetLastPrice ();
 			long lastTime = graph.GetLastTime ();
 
-			int totalSamples = 10000;
+			int totalSamples = INPUT_LAYER_SAMPLES;
 			double[] values = new double[totalSamples];
 			long[] times = new long[totalSamples];
 
@@ -108,7 +141,7 @@ namespace CryptoTrader.AISystem {
 		/// <param name="totalSamples"></param>
 		/// <returns></returns>
 		private static double GetFForScaledTimeFrom01 (long secondListItemValue, long totalSpan, int totalSamples) {
-			
+
 			double g = secondListItemValue;
 			double m = totalSpan;
 			double as_ = 1 - 1.0 / totalSamples;
