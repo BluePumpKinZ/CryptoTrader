@@ -4,19 +4,19 @@ using CryptoTrader.NicehashAPI.JSONObjects;
 namespace CryptoTrader.Algorithms.Orders {
 	public class LimitBuyOrder : LimitOrder {
 
-		protected override bool IsBuyOrderInternal () {
+		private protected override bool IsBuyOrderInternal () {
 			return true;
 		}
 
-		protected override bool IsSellOrderInternal () {
+		private protected override bool IsSellOrderInternal () {
 			return false;
 		}
 
-		protected override bool IsMarketOrderInternal () {
+		private protected override bool IsMarketOrderInternal () {
 			return false;
 		}
 
-		protected override bool IsLimitOrderInternal () {
+		private protected override bool IsLimitOrderInternal () {
 			return true;
 		}
 

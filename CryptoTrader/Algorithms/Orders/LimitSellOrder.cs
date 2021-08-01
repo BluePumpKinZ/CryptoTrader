@@ -7,19 +7,19 @@ using System.Text;
 namespace CryptoTrader.Algorithms.Orders {
 	public class LimitSellOrder : LimitOrder {
 
-		protected override bool IsBuyOrderInternal () {
+		private protected override bool IsBuyOrderInternal () {
 			return false;
 		}
 
-		protected override bool IsSellOrderInternal () {
+		private protected override bool IsSellOrderInternal () {
 			return true;
 		}
 
-		protected override bool IsMarketOrderInternal () {
+		private protected override bool IsMarketOrderInternal () {
 			return false;
 		}
 
-		protected override bool IsLimitOrderInternal () {
+		private protected override bool IsLimitOrderInternal () {
 			return true;
 		}
 

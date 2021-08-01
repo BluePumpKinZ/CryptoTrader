@@ -14,10 +14,10 @@ namespace CryptoTrader.Algorithms.Orders {
 		public bool IsMarketOrder { get { return IsMarketOrderInternal (); } }
 		public bool IsLimitOrder { get { return IsLimitOrderInternal (); } }
 
-		protected abstract bool IsBuyOrderInternal ();
-		protected abstract bool IsSellOrderInternal ();
-		protected abstract bool IsMarketOrderInternal ();
-		protected abstract bool IsLimitOrderInternal ();
+		private protected abstract bool IsBuyOrderInternal ();
+		private protected abstract bool IsSellOrderInternal ();
+		private protected abstract bool IsMarketOrderInternal ();
+		private protected abstract bool IsLimitOrderInternal ();
 
 		public abstract bool HasSufficientFunds (Balances balances);
 
