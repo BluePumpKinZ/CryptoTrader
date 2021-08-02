@@ -134,16 +134,22 @@ namespace CryptoTrader.AISystem {
 					int weightIndex = i * inputCount + j;
 					double output = layerIn[j] * weights[weightIndex];
 					double requestedOutput = output + requestedBias[i];
+					// Maybe use MoreMath.MaxAmp
 					double requestedWeight = requestedOutput / layerIn[j];
-					if (requestedWeight == double.NaN || !double.IsFinite(requestedWeight)) requestedWeight = weights[weightIndex];
-					double bias = requestedBias[i] / MoreMath.MaxAmp (layerIn[j], 0.1);
+
+					// Nancheck to prevent nan propagation
+					if (requestedWeight == double.NaN || !double.IsFinite(requestedWeight))
+						requestedWeight = weights[weightIndex];
+
+					double bias = requestedWeight - weights[weightIndex];
 					newWeights[weightIndex] = requestedWeight;
 					// newWeights[weightIndex] = bias;
 					inputWeightAverage[j] += bias;
 				}
 			}
 
-			Array.ForEach (inputWeightAverage, (t) => t /= inputCount);
+			for (int i = 0; i < inputWeightAverage.Length; i++)
+				inputWeightAverage[i] /= inputCount;
 
 			nextBias = inputWeightAverage;
 			return newWeights;
@@ -152,10 +158,13 @@ namespace CryptoTrader.AISystem {
 		private void CalculateWeightAdjustments (ref double[] input, ref double[] desiredOutput, ref double[][] addedWeightAdjustment) {
 
 			// Fill addedWeightAdjustment with zeros
-			Array.ForEach (addedWeightAdjustment, (t) => {
-				if (t != null)
-					Array.ForEach (t, (u) => u = 0);
-			});
+			for (int i = 0; i < addedWeightAdjustment.Length; i++) {
+				if (addedWeightAdjustment[i] == null)
+					continue;
+				for (int j = 0; j < addedWeightAdjustment[i].Length; j++) {
+					addedWeightAdjustment[i][j] = 0;
+				}
+			}
 
 			List<double[]> interLayers = new List<double[]> ();
 			double[] inLayer = input;
@@ -219,7 +228,11 @@ namespace CryptoTrader.AISystem {
 
 			// Divide adjustment values for average
 			int amountOfAdjustments = input.Length;
-			Array.ForEach (weightAdjustments, (t) => Array.ForEach (t, (u) => u /= amountOfAdjustments));
+			for (int i = 0; i < weightAdjustments.Length; i++) {
+				for (int j = 0; j < weightAdjustments[i].Length; j++) {
+					weightAdjustments[i][j] /= amountOfAdjustments;
+				}
+			}
 			addedWeightAdjustment = null;
 
 			ApplyWeightAdjustmentsToModel (weightAdjustments, step);
