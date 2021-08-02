@@ -17,8 +17,10 @@ namespace CryptoTrader.AISystem {
 			hasJoined = false;
 			workerThreads = new Thread[threadCount];
 			ThreadStart threadStart = new ThreadStart (delegate { WorkerThread (); });
-			Array.ForEach (workerThreads, (workerThread) => workerThread = new Thread (threadStart));
-			Array.ForEach (workerThreads, (workerThread) => workerThread.Start ());
+			for (int i = 0; i < threadCount; i++) {
+				workerThreads[i] = new Thread (threadStart);
+				workerThreads[i].Start ();
+			}
 		}
 
 		public static void SetThreadCount (int threads) {
