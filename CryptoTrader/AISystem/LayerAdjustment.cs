@@ -28,6 +28,26 @@ namespace CryptoTrader.AISystem {
 			biasAdjustment = new double[outputSize];
 		}
 
+		public static LayerAdjustment operator + (LayerAdjustment left, LayerAdjustment right) {
+			if (left.WeightSize != right.WeightSize || left.BiasSize != right.BiasSize)
+				throw new ArgumentException ("Both left and right operands must have the same size.");
+			LayerAdjustment output = new LayerAdjustment (left.InputSize, left.OutputSize);
+			for (int i = 0; i < output.WeightSize; i++)
+				output.SetWeight (i, left.GetWeight (i) + right.GetWeight (i));
+			for (int i = 0; i < output.BiasSize; i++)
+				output.SetBias (i, left.GetBias (i) + right.GetBias (i));
+			return output;
+		}
+
+		public static LayerAdjustment operator / (LayerAdjustment left, double right) {
+			LayerAdjustment output = new LayerAdjustment (left.InputSize, left.OutputSize);
+			for (int i = 0; i < output.WeightSize; i++)
+				output.SetWeight (i, left.GetWeight (i) / right);
+			for (int i = 0; i < output.BiasSize; i++)
+				output.SetBias (i, left.GetBias (i) / right);
+			return output;
+		}
+
 		public double GetWeight (int index) {
 			return weightAdjustment[index];
 		}
