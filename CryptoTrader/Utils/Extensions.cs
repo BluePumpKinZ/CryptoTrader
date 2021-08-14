@@ -10,6 +10,12 @@ namespace CryptoTrader.Utils {
 			return copyTo;
 		}
 
+		public static T[] Copy<T> (this T[] array) {
+			T[] copy = new T[array.Length];
+			array.CopyTo (copy, 0);
+			return copy;
+		}
+
 	}
 
 }
