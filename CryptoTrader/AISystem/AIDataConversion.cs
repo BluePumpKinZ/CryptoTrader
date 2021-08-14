@@ -107,14 +107,11 @@ namespace CryptoTrader.AISystem {
 			MarketOrder order = orders[0];
 
 			bool buying = order.IsBuyOrder;
-			bool selling = order.IsSellOrder;
 
 			for (int i = 0; i < length; i++) {
 
 				if (buying)
 					amountsInvested[i] = 1;
-				if (selling)
-					amountsInvested[i] = -1;
 
 				long time = graph.GetTimeByIndex (i);
 
@@ -126,7 +123,6 @@ namespace CryptoTrader.AISystem {
 
 				order = orders[++orderCount];
 				buying = order.IsBuyOrder;
-				selling = order.IsSellOrder;
 			}
 
 			return amountsInvested;
