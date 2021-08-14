@@ -1,4 +1,7 @@
-﻿using CryptoTrader.Keys;
+﻿using CryptoTrader.AISystem;
+using CryptoTrader.Algorithms;
+using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
 using System;
 using System.IO;
@@ -17,7 +20,31 @@ namespace CryptoTrader {
 			Trader.Initialize ();
 			Console.WriteLine ("Trader initialized.");
 
+			PriceWatcher.LoadPrices ();
 			PriceWatcher.UpdateFeeStatusGuaranteed ();
+
+			Currency currency = Currency.Ether;
+
+			PriceGraph graph = PriceWatcher.GetGraphForCurrency (currency);
+
+			AlgoAI ai = new AlgoAI ();
+			ai.SetPrimaryCurrency (currency);
+
+			int batchSize = 500;
+			for (int i = 0; i < 200; i++) {
+				AIDataConversion.GetTrainingDataBatch (graph, batchSize, AIDataConversion.TIMEFRAME, out double[][] ainput, out double[][] desiredOutput);
+				LayerState[] binput = AIDataConversion.ConvertToLayerStates (ref ainput);
+				LayerState[] bdesiredOutput = AIDataConversion.ConvertToLayerStates (ref desiredOutput);
+				ai.TrainNetwork (binput, bdesiredOutput, 0.002);
+
+				double lossTotal = 0;
+				for (int j = 0; j < batchSize; j++) {
+					lossTotal += ai.GetLoss (binput[j], bdesiredOutput[j]);
+				}
+				Console.WriteLine ($"Epoch {i + 1} | Loss: {lossTotal / batchSize}");
+			}
+			
+			Console.WriteLine (ai.ExecuteOnPriceGraph (graph));
 
 			while (true) {
 				try {

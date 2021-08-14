@@ -4,6 +4,7 @@ using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.NicehashAPI.Utils;
 using CryptoTrader.Utils;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 
@@ -16,8 +17,9 @@ namespace CryptoTrader.Algorithms {
 		public double TotalBalancesRatioAssinged { private set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
 
 		public AlgoAI () {
-			network = new DeepLearningNetwork (new int[] { AIDataConversion.INPUT_LAYER_SAMPLES, 100, 16, 1 });
-			network.RandomizeWeights ();
+			NetworkStructure structure = new NetworkStructure (new int[] { AIDataConversion.INPUT_LAYER_SAMPLES, 100, 16, 1 });
+			network = new DeepLearningNetwork (structure);
+			network.Randomize ();
 			totalBalancesRatioAssinged = 0;
 		}
 
@@ -27,7 +29,7 @@ namespace CryptoTrader.Algorithms {
 		 * byte[]	| algoBytes
 		 */
 
-		public override void LoadFromBytes (byte[] bytes) {
+		/*public override void LoadFromBytes (byte[] bytes) {
 			if (bytes.Length == 0)
 				return;
 			int byteIndex = 0;
@@ -45,15 +47,14 @@ namespace CryptoTrader.Algorithms {
 			bytes.AddRange (BitConverter.GetBytes (algoBytes.Length));
 			bytes.AddRange (algoBytes);
 			return bytes.ToArray ();
+		}*/
+
+		public void TrainNetwork (LayerState[] input, LayerState[] desiredOutput, double step) {
+			network.Train (input, desiredOutput, step);
 		}
 
-		public void TrainNetwork (ref double[][] input, ref double[][] desiredOutput, double step) {
-			network.Train (ref input, ref desiredOutput, step);
-		}
-
-		public double GetLoss (double[] input, double[] desiredOutput) {
-			double[] output = network.Iterate (input);
-			return DeepLearningNetwork.CalculateLoss (ref output, ref desiredOutput);
+		public double GetLoss (LayerState input, LayerState desiredOutput) {
+			return network.CalculateLossOnInputs (input, desiredOutput);
 		}
 
 		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
@@ -67,8 +68,8 @@ namespace CryptoTrader.Algorithms {
 				return;
 
 			double[] networkInput = AIDataConversion.GetNetworkInputFromPriceGraph (graph, timeframe);
-			double[] networkOutput = network.Iterate (networkInput);
-			double networkSuggestion = (networkOutput[0] + 1) * 0.5;
+			LayerState networkOutput = network.Iterate (new LayerState (networkInput));
+			double networkSuggestion = networkOutput[0];
 
 			double totalBTC = balances.TotalBalance.Total;
 			double totalAvailableBTC = totalBTC * totalBalancesRatioAssinged;
@@ -78,8 +79,10 @@ namespace CryptoTrader.Algorithms {
 
 			double btcDiff = Math.Abs (soldBTC - soldBtcSuggestion);
 
-			if (btcDiff < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+			if (btcDiff < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC) {
+				Console.Write ($"\rDiff: {btcDiff}BTC");
 				return;
+			}
 
 			if (networkSuggestion >= soldRatio) {
 				Order order = new MarketBuyOrder (PrimaryCurrency, totalAvailableBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());

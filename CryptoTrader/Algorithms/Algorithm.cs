@@ -42,7 +42,7 @@ namespace CryptoTrader.Algorithms {
 		public double ExecuteOnPriceGraph (PriceGraph graph) {
 			SetTrainingMode (true);
 
-			const double startWalletValue = 100; // USD
+			const double startWalletValue = 10000; // USD
 			long startTime = graph.GetTimeByIndex (0);
 			long endTime = startTime + graph.GetTimeLength ();
 
@@ -58,7 +58,7 @@ namespace CryptoTrader.Algorithms {
 				newGraph.AddPriceValue (time, graph.GetPrice (time, true));
 				trainingModeBalances.UpdateBTCRateForCurrency (graph.Currency, newGraph.GetLastPrice ());
 				Iterate (newGraph, ref trainingModeBalances);
-				// Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
+				Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
 			}
 			double endBtc = trainingModeBalances.TotalBalance.Total;
 

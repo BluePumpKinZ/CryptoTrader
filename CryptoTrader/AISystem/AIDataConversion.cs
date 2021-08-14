@@ -163,6 +163,13 @@ namespace CryptoTrader.AISystem {
 			return (long)h;
 		}
 
+		public static LayerState[] ConvertToLayerStates (ref double[][] values) {
+			LayerState[] output = new LayerState[values.Length];
+			for (int i = 0; i < output.Length; i++)
+				output[i] = new LayerState (values[i]);
+			return output;
+		}
+
 	}
 
 }
