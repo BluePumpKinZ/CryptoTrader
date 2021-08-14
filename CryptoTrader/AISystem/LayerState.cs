@@ -63,6 +63,13 @@ namespace CryptoTrader.AISystem {
 			return output;
 		}
 
+		public static LayerState operator / (LayerState left, double right) {
+			LayerState output = new LayerState (left.Size);
+			for (int i = 0; i < output.Size; i++)
+				output[i] = left[i] / right;
+			return output;
+		}
+
 		public double Average () {
 			double total = 0;
 			Array.ForEach (data, t => total += t);
