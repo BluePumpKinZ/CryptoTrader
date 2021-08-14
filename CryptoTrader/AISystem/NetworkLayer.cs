@@ -81,22 +81,22 @@ namespace CryptoTrader.AISystem {
 
 			for (int outputIndex = 0; outputIndex < OutputSize; outputIndex++) {
 
+				double output = outputs[outputIndex];
+				double baseDerivative = MoreMath.Sigmoid_Derivative (output) * outputDerivatives[outputIndex];
+				layerAdjustment.SetBias (outputIndex, baseDerivative * step);
+
 				for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
 
 					int weightIndex = GetWeightIndex (inputIndex, outputIndex);
 
 					double input = inputs[inputIndex];
 					double weight = weights[weightIndex];
-					double output = outputs[outputIndex];
-					double baseDerivative = MoreMath.Sigmoid_Derivative (output) * outputDerivatives[outputIndex];
+					
 					double weightDerivative = input * baseDerivative;
-					double biasDerivative = baseDerivative;
 					double activationDerivative = weight * baseDerivative;
 
 					layerAdjustment.SetWeight (weightIndex, weightDerivative * step);
 
-
-					layerAdjustment.SetBias (outputIndex, biasDerivative * step);
 					activationDerivativesSum[inputIndex] += activationDerivative;
 				}
 			}
