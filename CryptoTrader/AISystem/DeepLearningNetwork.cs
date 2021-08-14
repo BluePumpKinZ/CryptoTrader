@@ -47,7 +47,7 @@ namespace CryptoTrader.AISystem {
 			for (int layer = 0; layer < networkLayers.Length; layer++)
 				layerStates[layer + 1] = networkLayers[layer].Iterate (layerStates[layer]);
 
-			LayerState outputs = layerStates[layerStates.Length - 1]; // Change
+			LayerState outputs = layerStates[^1];
 			LayerState interLayerDerivative = GetFinalLayerCostDerivative (outputs, desiredOutputs);
 
 			for (int i = networkLayers.Length - 1; i >= 0; i--)
@@ -76,7 +76,7 @@ namespace CryptoTrader.AISystem {
 				if (t.Size != inputLayerSize)
 					throw new ArgumentException ("One or more of the input layers do not match the network structure.");
 			});
-			int outputLayerSize = Structure[Structure.Size - 1]; // Change
+			int outputLayerSize = Structure[^1];
 			Array.ForEach (desiredOutputs, (t) => {
 				if (t.Size != outputLayerSize)
 					throw new ArgumentException ("One or more of the output layers do not match the network structure.");
@@ -103,7 +103,7 @@ namespace CryptoTrader.AISystem {
 		public double CalculateLossOnInputs (LayerState inputs, LayerState desiredOutputs) {
 			if (inputs.Size != Structure[0])
 				throw new ArgumentException ("Inputs must match the structure of the network.");
-			if (desiredOutputs.Size != Structure[Structure.Size - 1]) // Change
+			if (desiredOutputs.Size != Structure[^1])
 				throw new ArgumentException ("DesiredOutputs must match the structure of the network.");
 			LayerState outputs = Iterate (inputs);
 			return CalculateLossOnOutputs (outputs, desiredOutputs);
