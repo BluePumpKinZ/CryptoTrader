@@ -24,6 +24,11 @@ namespace CryptoTrader.Utils {
 			return -2 / (1 + Math.Pow (2, Math.E * s)) + 1;
 		}
 
+		public static double Sigmoid_Derivative (double s) {
+			double exp = Math.Exp (-s);
+			return exp / Square (1 + exp);
+		}
+
 		public static double Square (double s) {
 			return s * s;
 		}
@@ -40,6 +45,24 @@ namespace CryptoTrader.Utils {
 				amp = -amp;
 			bool sign = s < 0;
 			return sign ? -Math.Max (-s, amp) : Math.Max (s, amp);
+		}
+
+		public static double[] GetStandardDistribution (int size) {
+			Random random = new Random ();
+			double[] output = new double[size];
+			double rx, ry;
+			for (int i = 0; i < output.Length; i++) {
+				do {
+					rx = random.NextDouble () * 4 - 2;
+					ry = random.NextDouble ();
+				} while (BellCurve (rx) <= ry);
+				output[i] = rx;
+			}
+			return output;
+		}
+
+		public static double BellCurve (double v) {
+			return Math.Exp (-(v * v));
 		}
 
 	}
