@@ -37,7 +37,7 @@ namespace CryptoTrader.AISystem {
 
 		public int this[Index index] {
 			get {
-				return this[index.Value];
+				return structure[index];
 			}
 		}
 
