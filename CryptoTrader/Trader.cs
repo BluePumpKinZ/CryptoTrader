@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace CryptoTrader {
 
@@ -26,7 +27,12 @@ namespace CryptoTrader {
 		}
 
 		private static void GetBalancesGuaranteed () {
-			balances = Accounting.GetBalances ();
+			try {
+				balances = Accounting.GetBalances ();
+			} catch (Exception) {
+				Thread.Sleep (1000);
+				GetBalancesGuaranteed ();
+			}
 		}
 
 		private static void IterateAlgorithms () {
