@@ -35,6 +35,8 @@ namespace CryptoTrader {
 			for (int i = 0; i < algorithms.Count; i++) {
 				if (algorithms[i].PrimaryCurrency == Currency.Null)
 					continue;
+				if (algorithms[i].IsTraining)
+					continue;
 				algorithms[i].Iterate (PriceWatcher.GetGraphForCurrency (algorithms[i].PrimaryCurrency), ref balances);
 			}
 		}
@@ -90,43 +92,27 @@ namespace CryptoTrader {
 			}
 
 			byte[] bytes = File.ReadAllBytes (algorithmStoragePath);
+
+			int index = 0;
+			int algoCount = BitConverter.ToInt32 (bytes, 0);
+			index += 4;
 			algorithms.Clear ();
-
-			int byteIndex = 0;
-			int algoCount = BitConverter.ToInt32 (bytes, byteIndex);
-			byteIndex += 4;
 			for (int i = 0; i < algoCount; i++) {
-				int algoNameLength = BitConverter.ToInt32 (bytes, byteIndex);
-				byteIndex += 4;
-
-				byte[] algoNameBytes = new byte[algoNameLength];
-				Array.Copy (bytes, byteIndex, algoNameBytes, 0, algoNameLength);
-				byteIndex += algoNameLength;
-
-				int algoLength = BitConverter.ToInt32 (bytes, byteIndex);
-				byteIndex += 4;
-
-				byte[] algoBytes = new byte[algoLength];
-				Array.Copy (bytes, byteIndex, algoNameBytes, 0, algoLength);
-				byteIndex += algoLength;
-
-				Algorithm algo = TypeMapping.AlgorithmFromName (TypeMapping.BytesToString (algoNameBytes));
-				algo.LoadFromBytes (algoBytes);
-				algorithms.Add (algo);
+				Algorithm algorithm = TypeMapping.AlgorithmFromName (TypeMapping.BytesToString(IStorable.GetDataRange (ref index, bytes)));
+				algorithm.LoadFromBytes (ref index, bytes);
+				algorithms.Add (algorithm);
 			}
 		}
 
 		public static void SaveAlgorithms () {
 			List<byte> bytes = new List<byte> ();
-			bytes.AddRange (BitConverter.GetBytes(algorithms.Count));
-			algorithms.ForEach ((t) => {
-				byte[] algoNameBytes = TypeMapping.NameToBytes (TypeMapping.NameFromAlgorithm (t));
-				byte[] algoBytes = t.SaveToBytes ();
-				bytes.AddRange (BitConverter.GetBytes (algoNameBytes.Length));
-				bytes.AddRange (algoNameBytes);
-				bytes.AddRange (BitConverter.GetBytes (algoBytes.Length));
-				bytes.AddRange (algoBytes);
-			});
+
+			int algoCount = algorithms.Count;
+			for (int i = 0; i < algoCount; i++) {
+				IStorable.AddData (ref bytes, TypeMapping.NameToBytes (TypeMapping.NameFromAlgorithm(algorithms[i])));
+				algorithms[i].SaveToBytes (ref bytes);
+			}
+
 			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
 		}
 

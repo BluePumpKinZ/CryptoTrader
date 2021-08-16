@@ -1,18 +1,21 @@
 ﻿using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
 
 namespace CryptoTrader.Algorithms {
 
-	public abstract class Algorithm {
+	public abstract class Algorithm : IStorable {
 
 		private bool isTraining;
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
 		internal List<LimitOrder> trainingLimitOrders = new List<LimitOrder> ();
 		private Balances trainingModeBalances = new Balances ();
 		public Currency PrimaryCurrency { private set; get; } = Currency.Null;
+		private double totalBalancesRatioAssinged;
+		public double TotalBalancesRatioAssinged { private protected set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
 
 		public void SetPrimaryCurrency (Currency currency) {
 			if (PrimaryCurrency == Currency.Null)
@@ -28,9 +31,17 @@ namespace CryptoTrader.Algorithms {
 			isTraining = enableTraining;
 		}
 
-		public virtual void LoadFromBytes (byte[] bytes) { }
+		public virtual void LoadFromBytes (ref int index, byte[] data) {
+			PrimaryCurrency = Currencies.GetCurrencyFromHash (BitConverter.ToUInt32 (IStorable.GetDataRange (ref index, data)));
+			totalBalancesRatioAssinged = BitConverter.ToDouble (IStorable.GetDataRange (ref index, data));
+			IsTraining = BitConverter.ToBoolean (IStorable.GetDataRange (ref index, data));
+		}
 
-		public virtual byte[] SaveToBytes () { return new byte[0]; }
+		public virtual void SaveToBytes (ref List<byte> datalist) {
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (Currencies.GetCurrencyTokenHash (PrimaryCurrency)));
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (totalBalancesRatioAssinged));
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (isTraining));
+		}
 
 		private protected abstract void IterateInternal (PriceGraph graph, ref Balances balances);
 

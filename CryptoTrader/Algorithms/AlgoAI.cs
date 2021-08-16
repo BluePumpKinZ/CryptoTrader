@@ -13,41 +13,13 @@ namespace CryptoTrader.Algorithms {
 	public class AlgoAI : Algorithm {
 
 		public DeepLearningNetwork network;
-		private double totalBalancesRatioAssinged;
-		public double TotalBalancesRatioAssinged { private set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
 
 		public AlgoAI () {
 			NetworkStructure structure = new NetworkStructure (new int[] { AIDataConversion.INPUT_LAYER_SAMPLES, 100, 16, 1 });
 			network = new DeepLearningNetwork (structure);
 			network.Randomize ();
-			totalBalancesRatioAssinged = 0;
-		}
-
-		/* 
-		 * double	| totalBalancesPercentAssinged
-		 * int		| algoLength
-		 * byte[]	| algoBytes
-		 */
-
-		/*public override void LoadFromBytes (byte[] bytes) {
-			if (bytes.Length == 0)
-				return;
-			int byteIndex = 0;
-			totalBalancesRatioAssinged = BitConverter.ToDouble (bytes, byteIndex);
-			byteIndex += 8;
-			int algoLength = BitConverter.ToInt32 (bytes, byteIndex);
-			byteIndex += 4;
-			network = DeepLearningNetwork.Load (bytes.GetRange (byteIndex, algoLength));
-		}
-
-		public override byte[] SaveToBytes () {
-			List<byte> bytes = new List<byte> ();
-			bytes.AddRange (BitConverter.GetBytes (totalBalancesRatioAssinged));
-			byte[] algoBytes = network.Save ();
-			bytes.AddRange (BitConverter.GetBytes (algoBytes.Length));
-			bytes.AddRange (algoBytes);
-			return bytes.ToArray ();
-		}*/
+			TotalBalancesRatioAssinged = 0;
+		}		
 
 		public void TrainNetwork (LayerState[] input, LayerState[] desiredOutput, double step) {
 			network.Train (input, desiredOutput, step);
@@ -72,7 +44,7 @@ namespace CryptoTrader.Algorithms {
 			double networkSuggestion = networkOutput[0];
 
 			double totalBTC = balances.TotalBalance.Total;
-			double totalAvailableBTC = totalBTC * totalBalancesRatioAssinged;
+			double totalAvailableBTC = totalBTC * TotalBalancesRatioAssinged;
 			double soldBTC = balances.GetBalanceForCurrency (PrimaryCurrency).ToBTCBalance ().Total;
 			double soldRatio = soldBTC / totalAvailableBTC;
 			double soldBtcSuggestion = networkSuggestion * totalAvailableBTC;
