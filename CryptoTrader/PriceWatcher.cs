@@ -17,7 +17,7 @@ namespace CryptoTrader {
 		private static bool stopPriceWatchThread = false;
 		public static bool HasPrices { get { return graphs.Count != 0; } }
 		public static bool HasAddedPrices { private set; get; } = false;
-		public static FeeStatus FeeStatus { private set; get; }
+		public static FeeStatus FeeStatus { private set; get; } = new FeeStatus ();
 		private static readonly List<Action> onPriceUpdate = new List<Action> ();
 
 		public static void SetPath (string path) {

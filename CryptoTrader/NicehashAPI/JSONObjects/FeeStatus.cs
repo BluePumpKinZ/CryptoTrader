@@ -1,12 +1,16 @@
 ﻿namespace CryptoTrader.NicehashAPI.JSONObjects {
 	public class FeeStatus : IParsable {
 
-		public double MakerCoefficient { private set; get; }
-		public double TakerCoefficient { private set; get; }
+		public double MakerCoefficient { private set; get; } = 0.005;
+		public double TakerCoefficient { private set; get; } = 0.005;
 		public double Sum { private set; get; }
 		public FeeLimits MakerLimits { private set; get; }
 		public FeeLimits TakerLimits { private set; get; }
 		public Currency Currency { private set; get; }
+
+		public FeeStatus () {
+
+		}
 
 		public FeeStatus (string s) {
 			Parse (s);
