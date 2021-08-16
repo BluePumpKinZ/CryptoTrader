@@ -46,14 +46,14 @@ namespace CryptoTrader {
 
 		internal static int DecompressInt (ref int index, byte[] data) {
 			int newInt = 0;
-			int i = 0;
 			do {
-				newInt += data[i] & 0x7F;
-				data[i] >>= 7;
-				index++;
-				if (data[i] == 1)
-					newInt <<= 7;
-			} while (data[i++] == 1);
+				newInt <<= 7;
+				newInt += data[index] & 0x7F;
+				if (data[index] >> 7 != 1)
+					break;
+				index++;					
+			} while (true);
+			index++;
 			return newInt;
 		}
 
