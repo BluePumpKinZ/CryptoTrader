@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CryptoTrader.Utils;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace CryptoTrader.AISystem {
 
@@ -67,8 +69,7 @@ namespace CryptoTrader.AISystem {
 			return output;
 		}
 
-		public void Train (LayerState[] inputs, LayerState[] desiredOutputs, double step) {
-			step = -step;
+		private void CheckTrainErrors (LayerState[] inputs, LayerState[] desiredOutputs) {
 			if (inputs.Length != desiredOutputs.Length)
 				throw new ArgumentException ("Amount of input arrays does not match the output.");
 
@@ -82,6 +83,9 @@ namespace CryptoTrader.AISystem {
 				if (t.Size != outputLayerSize)
 					throw new ArgumentException ("One or more of the output layers do not match the network structure.");
 			});
+		}
+
+		private LayerAdjustments[] GetNetworkAdjustmentsBatch (LayerState[] inputs, LayerState[] desiredOutputs, double step) {
 			LayerAdjustments[] layerAdjustments = new LayerAdjustments[Structure.Size - 1];
 			for (int i = 0; i < layerAdjustments.Length; i++)
 				layerAdjustments[i] = new LayerAdjustments (Structure[i], Structure[i + 1]);
@@ -91,10 +95,72 @@ namespace CryptoTrader.AISystem {
 					layerAdjustments[j].AddAdjustment (layerAdjustment[j]);
 				}
 			}
+			return layerAdjustments;
+		}
 
-			for (int i = 0; i < layerAdjustments.Length; i++) {
-				networkLayers[i].ApplyLayerAdjustment (layerAdjustments[i].GetAverageAdjustment ());
+		private void ApplyNetworkAdjustments (LayerAdjustments[] networkAdjustments) {
+			for (int i = 0; i < networkAdjustments.Length; i++) {
+				networkLayers[i].ApplyLayerAdjustment (networkAdjustments[i].GetAverageAdjustment ());
 			}
+		}
+
+		public void Train (LayerState[] inputs, LayerState[] desiredOutputs, double step) {
+
+			CheckTrainErrors (inputs, desiredOutputs);
+			step = -step;
+
+			LayerAdjustments[] networkAdjustments = GetNetworkAdjustmentsBatch (inputs, desiredOutputs, step);
+			ApplyNetworkAdjustments (networkAdjustments);
+		}
+
+		private LayerAdjustments[][] threadedAdjustments;
+
+		public void TrainThreaded (LayerState[] inputs, LayerState[] desiredOutputs, double step, int threads) {
+
+			if (threadedAdjustments != null)
+				throw new InvalidOperationException ("Threaded training is already active. Cannot train the same network twice at the same time.");
+
+			CheckTrainErrors (inputs, desiredOutputs);
+			step = -step;
+
+			if (threads > inputs.Length)
+				threads = inputs.Length;
+			int[] markers = new int[threads];
+			for (int i = 0; i < markers.Length; i++)
+				markers[i] = i / inputs.Length;
+
+			int[] sizes = new int[threads];
+			for (int i = 0; i < sizes.Length - 1; i++)
+				sizes[i] = markers[i + 1] - markers[i];
+			sizes[^1] = inputs.Length - markers[^2];
+
+			threadedAdjustments = new LayerAdjustments[threads][];
+
+			for (int i = 0; i < threads; i++) {
+				AIProcessTaskScheduler.AddTask (() => {
+					LayerState[] batchInputs = inputs.GetRange (markers[i], sizes[i]);
+					LayerState[] batchDesiredOutputs = desiredOutputs.GetRange (markers[i], sizes[i]);
+					int j = i;
+					threadedAdjustments[j] = GetNetworkAdjustmentsBatch (batchInputs, batchDesiredOutputs, step);
+				});
+			}
+			AIProcessTaskScheduler.AddTask (() => {
+				bool allFinished;
+				do {
+					allFinished = true;
+					for (int i = 0; i < threads; i++)
+						if (threadedAdjustments[i] == null)
+							allFinished = false;
+					Thread.Sleep (1);
+				} while (!allFinished);
+
+				LayerAdjustments[] finalAdjustments = new LayerAdjustments[networkLayers.Length];
+				for (int i = 0; i < finalAdjustments.Length; i++) {
+					for (int j = 0; j < threads; j++)
+						finalAdjustments[i] += threadedAdjustments[j][i];
+				}
+				ApplyNetworkAdjustments (finalAdjustments);
+			});
 		}
 
 		public static double CalculateLossOnOutputs (LayerState outputs, LayerState desiredOutputs) {
