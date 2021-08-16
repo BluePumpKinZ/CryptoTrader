@@ -16,7 +16,7 @@ namespace CryptoTrader {
 		private static readonly List<Algorithm> algorithms = new List<Algorithm> ();
 		private static string algorithmStoragePath;
 		public static bool IsTrading { private set; get; } = false;
-		private static Balances balances;
+		private static Balances balances = new Balances ();
 
 		public static void Initialize () {
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
@@ -100,24 +100,29 @@ namespace CryptoTrader {
 			byte[] bytes = File.ReadAllBytes (algorithmStoragePath);
 
 			int index = 0;
-			int algoCount = BitConverter.ToInt32 (bytes, 0);
-			index += 4;
+			int algoCount = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, bytes));
 			algorithms.Clear ();
 			for (int i = 0; i < algoCount; i++) {
 				Algorithm algorithm = TypeMapping.AlgorithmFromName (TypeMapping.BytesToString(IStorable.GetDataRange (ref index, bytes)));
 				algorithm.LoadFromBytes (ref index, bytes);
 				algorithms.Add (algorithm);
 			}
+
+			balances = new Balances ();
+			balances.LoadFromBytes (ref index, bytes);
 		}
 
 		public static void SaveAlgorithms () {
 			List<byte> bytes = new List<byte> ();
 
 			int algoCount = algorithms.Count;
+			IStorable.AddData (ref bytes, BitConverter.GetBytes (algoCount));
 			for (int i = 0; i < algoCount; i++) {
 				IStorable.AddData (ref bytes, TypeMapping.NameToBytes (TypeMapping.NameFromAlgorithm(algorithms[i])));
 				algorithms[i].SaveToBytes (ref bytes);
 			}
+
+			balances.SaveToBytes (ref bytes);
 
 			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
 		}
