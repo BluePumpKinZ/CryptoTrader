@@ -191,11 +191,11 @@ namespace CryptoTrader.NicehashAPI {
 		}
 
 		private static Dictionary<Currency, uint> currencyToHashLookUpTable;
-		private static Dictionary<uint, Currency> hashToCurrencyLoopUpTable;
+		private static Dictionary<uint, Currency> hashToCurrencyLookUpTable;
 
 		public static void GenerateLookUpTables () {
 			currencyToHashLookUpTable = new Dictionary<Currency, uint> ();
-			hashToCurrencyLoopUpTable = new Dictionary<uint, Currency> ();
+			hashToCurrencyLookUpTable = new Dictionary<uint, Currency> ();
 			Currency[] allCurrencies = Enum.GetValues (typeof (Currency)) as Currency[];
 			HashAlgorithm hashAlgorithm = SHA256.Create ();
 			for (int i = 0; i < allCurrencies.Length; i++) {
@@ -208,9 +208,11 @@ namespace CryptoTrader.NicehashAPI {
 					shortenedHashBytes[j % 4] ^= fullHashbytes[j];
 				}
 				uint hash = BitConverter.ToUInt32 (shortenedHashBytes);
-				hashToCurrencyLoopUpTable.Add (hash, allCurrencies[i]);
 				currencyToHashLookUpTable.Add (allCurrencies[i], hash);
+				hashToCurrencyLookUpTable.Add (hash, allCurrencies[i]);
 			}
+			hashToCurrencyLookUpTable.Add (0, Currency.Null);
+			currencyToHashLookUpTable.Add (Currency.Null, 0);
 		}
 
 		public static uint GetCurrencyTokenHash (Currency currency) {
@@ -220,7 +222,7 @@ namespace CryptoTrader.NicehashAPI {
 		}
 
 		public static Currency GetCurrencyFromHash (uint hash) {
-			if (hashToCurrencyLoopUpTable.TryGetValue (hash, out Currency currency))
+			if (hashToCurrencyLookUpTable.TryGetValue (hash, out Currency currency))
 				return currency;
 			throw new HashNotFoundException ($"No currency could be found for hash {hash}", hash);
 		}
