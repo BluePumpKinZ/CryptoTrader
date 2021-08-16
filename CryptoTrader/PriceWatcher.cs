@@ -105,10 +105,12 @@ namespace CryptoTrader {
 		}
 
 		protected static void OnPriceUpdate () {
-			try {
-				onPriceUpdate.ForEach ((t) => t.Invoke ());
-			} catch (Exception e) {
-				Console.WriteLine (e.StackTrace);
+			for (int i = 0; i < onPriceUpdate.Count; i++) {
+				try {
+					onPriceUpdate[i].Invoke ();
+				} catch (Exception e) {
+					Console.WriteLine (e.StackTrace);
+				}
 			}
 		}
 
