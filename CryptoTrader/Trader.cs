@@ -1,4 +1,5 @@
-﻿using CryptoTrader.Algorithms;
+﻿using CryptoTrader.AISystem;
+using CryptoTrader.Algorithms;
 using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
@@ -128,6 +129,7 @@ namespace CryptoTrader {
 		}
 
 		public static void Start () {
+			AIProcessTaskScheduler.StartExecuting ();
 			PriceWatcher.Start ();
 			EnableTrading ();
 		}
@@ -142,6 +144,7 @@ namespace CryptoTrader {
 
 		public static void Stop () {
 			PriceWatcher.Stop ();
+			AIProcessTaskScheduler.StopExecuting ();
 		}
 
 		public static void Save () {
