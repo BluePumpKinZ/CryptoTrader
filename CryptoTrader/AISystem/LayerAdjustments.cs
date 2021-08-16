@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog.LayoutRenderers.Wrappers;
+using System;
 using System.Collections.Generic;
 
 namespace CryptoTrader.AISystem {
@@ -9,6 +10,11 @@ namespace CryptoTrader.AISystem {
 		public int OutputSize { private set; get; }
 		private LayerAdjustment adjustments;
 		private int totalAdjustments;
+
+		private LayerAdjustments (int inputSize, int outputSize, LayerAdjustment adjustments, int totalAdjustments) : this(inputSize, outputSize) {
+			this.adjustments = adjustments;
+			this.totalAdjustments = totalAdjustments;
+		}
 
 		public LayerAdjustments (int inputSize, int outputSize) {
 			if (inputSize <= 0)
@@ -39,21 +45,14 @@ namespace CryptoTrader.AISystem {
 			return adjustments / totalAdjustments;
 		}
 
-		public static LayerAdjustments Combine (LayerAdjustments[] layerAdjustments) {
-			int inputSize = layerAdjustments[0].InputSize;
-			int outputSize = layerAdjustments[0].OutputSize;
+		public static LayerAdjustments operator + (LayerAdjustments left, LayerAdjustments right) {
 
-			Array.ForEach (layerAdjustments, t => {
-				if (t.InputSize != inputSize || t.OutputSize != outputSize)
-					throw new ArgumentException ("The dimensions of the layers must match.");
-			});
+			if (left.InputSize != right.InputSize || left.OutputSize != right.OutputSize)
+				throw new ArgumentException ("The dimensions of the added layer must match.");
 
-			LayerAdjustment total = new LayerAdjustment(inputSize, outputSize);
-			Array.ForEach (layerAdjustments, t => total += t.GetAverageAdjustment ());
-			total /= layerAdjustments.Length;
-			LayerAdjustments wrapper = new LayerAdjustments (inputSize, outputSize);
-			wrapper.AddAdjustment (total);
-			return wrapper;
+			LayerAdjustment sum = left.adjustments + right.adjustments;
+			int total = left.totalAdjustments + right.totalAdjustments;
+			return new LayerAdjustments (left.InputSize, left.OutputSize, sum, total);
 		}
 
 	}
