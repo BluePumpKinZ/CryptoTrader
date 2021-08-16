@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CryptoTrader {
 
-	public abstract class IStorable {
+	public interface IStorable {
 
 		public abstract void LoadFromBytes (ref int index, byte[] data);
 
