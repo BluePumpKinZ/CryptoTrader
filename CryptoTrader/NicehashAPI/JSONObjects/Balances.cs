@@ -145,6 +145,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		public void LoadFromBytes (ref int index, byte[] data) {
+			balances.Clear ();
 			int balanceCount = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
 			for (int i = 0; i < balanceCount; i++) {
 				Balance balance = new Balance ();
