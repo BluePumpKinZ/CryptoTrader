@@ -68,5 +68,16 @@ namespace CryptoTrader.Algorithms {
 
 		}
 
+		public override void LoadFromBytes (ref int index, byte[] data) {
+			base.LoadFromBytes (ref index, data);
+			network.LoadFromBytes (ref index, data);
+		}
+
+		public override void SaveToBytes (ref List<byte> datalist) {
+			base.SaveToBytes (ref datalist);
+			network.SaveToBytes (ref datalist);
+
+		}
+
 	}
 }

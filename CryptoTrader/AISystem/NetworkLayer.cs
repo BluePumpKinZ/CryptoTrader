@@ -1,14 +1,19 @@
 ﻿using CryptoTrader.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace CryptoTrader.AISystem {
 
-	public class NetworkLayer {
+	public class NetworkLayer : IStorable {
 
 		public int InputSize { private set; get; }
 		public int OutputSize { private set; get; }
 		private double[] weights;
 		private double[] biases;
+
+		public NetworkLayer () {
+
+		}
 
 		public NetworkLayer (int inputSize, int outputSize) {
 			if (inputSize <= 0)
@@ -122,6 +127,32 @@ namespace CryptoTrader.AISystem {
 			return max / (1 + (max - 1) * Math.Abs (value));
 		}
 
+		public void LoadFromBytes (ref int index, byte[] data) {
+			InputSize = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+			OutputSize = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+
+			byte[] weightBytes = IStorable.GetDataRange (ref index, data);
+			byte[] biasBytes = IStorable.GetDataRange (ref index, data);
+			weights = new double[InputSize * OutputSize];
+			biases = new double[OutputSize];
+			for (int i = 0; i < weights.Length; i++)
+				weights[i] = BitConverter.ToDouble (weightBytes, i * 8);
+			for (int i = 0; i < biases.Length; i++)
+				biases[i] = BitConverter.ToDouble (biasBytes, i * 8);
+		}
+
+		public void SaveToBytes (ref List<byte> datalist) {
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (InputSize));
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (OutputSize));
+			byte[] weightBytes = new byte[weights.Length * 8];
+			byte[] biasBytes = new byte[biases.Length * 8];
+			for (int i = 0; i < weights.Length; i++)
+				BitConverter.GetBytes (weights[i]).CopyTo (weightBytes, i * 8);
+			for (int i = 0; i < biases.Length; i++)
+				BitConverter.GetBytes (biases[i]).CopyTo (biasBytes, i * 8);
+			IStorable.AddData (ref datalist, weightBytes);
+			IStorable.AddData (ref datalist, biasBytes);
+		}
 	}
 
 }

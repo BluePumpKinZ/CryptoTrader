@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace CryptoTrader.AISystem {
 
-	public class NetworkStructure {
+	public class NetworkStructure : IStorable {
 
 		public int Size { get { return structure.Length; } }
 		private int[] structure;
+
+		public NetworkStructure () {
+			structure = new int[0];
+		}
 
 		public NetworkStructure (int[] structure) {
 			if (structure == null || structure.Length == 0)
@@ -27,6 +31,20 @@ namespace CryptoTrader.AISystem {
 
 		public int GetSizeAtLayer (int index) {
 			return structure[index];
+		}
+
+		public void LoadFromBytes (ref int index, byte[] data) {
+			int length = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+			structure = new int[length];
+			for (int i = 0; i < length; i++)
+				structure[i] = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+		}
+
+		public void SaveToBytes (ref List<byte> datalist) {
+			int length = structure.Length;
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (length));
+			for (int i = 0; i < length; i++)
+				IStorable.AddData (ref datalist, BitConverter.GetBytes (structure[i]));
 		}
 
 		public int this[int index] {

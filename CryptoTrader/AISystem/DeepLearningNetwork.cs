@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CryptoTrader.AISystem {
 
-	public class DeepLearningNetwork {
+	public class DeepLearningNetwork : IStorable {
 
 		public NetworkStructure Structure { private set; get; }
 		private NetworkLayer[] networkLayers;
@@ -109,6 +110,23 @@ namespace CryptoTrader.AISystem {
 			return CalculateLossOnOutputs (outputs, desiredOutputs);
 		}
 
+		public void LoadFromBytes (ref int index, byte[] data) {
+			Structure = new NetworkStructure ();
+			Structure.LoadFromBytes (ref index, data);
+			int length = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+			networkLayers = new NetworkLayer[length];
+			for (int i = 0; i < length; i++) {
+				networkLayers[i] = new NetworkLayer ();
+				networkLayers[i].LoadFromBytes (ref index, data);
+			}
+		}
+
+		public void SaveToBytes (ref List<byte> datalist) {
+			Structure.SaveToBytes (ref datalist);
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (networkLayers.Length));
+			for (int i = 0; i < networkLayers.Length; i++)
+				networkLayers[i].SaveToBytes (ref datalist);
+		}
 	}
 
 }
