@@ -23,8 +23,8 @@ namespace CryptoTrader {
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
 			Currencies.GenerateLookUpTables ();
 			LoadAlgorithms ();
+			PriceWatcher.LoadPrices ();
 			PriceWatcher.AddToOnPriceUpdate (() => IterateAlgorithms());
-			GetBalancesGuaranteed ();
 		}
 
 		private static void GetBalancesGuaranteed () {
@@ -130,6 +130,7 @@ namespace CryptoTrader {
 
 		public static void Start () {
 			AIProcessTaskScheduler.StartExecuting ();
+			GetBalancesGuaranteed ();
 			PriceWatcher.Start ();
 			EnableTrading ();
 		}
@@ -149,6 +150,7 @@ namespace CryptoTrader {
 
 		public static void Save () {
 			PriceWatcher.SavePrices ();
+			SaveAlgorithms ();
 		}
 
 		public static void StopAndSave () {
