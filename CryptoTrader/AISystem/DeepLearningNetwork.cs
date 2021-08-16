@@ -9,6 +9,7 @@ namespace CryptoTrader.AISystem {
 
 		public NetworkStructure Structure { private set; get; }
 		private NetworkLayer[] networkLayers;
+		private LayerAdjustments[][] threadedAdjustments;
 
 		public DeepLearningNetwork (NetworkStructure structure) {
 			if (structure == null)
@@ -113,8 +114,6 @@ namespace CryptoTrader.AISystem {
 			ApplyNetworkAdjustments (networkAdjustments);
 		}
 
-		private LayerAdjustments[][] threadedAdjustments;
-
 		public void TrainThreaded (LayerState[] inputs, LayerState[] desiredOutputs, double step, int threads) {
 
 			if (threadedAdjustments != null)
@@ -160,6 +159,7 @@ namespace CryptoTrader.AISystem {
 						finalAdjustments[i] += threadedAdjustments[j][i];
 				}
 				ApplyNetworkAdjustments (finalAdjustments);
+				threadedAdjustments = null;
 			});
 		}
 
