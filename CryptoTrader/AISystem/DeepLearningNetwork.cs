@@ -137,9 +137,9 @@ namespace CryptoTrader.AISystem {
 
 			for (int i = 0; i < threads; i++) {
 				AIProcessTaskScheduler.AddTask (() => {
-					LayerState[] batchInputs = inputs.GetRange (markers[i], sizes[i]);
-					LayerState[] batchDesiredOutputs = desiredOutputs.GetRange (markers[i], sizes[i]);
 					int j = i;
+					LayerState[] batchInputs = inputs.GetRange (markers[j], sizes[j]);
+					LayerState[] batchDesiredOutputs = desiredOutputs.GetRange (markers[j], sizes[j]);
 					threadedAdjustments[j] = GetNetworkAdjustmentsBatch (batchInputs, batchDesiredOutputs, step);
 				});
 			}
