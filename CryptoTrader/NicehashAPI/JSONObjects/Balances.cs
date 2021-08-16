@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {
 
-	public class Balances : IParsable {
+	public class Balances : IParsable, IStorable {
 
 		public Balance TotalBalance { get { return GetTotalBalance (); } }
 		private readonly List<Balance> balances;
@@ -142,6 +142,22 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			}
 
 			return sb.ToString ();
+		}
+
+		public void LoadFromBytes (ref int index, byte[] data) {
+			int balanceCount = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
+			for (int i = 0; i < balanceCount; i++) {
+				Balance balance = new Balance ();
+
+				balance.LoadFromBytes (ref index, data);
+				balances.Add (balance);
+			}
+		}
+
+		public void SaveToBytes (ref List<byte> datalist) {
+			IStorable.AddData (ref datalist, BitConverter.GetBytes (balances.Count));
+			for (int i = 0; i < balances.Count; i++)
+				balances[i].SaveToBytes (ref datalist);
 		}
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using CryptoTrader.Exceptions;
 using System;
+using System.Collections.Generic;
 
 namespace CryptoTrader.NicehashAPI.JSONObjects {
 
-	public class Balance : IParsable {
+	public class Balance : IParsable, IStorable {
 
 		public Currency Currency { private set; get; }
 		public double Available { private set; get; }
@@ -23,6 +24,13 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			Available = value;
 			Pending = 0;
 			BTCRate = btcRate;
+		}
+
+		public Balance () {
+			Currency = Currency.Null;
+			Available = 0;
+			Pending = 0;
+			BTCRate = 0;
 		}
 
 		public Balance (string s) {
@@ -102,6 +110,24 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 
 		public override string ToString () {
 			return $"Balance {Currencies.GetCurrencyToken (Currency)}\n\tTotal {Total}\n\tAvailable {Available}\n\tPending {Pending}";
+		}
+
+		public void LoadFromBytes (ref int index, byte[] data) {
+			Currency = Currencies.GetCurrencyFromHash (BitConverter.ToUInt32 (data, index));
+			index += 4;
+			Available = BitConverter.ToDouble (data, index);
+			index += 8;
+			Pending = BitConverter.ToDouble (data, index);
+			index += 8;
+			BTCRate = BitConverter.ToDouble (data, index);
+			index += 8;
+		}
+
+		public void SaveToBytes (ref List<byte> datalist) {
+			datalist.AddRange (BitConverter.GetBytes (Currencies.GetCurrencyTokenHash (Currency)));
+			datalist.AddRange (BitConverter.GetBytes (Available));
+			datalist.AddRange (BitConverter.GetBytes (Pending));
+			datalist.AddRange (BitConverter.GetBytes (BTCRate));
 		}
 	}
 }
