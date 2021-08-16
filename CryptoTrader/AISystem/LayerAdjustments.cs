@@ -39,6 +39,23 @@ namespace CryptoTrader.AISystem {
 			return adjustments / totalAdjustments;
 		}
 
+		public static LayerAdjustments Combine (LayerAdjustments[] layerAdjustments) {
+			int inputSize = layerAdjustments[0].InputSize;
+			int outputSize = layerAdjustments[0].OutputSize;
+
+			Array.ForEach (layerAdjustments, t => {
+				if (t.InputSize != inputSize || t.OutputSize != outputSize)
+					throw new ArgumentException ("The dimensions of the layers must match.");
+			});
+
+			LayerAdjustment total = new LayerAdjustment(inputSize, outputSize);
+			Array.ForEach (layerAdjustments, t => total += t.GetAverageAdjustment ());
+			total /= layerAdjustments.Length;
+			LayerAdjustments wrapper = new LayerAdjustments (inputSize, outputSize);
+			wrapper.AddAdjustment (total);
+			return wrapper;
+		}
+
 	}
 
 }
