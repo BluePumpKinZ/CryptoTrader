@@ -12,6 +12,10 @@ namespace CryptoTrader.AISystem {
 		private static Thread[] workerThreads;
 		public static int ThreadCount { private set; get; } = 1;
 
+		public static void RunOnThread (Action action) {
+			new Thread (new ThreadStart (action)).Start ();
+		}
+
 		public static void StartExecuting () {
 			stopWorkerThreads = false;
 			hasJoined = false;
