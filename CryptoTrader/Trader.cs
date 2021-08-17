@@ -111,6 +111,7 @@ namespace CryptoTrader {
 
 			balances = new Balances ();
 			balances.LoadFromBytes (ref index, bytes);
+			Console.WriteLine ($"Algorithms loaded from {algorithmStoragePath}");
 		}
 
 		public static void SaveAlgorithms () {
