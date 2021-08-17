@@ -1,0 +1,11 @@
+﻿{keys}
+{Usage:    keys [read/select]
+
+Options:   read    set           The loaded keyset
+                   name          The name of the keyset
+                   apikey        Loaded api key
+                   apisecret     Loaded api secret
+                   apiorg        Loaded orginization id
+
+           select  <keysetname>  Load a set of keys by name}
+
