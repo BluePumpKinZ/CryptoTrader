@@ -27,7 +27,7 @@ namespace CryptoTrader {
 			SetKeySet (config.KeySet);
 			AIProcessTaskScheduler.SetThreadCount (config.MaxThreads);
 
-			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices); // TODO add trader saving to autosave
 			Currencies.GenerateLookUpTables ();
 			LoadAlgorithms ();
 			PriceWatcher.LoadPrices ();
