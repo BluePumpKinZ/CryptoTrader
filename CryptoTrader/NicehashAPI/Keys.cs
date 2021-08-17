@@ -40,6 +40,7 @@ namespace CryptoTrader.Keys {
 					continue;
 				keySets.Add (keySetName, set);
 			}
+			Console.WriteLine ($"Read keys from {keyPath}");
 		}
 
 		public static void SelectKeySet (string keyName) {
