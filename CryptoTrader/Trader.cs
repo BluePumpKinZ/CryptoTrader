@@ -19,7 +19,14 @@ namespace CryptoTrader {
 		public static bool IsTrading { private set; get; } = false;
 		private static Balances balances = new Balances ();
 
-		public static void Initialize () {
+		public static void Initialize (Config config) {
+
+			SetAlgorithmPath (config.AlgorithmPath);
+			ReadKeysFromPath (config.KeyPath);
+			SetPriceWatcherPath (config.PricewatcherPath);
+			SetKeySet (config.KeySet);
+			AIProcessTaskScheduler.SetThreadCount (config.MaxThreads);
+
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices);
 			Currencies.GenerateLookUpTables ();
 			LoadAlgorithms ();
@@ -75,6 +82,8 @@ namespace CryptoTrader {
 		public static void SetAlgorithmPath (string path) {
 			algorithmStoragePath = path;
 			string folderPath = Path.GetDirectoryName (algorithmStoragePath);
+			if (folderPath == "")
+				folderPath = Directory.GetCurrentDirectory ();
 			if (!Directory.Exists (folderPath))
 				throw new DirectoryNotFoundException ($"The directory '{folderPath}' could not be found");
 		}

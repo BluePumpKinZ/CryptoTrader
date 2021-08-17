@@ -23,6 +23,8 @@ namespace CryptoTrader {
 		public static void SetPath (string path) {
 			priceStoragePath = path;
 			string folderPath = Path.GetDirectoryName (priceStoragePath);
+			if (folderPath == "")
+				folderPath = Directory.GetCurrentDirectory ();
 			if (!Directory.Exists (folderPath))
 				throw new DirectoryNotFoundException ($"The directory '{folderPath}' could not be found");
 		}

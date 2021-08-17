@@ -1,5 +1,6 @@
 ﻿using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
+using CryptoTrader.NicehashAPI.JSONObjects;
 using System;
 using System.IO;
 
@@ -9,12 +10,13 @@ namespace CryptoTrader {
 
 		static void Main () {
 
-			Trader.SetAlgorithmPath (Directory.GetCurrentDirectory () + "\\algorithms.data");
-			Trader.ReadKeysFromPath ("C:/Users/jonas/OneDrive/Crypto/NicehashKeys.keys");
-			Trader.SetPriceWatcherPath (Directory.GetCurrentDirectory () + "\\pricehistory.data");
-			Trader.SetKeySet ("Company");
-
-			Trader.Initialize ();
+			try {
+				Config config = new Config ();
+				Trader.Initialize (config);
+			} catch (Exception) {
+				Console.WriteLine ("Config could not be loaded");
+				Environment.Exit (-1);
+			}
 
 			while (true) {
 				try {
