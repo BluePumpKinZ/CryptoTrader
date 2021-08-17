@@ -19,8 +19,8 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 				value = Regex.Replace (value, "^[{]?", "");
 				value = Regex.Replace (value, "[}]?$", "");*/
 
-				if (!value.Contains (','))
-					value = value.Replace (".", ",");
+				//if (!value.Contains (','))
+				//	value = value.Replace (".", ",");
 				ParsePart (key, value);
 			}
 		}
