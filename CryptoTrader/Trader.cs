@@ -56,11 +56,11 @@ namespace CryptoTrader {
 			}
 		}
 
-		private static void EnableTrading () {
+		public static void EnableTrading () {
 			IsTrading = true;
 		}
 
-		private static void DisableTrading () {
+		public static void DisableTrading () {
 			IsTrading = false;
 		}
 
@@ -146,14 +146,6 @@ namespace CryptoTrader {
 			EnableTrading ();
 		}
 
-		public static void Pause () {
-			DisableTrading ();
-		}
-
-		public static void UnPause () {
-			EnableTrading ();
-		}
-
 		public static void Stop () {
 			PriceWatcher.Stop ();
 			AIProcessTaskScheduler.StopExecuting ();
@@ -182,7 +174,7 @@ namespace CryptoTrader {
 			KeyValues.SelectKeySet (setName);
 		}
 
-		public static string GetStatusPrintOut () {
+		public static string GetStatusPrintOut () { // TODO add active algorithms
 			Currency[] monitoredCurrencies = PriceWatcher.GetMonitoredCurrencies ();
 			StringBuilder sb = new StringBuilder ();
 			sb.Append ("Price monitoring: ");
