@@ -30,6 +30,10 @@ namespace CryptoTrader {
 		}
 
 		public static void Start () {
+			if (priceWatchThread == null) {
+				Console.WriteLine ("Pricewatcher already started.");
+				return;
+			}
 			UpdateFeeStatusGuaranteed ();
 			if (string.IsNullOrEmpty (priceStoragePath))
 				throw new FileLoadException ("The path given loading price data has not been set. Use SetPath () for assigning the path used for price data storage.");
@@ -44,6 +48,7 @@ namespace CryptoTrader {
 
 		private static void PriceWatchThread () {
 
+			Console.WriteLine ("Pricewatcher succesfully started.");
 			int min = DateTime.Now.Minute;
 			int hour = DateTime.Now.Hour;
 			int day = DateTime.Now.Day;
