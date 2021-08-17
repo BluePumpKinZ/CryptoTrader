@@ -35,7 +35,8 @@ namespace CryptoTrader.AISystem {
 				FinishTasks ();
 				ThreadCount = threads;
 				StartExecuting ();
-			}
+			} else
+				ThreadCount = threads;
 		}
 
 		public static void StopExecuting () {
