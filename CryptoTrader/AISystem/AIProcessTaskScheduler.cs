@@ -10,14 +10,14 @@ namespace CryptoTrader.AISystem {
 		private static bool stopWorkerThreads = true;
 		private static bool hasJoined = false;
 		private static Thread[] workerThreads;
-		private static int threadCount = 1;
+		public static int ThreadCount { private set; get; } = 1;
 
 		public static void StartExecuting () {
 			stopWorkerThreads = false;
 			hasJoined = false;
-			workerThreads = new Thread[threadCount];
+			workerThreads = new Thread[ThreadCount];
 			ThreadStart threadStart = new ThreadStart (delegate { WorkerThread (); });
-			for (int i = 0; i < threadCount; i++) {
+			for (int i = 0; i < ThreadCount; i++) {
 				workerThreads[i] = new Thread (threadStart);
 				workerThreads[i].Start ();
 			}
@@ -33,7 +33,7 @@ namespace CryptoTrader.AISystem {
 			if (running) {
 				StopExecuting ();
 				FinishTasks ();
-				threadCount = threads;
+				ThreadCount = threads;
 				StartExecuting ();
 			}
 		}
