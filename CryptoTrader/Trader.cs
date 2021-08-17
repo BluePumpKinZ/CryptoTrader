@@ -18,6 +18,8 @@ namespace CryptoTrader {
 		private static string algorithmStoragePath;
 		public static bool IsTrading { private set; get; } = false;
 		private static Balances balances = new Balances ();
+		private static bool forceStopped = false;
+		private static bool worthSaving = false;
 
 		public static void Initialize (Config config) {
 
@@ -27,7 +29,7 @@ namespace CryptoTrader {
 			SetKeySet (config.KeySet);
 			AIProcessTaskScheduler.SetThreadCount (config.MaxThreads);
 
-			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSavePrices); // TODO add trader saving to autosave
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSave);
 			Currencies.GenerateLookUpTables ();
 			LoadAlgorithms ();
 			PriceWatcher.LoadPrices ();
@@ -42,6 +44,7 @@ namespace CryptoTrader {
 				Thread.Sleep (1000);
 				GetBalancesGuaranteed ();
 			}
+			worthSaving = true;
 		}
 
 		private static void IterateAlgorithms () {
@@ -54,14 +57,17 @@ namespace CryptoTrader {
 					continue;
 				algorithms[i].Iterate (PriceWatcher.GetGraphForCurrency (algorithms[i].PrimaryCurrency), ref balances);
 			}
+			worthSaving = true;
 		}
 
 		public static void EnableTrading () {
 			IsTrading = true;
+			worthSaving = true;
 		}
 
 		public static void DisableTrading () {
 			IsTrading = false;
+			worthSaving = true;
 		}
 
 		private static int GetIndexForCurrency (Currency currency) {
@@ -90,16 +96,19 @@ namespace CryptoTrader {
 
 		public static void EnableAlgorithm (Currency currency) {
 			GetAlgorithmForCurrency (currency).IsTraining = false;
+			worthSaving = true;
 		}
 
 		public static void DisableAlgorithm (Currency currency) {
 			GetAlgorithmForCurrency (currency).IsTraining = true;
+			worthSaving = true;
 		}
 
 		public static void SetAlgorithm (Algorithm algo) {
 			if (algo.PrimaryCurrency == Currency.Null)
 				throw new ArgumentException ("Algorithm mus have a currency assigned.");
 			algorithms.Add (algo);
+			worthSaving = true;
 		}
 
 		public static void LoadAlgorithms () {
@@ -137,6 +146,7 @@ namespace CryptoTrader {
 			balances.SaveToBytes (ref bytes);
 
 			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
+			worthSaving = false;
 		}
 
 		public static void Start () {
@@ -149,6 +159,8 @@ namespace CryptoTrader {
 		public static void Stop () {
 			PriceWatcher.Stop ();
 			AIProcessTaskScheduler.StopExecuting ();
+			forceStopped = true;
+			Environment.Exit (0);
 		}
 
 		public static void Save () {
@@ -190,11 +202,25 @@ namespace CryptoTrader {
 			return sb.ToString ();
 		}
 
-		private static void AutoSavePrices (object sender = null, EventArgs e = null) {
+		private static void AutoSave (object sender = null, EventArgs e = null) {
+			if (forceStopped)
+				return;
+			AutoSavePrices ();
+			AutoSaveAlgorithms ();
+		}
+
+		private static void AutoSavePrices () {
 			if (PriceWatcher.HasAddedPrices)
 				PriceWatcher.SavePrices ();
 			else
 				Console.WriteLine ("Autosave cancelled because the pricewatcher was never started.");
+		}
+
+		private static void AutoSaveAlgorithms () {
+			if (worthSaving)
+				SaveAlgorithms ();
+			else
+				Console.WriteLine ("Autosave cancelled because no trades where with the algorithms.");
 		}
 
 	}
