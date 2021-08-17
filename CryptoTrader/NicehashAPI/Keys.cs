@@ -49,6 +49,7 @@ namespace CryptoTrader.Keys {
 				ApiKey = set.ApiKey;
 				ApiSecret = set.ApiSecret;
 				OrganizationID = set.OrganizationID;
+				Console.WriteLine ($"Loaded keyset {keyName}");
 				return;
 			}
 			throw new ArgumentException ($"The keyset \"{keyName}\" could not be found.");
