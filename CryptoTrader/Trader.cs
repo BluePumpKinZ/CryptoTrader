@@ -25,6 +25,7 @@ namespace CryptoTrader {
 			LoadAlgorithms ();
 			PriceWatcher.LoadPrices ();
 			PriceWatcher.AddToOnPriceUpdate (() => IterateAlgorithms());
+			Console.WriteLine ("Trader initialized.");
 		}
 
 		private static void GetBalancesGuaranteed () {

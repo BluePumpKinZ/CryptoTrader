@@ -15,7 +15,6 @@ namespace CryptoTrader {
 			Trader.SetKeySet ("Company");
 
 			Trader.Initialize ();
-			Console.WriteLine ("Trader initialized.");
 
 			while (true) {
 				try {
