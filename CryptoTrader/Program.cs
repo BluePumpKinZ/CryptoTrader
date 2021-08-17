@@ -1,8 +1,5 @@
-﻿using CryptoTrader.Keys;
-using CryptoTrader.NicehashAPI;
-using CryptoTrader.NicehashAPI.JSONObjects;
+﻿using CryptoTrader.Inputs;
 using System;
-using System.IO;
 
 namespace CryptoTrader {
 
@@ -24,7 +21,10 @@ namespace CryptoTrader {
 					Console.Write (" # ");
 					Console.ResetColor ();
 					string input = Console.ReadLine ();
-					string[] split = input.Split (" ", 2);
+
+					Input.ProcessInput (input);
+
+					/*string[] split = input.Split (" ", 2);
 					string command = split[0];
 
 					switch (command) {
@@ -66,7 +66,7 @@ namespace CryptoTrader {
 					default:
 						Console.WriteLine ($"Command \"{command}\" not recognized.");
 						break;
-					}
+					}*/
 
 				} catch (Exception e) {
 					Console.WriteLine (e);
