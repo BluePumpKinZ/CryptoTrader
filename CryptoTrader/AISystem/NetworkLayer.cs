@@ -1,6 +1,8 @@
 ﻿using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace CryptoTrader.AISystem {
 
@@ -43,21 +45,98 @@ namespace CryptoTrader.AISystem {
 			biases = MoreMath.GetStandardDistribution (biases.Length);
 		}
 
-		public LayerState Iterate (LayerState inputState) {
+		public unsafe LayerState Iterate (LayerState inputState) {
 			if (inputState.Size != InputSize)
 				throw new ArgumentException ("Size of input layerstate does match input size.");
 
-			LayerState outputState = new LayerState (OutputSize);
-			for (int outputIndex = 0; outputIndex < OutputSize; outputIndex++) {
-				double nodeSum = 0;
-				for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
-					int weightIndex = GetWeightIndex (inputIndex, outputIndex);
-					nodeSum += inputState.GetNode (inputIndex) * weights[weightIndex];
+			if (!Avx.IsSupported) {
+
+				LayerState outputState = new LayerState (OutputSize);
+				for (int outputIndex = 0; outputIndex < OutputSize; outputIndex++) {
+					double nodeSum = 0;
+					for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+						nodeSum += inputState.GetNode (inputIndex) * weights[weightIndex];
+					}
+					double nodeValue = MoreMath.Sigmoid (nodeSum + biases[outputIndex]);
+					outputState[outputIndex] = nodeValue;
 				}
-				double nodeValue = MoreMath.Sigmoid (nodeSum + biases[outputIndex]);
-				outputState.SetNode (outputIndex, nodeValue);
+				return outputState;
+
+			} else {
+
+				LayerState outputState = new LayerState (OutputSize);
+
+				int newOutputSize = OutputSize & 0x7FFF_FFFC;
+				int newInputSize = InputSize & 0x7FFF_FFFC;
+				int weightSkip = InputSize - newInputSize;
+
+				fixed (double* fixedInputPtr = inputState.data) {
+					fixed (double* fixedOutputPtr = outputState.data) {
+						fixed (double* fixedWeightPtr = weights) {
+							fixed (double* fixedBiasPtr = biases) {
+
+								double* inputPtr = fixedInputPtr;
+								double* outputPtr = fixedOutputPtr;
+								double* weightPtr = fixedWeightPtr;
+								double* biasPtr = fixedBiasPtr;
+
+								Vector256<double> inputVector, outputVector, weightsVector, biasVector, destVector;
+								for (int outputIndex = 0; outputIndex < newOutputSize; outputIndex += 4) {
+
+									outputVector = Avx.LoadVector256 (outputPtr);
+									for (int inputIndex = 0; inputIndex < newInputSize; inputIndex += 4) {
+
+
+										inputVector = Avx.LoadVector256 (inputPtr);
+										weightsVector = Avx.LoadVector256 (weightPtr);
+
+										destVector = Avx.Multiply (inputVector, weightsVector);
+
+										outputVector = Avx.Add (outputVector, destVector);
+
+										inputPtr += 4;
+										weightPtr += 4;
+									}
+									biasVector = Avx.LoadVector256 (biasPtr);
+									outputVector = Avx.Add (outputVector, biasVector);
+									Avx.Store (outputPtr, outputVector);
+
+									outputPtr += 4;
+									biasPtr += 4;
+									weightPtr += weightSkip;
+									inputPtr = fixedInputPtr;
+								}
+							}
+						}
+					}
+
+				}
+
+				for (int outputIndex = 0; outputIndex < newOutputSize; outputIndex++) {
+					double nodeSum = 0;
+					for (int inputIndex = newInputSize; inputIndex < InputSize; inputIndex++) {
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+						nodeSum += inputState[inputIndex] * weights[weightIndex];
+					}
+					outputState[outputIndex] += nodeSum;
+				}
+
+				for (int outputIndex = newOutputSize; outputIndex < OutputSize; outputIndex++) {
+					double nodeSum = 0;
+					for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+						nodeSum += inputState[inputIndex] * weights[weightIndex];
+					}
+					outputState[outputIndex] = nodeSum + biases[outputIndex];
+				}
+
+				for (int i = 0; i < OutputSize; i++) {
+					outputState[i] = MoreMath.Sigmoid (outputState[i]);
+				}
+
+				return outputState;
 			}
-			return outputState;
 		}
 
 		public void ApplyLayerAdjustment (LayerAdjustment layerAdjustment) {
@@ -96,7 +175,7 @@ namespace CryptoTrader.AISystem {
 
 					double input = inputs[inputIndex];
 					double weight = weights[weightIndex];
-					
+
 					double weightDerivative = input * baseDerivative;
 					double activationDerivative = weight * baseDerivative;
 

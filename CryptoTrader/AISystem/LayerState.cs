@@ -9,7 +9,7 @@ namespace CryptoTrader.AISystem {
 
 	public class LayerState {
 
-		private readonly double[] data;
+		internal protected readonly double[] data;
 		public int Size { get { return data.Length; } }
 
 		public LayerState (int size) {
