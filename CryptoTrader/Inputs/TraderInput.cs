@@ -1,4 +1,6 @@
-﻿namespace CryptoTrader.Inputs {
+﻿using System;
+
+namespace CryptoTrader.Inputs {
 
 	internal class TraderInput : IInput {
 
@@ -18,7 +20,7 @@
 				function = () => Trader.StopAndSave ();
 				return true;
 			case "status":
-				function = () => Trader.GetStatusPrintOut ();
+				function = () => Console.WriteLine (Trader.GetStatusPrintOut ());
 				return true;
 			}
 
