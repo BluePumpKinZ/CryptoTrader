@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CryptoTrader.Algorithms.Orders {
+﻿namespace CryptoTrader.Algorithms.Orders {
 
 	public abstract class MarketOrder : Order {
 

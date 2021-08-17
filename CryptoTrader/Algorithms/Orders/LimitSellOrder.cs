@@ -1,8 +1,6 @@
 ﻿using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CryptoTrader.Algorithms.Orders {
 	public class LimitSellOrder : LimitOrder {

@@ -1,6 +1,4 @@
-﻿using NLog.LayoutRenderers.Wrappers;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace CryptoTrader.AISystem {
 

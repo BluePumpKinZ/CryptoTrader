@@ -1,7 +1,6 @@
 ﻿using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
-using System;
 
 namespace CryptoTrader.Algorithms {
 
