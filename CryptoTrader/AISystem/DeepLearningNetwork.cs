@@ -126,41 +126,40 @@ namespace CryptoTrader.AISystem {
 				threads = inputs.Length;
 			int[] markers = new int[threads];
 			for (int i = 0; i < markers.Length; i++)
-				markers[i] = i / inputs.Length;
+				markers[i] = i * inputs.Length / threads;
 
 			int[] sizes = new int[threads];
 			for (int i = 0; i < sizes.Length - 1; i++)
 				sizes[i] = markers[i + 1] - markers[i];
-			sizes[^1] = inputs.Length - markers[^2];
+			sizes[^1] = inputs.Length - markers[^1];
 
 			threadedAdjustments = new LayerAdjustments[threads][];
 
 			for (int i = 0; i < threads; i++) {
+				int j = i;
 				AIProcessTaskScheduler.AddTask (() => {
-					int j = i;
 					LayerState[] batchInputs = inputs.GetRange (markers[j], sizes[j]);
 					LayerState[] batchDesiredOutputs = desiredOutputs.GetRange (markers[j], sizes[j]);
 					threadedAdjustments[j] = GetNetworkAdjustmentsBatch (batchInputs, batchDesiredOutputs, step);
 				});
 			}
-			AIProcessTaskScheduler.AddTask (() => {
-				bool allFinished;
-				do {
-					allFinished = true;
-					for (int i = 0; i < threads; i++)
-						if (threadedAdjustments[i] == null)
-							allFinished = false;
-					Thread.Sleep (1);
-				} while (!allFinished);
+			bool allFinished;
+			do {
+				allFinished = true;
+				for (int i = 0; i < threads; i++)
+					if (threadedAdjustments[i] == null)
+						allFinished = false;
+				Thread.Sleep (1);
+			} while (!allFinished);
 
-				LayerAdjustments[] finalAdjustments = new LayerAdjustments[networkLayers.Length];
-				for (int i = 0; i < finalAdjustments.Length; i++) {
-					for (int j = 0; j < threads; j++)
-						finalAdjustments[i] += threadedAdjustments[j][i];
-				}
-				ApplyNetworkAdjustments (finalAdjustments);
-				threadedAdjustments = null;
-			});
+			LayerAdjustments[] finalAdjustments = new LayerAdjustments[networkLayers.Length];
+			for (int i = 0; i < finalAdjustments.Length; i++) {
+				finalAdjustments[i] = new LayerAdjustments (threadedAdjustments[0][i].InputSize, threadedAdjustments[0][i].OutputSize);
+				for (int j = 0; j < threads; j++)
+					finalAdjustments[i] += threadedAdjustments[j][i];
+			}
+			ApplyNetworkAdjustments (finalAdjustments);
+			threadedAdjustments = null;
 		}
 
 		public static double CalculateLossOnOutputs (LayerState outputs, LayerState desiredOutputs) {
