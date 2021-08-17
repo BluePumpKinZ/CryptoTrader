@@ -30,7 +30,7 @@ namespace CryptoTrader.Inputs {
 					function = () => Console.WriteLine ("Loaded api secret: " + KeyValues.ApiSecret);
 					return true;
 				case "orgid":
-					function = () => Console.WriteLine ("Loaded orginization id: " + KeyValues.OrganizationID);
+					function = () => Console.WriteLine ("Loaded organization id: " + KeyValues.OrganizationID);
 					return true;
 				}
 				return false;
