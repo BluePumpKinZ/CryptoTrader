@@ -1,11 +1,21 @@
-﻿{keys}
+﻿Ctrl E, S
+{keys}
 {Usage:    keys [read/select]
 
 Options:   read    set           The loaded keyset
                    name          The name of the keyset
                    apikey        Loaded api key
                    apisecret     Loaded api secret
-                   apiorg        Loaded orginization id
+                   apiorg        Loaded organization id
 
            select  <keysetname>  Load a set of keys by name}
 
+{trader}
+{Usage:    trader [start/stop/save/stopandsave/status]
+
+Options:   start          Activates all enabled algorithms
+           stop           Stops the program without saving
+           save           Saves all data
+           stopandsave    Saves all data and stops the program
+           status         Show a list of active algorithms and monitored currencies
+}

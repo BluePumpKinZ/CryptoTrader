@@ -6,7 +6,8 @@ namespace CryptoTrader.Inputs {
 	public static class Input {
 
 		private readonly static Dictionary<string, string> inputProcessors = new Dictionary<string, string> () {
-			{ "keys", "Keys" }
+			{ "keys", "Keys" },
+			{ "trader", "Trader" }
 		};
 
 		public static void ProcessInput (string input) {
