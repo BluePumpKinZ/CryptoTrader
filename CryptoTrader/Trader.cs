@@ -28,6 +28,7 @@ namespace CryptoTrader {
 			SetPriceWatcherPath (config.PricewatcherPath);
 			SetKeySet (config.KeySet);
 			AIProcessTaskScheduler.SetThreadCount (config.MaxThreads);
+			AIProcessTaskScheduler.StartExecuting ();
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSave);
 			Currencies.GenerateLookUpTables ();
@@ -111,6 +112,27 @@ namespace CryptoTrader {
 			worthSaving = true;
 		}
 
+		public static bool GetImprovableAlgorithm (Currency currency, out IImprovableAlgorithm improvableAlgorithm) {
+			Algorithm algorithm = GetAlgorithmForCurrency (currency);
+			if (!(algorithm is IImprovableAlgorithm)) {
+				Console.WriteLine ($"Algorithm for currency '{currency}' is not improvable.");
+				improvableAlgorithm = null;
+				return false;
+			}
+			improvableAlgorithm = (IImprovableAlgorithm)algorithm;
+			return true;
+		}
+
+		public static void LaunchAlgorithmImprovement (Currency currency, int epochs) {
+			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
+				improvableAlgorithm.Improve (epochs, AIProcessTaskScheduler.ThreadCount);
+		}
+
+		public static void GetAlgorithmLoss (Currency currency) {
+			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
+				Console.WriteLine ($"{improvableAlgorithm.GetLoss ()}");
+		}
+
 		public static void LoadAlgorithms () {
 			if (!File.Exists (algorithmStoragePath)) {
 				Console.WriteLine ("Trader algorithms could not be loaded, make sure the given path is valid");
@@ -150,7 +172,6 @@ namespace CryptoTrader {
 		}
 
 		public static void Start () {
-			AIProcessTaskScheduler.StartExecuting ();
 			GetBalancesGuaranteed ();
 			PriceWatcher.Start ();
 			EnableTrading ();
