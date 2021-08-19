@@ -6,7 +6,7 @@ namespace CryptoTrader.Algorithms {
 
 		public abstract void Improve (int epochs, int threads);
 
-		public abstract double GetLoss (LayerState input, LayerState desiredOutputs);
+		public abstract double GetLoss ();
 
 	}
 
