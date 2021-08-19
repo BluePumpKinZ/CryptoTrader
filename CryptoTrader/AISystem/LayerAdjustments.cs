@@ -27,10 +27,7 @@ namespace CryptoTrader.AISystem {
 		}
 
 		public void AddAdjustment (LayerAdjustment layerAdjustment) {
-			if (layerAdjustment.InputSize != InputSize || layerAdjustment.OutputSize != OutputSize)
-				throw new ArgumentException ("The dimensions of the added layer must match.");
-
-			adjustments += layerAdjustment;
+			adjustments.AddSelf (layerAdjustment);
 			totalAdjustments++;
 		}
 
