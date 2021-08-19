@@ -156,7 +156,7 @@ namespace CryptoTrader.AISystem {
 			for (int i = 0; i < finalAdjustments.Length; i++) {
 				finalAdjustments[i] = new LayerAdjustments (threadedAdjustments[0][i].InputSize, threadedAdjustments[0][i].OutputSize);
 				for (int j = 0; j < threads; j++)
-					finalAdjustments[i] += threadedAdjustments[j][i];
+					finalAdjustments[i].AddSelf (threadedAdjustments[j][i]);
 			}
 			ApplyNetworkAdjustments (finalAdjustments);
 			threadedAdjustments = null;

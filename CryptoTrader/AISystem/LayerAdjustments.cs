@@ -50,6 +50,13 @@ namespace CryptoTrader.AISystem {
 			return new LayerAdjustments (left.InputSize, left.OutputSize, sum, total);
 		}
 
+		public void AddSelf (LayerAdjustments layerAdjustments) {
+
+			adjustments.AddSelf (layerAdjustments.adjustments);
+			totalAdjustments += layerAdjustments.totalAdjustments;
+
+		}
+
 	}
 
 }
