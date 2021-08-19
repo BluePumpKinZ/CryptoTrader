@@ -3,14 +3,12 @@ using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.NicehashAPI.Utils;
-using CryptoTrader.Utils;
-using NLog.Targets;
 using System;
 using System.Collections.Generic;
 
 namespace CryptoTrader.Algorithms {
 
-	public class AlgoAI : Algorithm {
+	public class AlgoAI : Algorithm, IImprovableAlgorithm {
 
 		public DeepLearningNetwork network;
 
@@ -19,14 +17,6 @@ namespace CryptoTrader.Algorithms {
 			network = new DeepLearningNetwork (structure);
 			network.Randomize ();
 			TotalBalancesRatioAssinged = 0;
-		}		
-
-		public void TrainNetwork (LayerState[] input, LayerState[] desiredOutput, double step) {
-			network.Train (input, desiredOutput, step);
-		}
-
-		public double GetLoss (LayerState input, LayerState desiredOutput) {
-			return network.CalculateLossOnInputs (input, desiredOutput);
 		}
 
 		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
@@ -79,5 +69,44 @@ namespace CryptoTrader.Algorithms {
 
 		}
 
+		public void Improve (int epochs, int threads) {
+
+			AIProcessTaskScheduler.RunOnThread (() => {
+
+				Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
+
+				PriceGraph graph = PriceWatcher.GetGraphForCurrency (PrimaryCurrency);
+				int examples = graph.GetLength () / 100;
+				long timeframe = AIDataConversion.TIMEFRAME;
+
+				for (int i = 0; i < epochs; i++) {
+					AIDataConversion.GetTrainingDataBatch (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
+					LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
+					LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
+					network.TrainThreaded (inputs, outputs, 0.0002, threads);
+				}
+
+				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {PrimaryCurrency}");
+
+			});
+		}
+
+		public double GetLoss () {
+
+			double totalLoss = 0;
+
+			PriceGraph graph = PriceWatcher.GetGraphForCurrency (PrimaryCurrency);
+			int examples = 100;
+			long timeframe = AIDataConversion.TIMEFRAME;
+
+			AIDataConversion.GetTrainingDataBatch (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
+			LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
+			LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
+
+			for (int i = 0; i < examples; i++)
+				totalLoss += network.CalculateLossOnInputs (inputs[i], outputs[i]);
+
+			return totalLoss / examples;
+		}
 	}
 }
