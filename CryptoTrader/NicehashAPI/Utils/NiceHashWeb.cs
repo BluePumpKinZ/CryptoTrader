@@ -30,6 +30,8 @@ namespace CryptoTrader.NicehashAPI.Utils {
 
 			var response = client.Execute (request, RestSharp.Method.GET);
 			var content = response.Content;
+			if (content == "")
+				throw new OperationCanceledException ("A connection to the server cannot be made.");
 			return content;
 		}
 
@@ -57,6 +59,8 @@ namespace CryptoTrader.NicehashAPI.Utils {
 
 			var response = client.Execute (request, RestSharp.Method.POST);
 			var content = response.Content;
+			if (content == "")
+				throw new OperationCanceledException ("A connection to the server cannot be made.");
 			return content;
 		}
 
@@ -78,6 +82,8 @@ namespace CryptoTrader.NicehashAPI.Utils {
 
 			var response = client.Execute (request, RestSharp.Method.DELETE);
 			var content = response.Content;
+			if (content == "")
+				throw new OperationCanceledException ("A connection to the server cannot be made.");
 			return content;
 		}
 
