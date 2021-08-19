@@ -57,52 +57,53 @@ namespace CryptoTrader.AISystem {
 			int biasSize = BiasSize;
 
 			if (!Avx.IsSupported) {
-
 				for (int i = 0; i < weightSize; i++)
 					weightAdjustment[i] += other.weightAdjustment[i];
 				for (int i = 0; i < biasSize; i++)
 					biasAdjustment[i] += other.biasAdjustment[i];
-
 			} else {
 
 				int newWeightSize = weightSize & 0x7FFF_FFFC;
 				int newBiasSize = biasSize & 0x7FFF_FFFC;
 
-				double* selfWeightPtr;
-				double* otherWeightPtr;
-				double* selfBiasPtr;
-				double* otherBiasPtr;
+				fixed (double* fixedSelfWeightPtr = weightAdjustment) {
+					fixed (double* fixedOtherWeightPtr = other.weightAdjustment) {
+						fixed (double* fixedSelfBiasPtr = biasAdjustment) {
+							fixed (double* fixedOtherBiasPtr = other.biasAdjustment) {
+								
+								double* selfWeightPtr = fixedSelfWeightPtr;
+								double* otherWeightPtr = fixedOtherWeightPtr;
+								double* selfBiasPtr = fixedSelfBiasPtr;
+								double* otherBiasPtr = fixedOtherBiasPtr;
 
-				fixed (double* fixedSelfWeightPtr = weightAdjustment) { selfWeightPtr = fixedSelfWeightPtr; }
-				fixed (double* fixedOtherWeightPtr = other.weightAdjustment) { otherWeightPtr = fixedOtherWeightPtr; }
-				fixed (double* fixedSelfBiasPtr = biasAdjustment) { selfBiasPtr = fixedSelfBiasPtr; }
-				fixed (double* fixedOtherBiasPtr = other.biasAdjustment) { otherBiasPtr = fixedOtherBiasPtr; }
+								Vector256<double> selfWeightVector, otherWeightVector, selfBiasVector, otherBiasVector;
 
-				Vector256<double> selfWeightVector, otherWeightVector, selfBiasVector, otherBiasVector;
+								for (int i = 0; i < newWeightSize; i += 4) {
+									selfWeightVector = Avx.LoadVector256 (selfWeightPtr);
+									otherWeightVector = Avx.LoadVector256 (otherWeightPtr);
+									selfWeightVector = Avx.Add (selfWeightVector, otherWeightVector);
+									Avx.Store (selfWeightPtr, selfWeightVector);
+									selfWeightPtr += 4;
+									otherWeightPtr += 4;
+								}
 
-				for (int i = 0; i < newWeightSize; i += 4) {
-					selfWeightVector = Avx.LoadVector256 (selfWeightPtr);
-					otherWeightVector = Avx.LoadVector256 (otherWeightPtr);
-					selfWeightVector = Avx.Add (selfWeightVector, otherWeightVector);
-					Avx.Store (selfWeightPtr, selfWeightVector);
-					selfWeightPtr += 4;
-					otherWeightPtr += 4;
+								for (int i = 0; i < newBiasSize; i += 4) {
+									selfBiasVector = Avx.LoadVector256 (selfBiasPtr);
+									otherBiasVector = Avx.LoadVector256 (otherBiasPtr);
+									selfBiasVector = Avx.Add (selfBiasVector, otherBiasVector);
+									Avx.Store (selfBiasPtr, selfBiasVector);
+									selfBiasPtr += 4;
+									otherBiasPtr += 4;
+								}
+
+								for (int i = newWeightSize; i < weightSize; i++)
+									weightAdjustment[i] += other.weightAdjustment[i];
+								for (int i = newBiasSize; i < biasSize; i++)
+									biasAdjustment[i] += other.biasAdjustment[i];
+							}
+						}
+					}
 				}
-
-				for (int i = 0; i < newBiasSize; i += 4) {
-					selfBiasVector = Avx.LoadVector256 (selfBiasPtr);
-					otherBiasVector = Avx.LoadVector256 (otherBiasPtr);
-					selfBiasVector = Avx.Add (selfBiasVector, otherBiasVector);
-					Avx.Store (selfBiasPtr, selfBiasVector);
-					selfBiasPtr += 4;
-					otherBiasPtr += 4;
-				}
-
-				for (int i = newWeightSize; i < weightSize; i++)
-					weightAdjustment[i] += other.weightAdjustment[i];
-				for (int i = newBiasSize; i < biasSize; i++)
-					biasAdjustment[i] += other.biasAdjustment[i];
-
 			}
 		}
 
