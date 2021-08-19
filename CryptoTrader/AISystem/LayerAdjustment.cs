@@ -8,8 +8,8 @@ namespace CryptoTrader.AISystem {
 		public int OutputSize { private set; get; }
 		public int WeightSize { get { return InputSize * OutputSize; } }
 		public int BiasSize { get { return OutputSize; } }
-		private double[] weightAdjustment;
-		private double[] biasAdjustment;
+		internal protected double[] weightAdjustment;
+		internal protected double[] biasAdjustment;
 
 		public LayerAdjustment (int inputSize, int outputSize) {
 			if (inputSize <= 0)

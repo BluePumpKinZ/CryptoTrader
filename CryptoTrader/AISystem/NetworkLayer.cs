@@ -151,7 +151,7 @@ namespace CryptoTrader.AISystem {
 			}
 		}
 
-		public LayerAdjustment GetLayerAdjustment (LayerState inputs, LayerState outputs, LayerState outputDerivatives, out LayerState activationDerivatives, double step) {
+		public unsafe LayerAdjustment GetLayerAdjustment (LayerState inputs, LayerState outputs, LayerState outputDerivatives, out LayerState activationDerivatives, double step) {
 
 			if (inputs.Size != InputSize)
 				throw new ArgumentException ("The size of inputs must match the layer dimensions.");
@@ -161,33 +161,150 @@ namespace CryptoTrader.AISystem {
 			//	throw new ArgumentException ("The size of costs must match the layer dimensions.");
 
 			LayerAdjustment layerAdjustment = new LayerAdjustment (InputSize, OutputSize);
-			double[] activationDerivativesSum = new double[InputSize];
+			double[] activationDerivativesData = new double[InputSize];
 
-			for (int outputIndex = 0; outputIndex < OutputSize; outputIndex++) {
+			if (!Avx.IsSupported) {
 
-				double output = outputs[outputIndex];
-				double baseDerivative = MoreMath.Sigmoid_Derivative (output) * outputDerivatives[outputIndex];
-				layerAdjustment.SetBias (outputIndex, baseDerivative * step);
+				for (int outputIndex = 0; outputIndex < OutputSize; outputIndex++) {
 
-				for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
+					double output = outputs[outputIndex];
+					double baseDerivative = MoreMath.Sigmoid_Derivative (output) * outputDerivatives[outputIndex];
+					layerAdjustment.SetBias (outputIndex, baseDerivative * step);
 
-					int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+					for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
 
-					double input = inputs[inputIndex];
-					double weight = weights[weightIndex];
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
 
-					double weightDerivative = input * baseDerivative;
-					double activationDerivative = weight * baseDerivative;
+						double input = inputs[inputIndex];
+						double weight = weights[weightIndex];
 
-					layerAdjustment.SetWeight (weightIndex, weightDerivative * step);
+						double weightDerivative = input * baseDerivative;
+						double activationDerivative = weight * baseDerivative;
 
-					activationDerivativesSum[inputIndex] += activationDerivative;
+						layerAdjustment.SetWeight (weightIndex, weightDerivative * step);
+
+						activationDerivativesData[inputIndex] += activationDerivative;
+					}
+				}
+
+			} else {
+
+				int newOutputSize = OutputSize & 0x7FFF_FFFC;
+				int newInputSize = InputSize & 0x7FFF_FFFC;
+				int weightSkip = InputSize - newInputSize;
+
+				double[] stepArray = new double[] { step, step, step, step };
+				double[] baseDerivatives = new double[OutputSize];
+
+				for (int i = 0; i < OutputSize; i++)
+					baseDerivatives[i] = MoreMath.Sigmoid_Derivative (outputs[i]) * outputDerivatives[i];
+
+				fixed (double* stepPtr = stepArray) {
+					fixed (double* fixedWeightAdjustmentPtr = layerAdjustment.weightAdjustment) {
+						fixed (double* fixedBiasAdjustmentPtr = layerAdjustment.biasAdjustment) {
+							fixed (double* fixedInputPtr = inputs.data) {
+								fixed (double* fixedOutputPtr = outputs.data) {
+									fixed (double* fixedWeightPtr = weights) {
+										fixed (double* fixedActivationsPtr = activationDerivativesData) {
+											fixed (double* fixedBaseDerivativesPtr = baseDerivatives) {
+
+												double* weightAdjustmentPtr = fixedWeightAdjustmentPtr;
+												double* biasAdjustmentPtr = fixedBiasAdjustmentPtr;
+												double* inputPtr = fixedInputPtr;
+												double* outputPtr = fixedOutputPtr;
+												double* weightPtr = fixedWeightPtr;
+												double* activationPtr = fixedActivationsPtr;
+												double* baseDerivatesPtr = fixedBaseDerivativesPtr;
+
+												Vector256<double> stepVector = Avx.LoadVector256 (stepPtr);
+
+												Vector256<double> weightAdjustmentVector;
+												Vector256<double> biasAdjustmentVector;
+												Vector256<double> inputVector;
+												Vector256<double> outputVector;
+												Vector256<double> weightVector;
+												Vector256<double> activationVector;
+												Vector256<double> baseDerivativesVector;
+
+												for (int outputIndex = 0; outputIndex < newOutputSize; outputIndex += 4) {
+													outputVector = Avx.LoadVector256 (outputPtr);
+													activationVector = Avx.LoadVector256 (activationPtr);
+													baseDerivativesVector = Avx.LoadVector256 (baseDerivatesPtr);
+
+													biasAdjustmentVector = Avx.Multiply (baseDerivativesVector, stepVector);
+
+													for (int inputIndex = 0; inputIndex < newInputSize; inputIndex += 4) {
+
+														inputVector = Avx.LoadVector256 (inputPtr);
+														weightVector = Avx.LoadVector256 (weightPtr);
+
+														Vector256<double> weightDerivativeVector = Avx.Multiply (inputVector, baseDerivativesVector);
+														activationVector = Avx.Add (activationVector, Avx.Multiply (weightVector, baseDerivativesVector));
+
+														weightAdjustmentVector = Avx.Multiply (weightDerivativeVector, stepVector);
+
+														Avx.Store (weightAdjustmentPtr, weightAdjustmentVector);
+														Avx.Store (activationPtr, activationVector);
+														weightAdjustmentPtr += 4;
+														inputPtr += 4;
+														weightPtr += 4;
+														activationPtr += 4;
+													}
+
+													Avx.Store (biasAdjustmentPtr, biasAdjustmentVector);
+													weightAdjustmentPtr += weightSkip;
+													biasAdjustmentPtr += 4;
+													inputPtr = fixedInputPtr;
+													outputPtr += 4;
+													weightPtr += weightSkip;
+													activationPtr = fixedActivationsPtr;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				for (int outputIndex = newOutputSize; outputIndex < OutputSize; outputIndex++) {
+					double output = outputs[outputIndex];
+					double baseDerivative = baseDerivatives[outputIndex];
+					layerAdjustment.SetBias (outputIndex, baseDerivative * step);
+
+					for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
+
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+						double input = inputs[inputIndex];
+						double weight = weights[weightIndex];
+						double weightDerivative = input * baseDerivative;
+						double activationDerivative = weight * baseDerivative;
+
+						layerAdjustment.SetWeight (weightIndex, weightDerivative * step);
+						activationDerivativesData[inputIndex] += activationDerivative;
+					}
+				}
+
+				for (int outputIndex = newOutputSize; outputIndex < OutputSize; outputIndex++) {
+					double output = outputs[outputIndex];
+					double baseDerivative = baseDerivatives[outputIndex];
+
+					for (int inputIndex = 0; inputIndex < InputSize; inputIndex++) {
+
+						int weightIndex = GetWeightIndex (inputIndex, outputIndex);
+						double input = inputs[inputIndex];
+						double weight = weights[weightIndex];
+						double weightDerivative = input * baseDerivative;
+						double activationDerivative = weight * baseDerivative;
+
+						layerAdjustment.SetWeight (weightIndex, weightDerivative * step);
+						activationDerivativesData[inputIndex] += activationDerivative;
+					}
 				}
 			}
 
-			activationDerivatives = new LayerState (InputSize);
-			for (int i = 0; i < activationDerivatives.Size; i++)
-				activationDerivatives[i] = activationDerivativesSum[i]; // Get Average
+			activationDerivatives = new LayerState (activationDerivativesData);
 			return layerAdjustment;
 		}
 
