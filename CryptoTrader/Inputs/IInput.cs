@@ -9,7 +9,7 @@ namespace CryptoTrader.Inputs {
 
 		public void ProcessInput (string command, string input) {
 			if (!Process (ref input)) {
-				Console.WriteLine (HelpTexts.GetHelpText(command));
+				Console.WriteLine (HelpTexts.GetHelpText(command).Trim ());
 				return;
 			}
 			Execute ();
