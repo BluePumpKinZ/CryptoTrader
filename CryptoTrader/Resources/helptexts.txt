@@ -9,7 +9,8 @@ Options:   read    set           The loaded keyset
                    apisecret     Loaded api secret
                    apiorg        Loaded organization id
 
-           select  <keysetname>  Load a set of keys by name}
+           select  <keysetname>  Load a set of keys by name
+}
 
 {trader}
 {
@@ -20,4 +21,18 @@ Options:   start          Activates all enabled algorithms
            save           Saves all data
            stopandsave    Saves all data and stops the program
            status         Show a list of active algorithms and monitored currencies
+}
+
+{accounting}
+{
+Usage:     accounting [read]
+
+Options:   read    balances    Retrieves current balances from exchange
+}
+
+{exchangepublic}
+{
+Usage:     exchangepublic [read]
+
+Options:   read    prices      Retrieves current prices from exchange
 }
