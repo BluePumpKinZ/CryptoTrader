@@ -14,7 +14,6 @@ namespace CryptoTrader.Utils {
 		}
 
 		public static string NameFromAlgorithm (Algorithm algorithm) {
-			Console.WriteLine (algorithm.GetType ());
 			return algorithm.GetType ().Name;
 		}
 
