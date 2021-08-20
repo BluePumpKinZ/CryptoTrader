@@ -76,9 +76,9 @@ namespace CryptoTrader.Algorithms {
 
 		public void Improve (int epochs, int threads) {
 
-			AIProcessTaskScheduler.RunOnThread (() => {
+			Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
 
-				Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
+			AIProcessTaskScheduler.RunOnThread (() => {
 
 				PriceGraph graph = PriceWatcher.GetGraphForCurrency (PrimaryCurrency);
 				int examples = graph.GetLength () / 100;
