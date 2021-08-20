@@ -6,7 +6,7 @@ using System.Runtime.Intrinsics.X86;
 
 namespace CryptoTrader.AISystem {
 
-	public class NetworkLayer : IStorable {
+	public class NetworkLayer : IStorable, ICopyable {
 
 		public int InputSize { private set; get; }
 		public int OutputSize { private set; get; }
@@ -348,6 +348,10 @@ namespace CryptoTrader.AISystem {
 				BitConverter.GetBytes (biases[i]).CopyTo (biasBytes, i * 8);
 			IStorable.AddData (ref datalist, weightBytes);
 			IStorable.AddData (ref datalist, biasBytes);
+		}
+
+		public ICopyable Copy () {
+			return new NetworkLayer (InputSize, OutputSize, weights.Copy (), biases.Copy ());
 		}
 	}
 

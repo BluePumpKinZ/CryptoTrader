@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace CryptoTrader.AISystem {
 
-	public class DeepLearningNetwork : IStorable {
+	public class DeepLearningNetwork : IStorable, ICopyable {
 
 		public NetworkStructure Structure { private set; get; }
 		private NetworkLayer[] networkLayers;
@@ -18,12 +18,13 @@ namespace CryptoTrader.AISystem {
 			networkLayers = Structure.GetNetworkLayers ();
 		}
 
-		public DeepLearningNetwork (NetworkStructure structure, double[][] weights, double[][] biases) {
+		public DeepLearningNetwork (NetworkStructure structure, NetworkLayer[] networkLayers) {
 			Structure = structure;
-			networkLayers = Structure.GetNetworkLayers ();
 			for (int i = 0; i < networkLayers.Length; i++) {
-				networkLayers[i] = new NetworkLayer (Structure[i], Structure[i + 1], weights[i], biases[i]);
+				if (networkLayers[i].InputSize != structure[i] || networkLayers[i].OutputSize != structure[i + 1])
+					throw new ArgumentException ("The networklayers do not match the structure.");
 			}
+			this.networkLayers = networkLayers;
 		}
 
 		public void Randomize () {
@@ -191,6 +192,10 @@ namespace CryptoTrader.AISystem {
 			IStorable.AddData (ref datalist, BitConverter.GetBytes (networkLayers.Length));
 			for (int i = 0; i < networkLayers.Length; i++)
 				networkLayers[i].SaveToBytes (ref datalist);
+		}
+
+		public ICopyable Copy () {
+			return new DeepLearningNetwork ((NetworkStructure)Structure.Copy (), networkLayers.CopyMembers ());
 		}
 	}
 

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using CryptoTrader.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace CryptoTrader.AISystem {
 
-	public class NetworkStructure : IStorable {
+	public class NetworkStructure : IStorable, ICopyable {
 
 		public int Size { get { return structure.Length; } }
 		private int[] structure;
@@ -42,6 +43,10 @@ namespace CryptoTrader.AISystem {
 			IStorable.AddData (ref datalist, BitConverter.GetBytes (length));
 			for (int i = 0; i < length; i++)
 				IStorable.AddData (ref datalist, BitConverter.GetBytes (structure[i]));
+		}
+
+		public ICopyable Copy () {
+			return new NetworkStructure (structure.Copy ());
 		}
 
 		public int this[int index] {
