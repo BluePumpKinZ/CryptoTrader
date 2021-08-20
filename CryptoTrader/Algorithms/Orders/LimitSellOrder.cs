@@ -1,5 +1,6 @@
 ﻿using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 using System;
 
 namespace CryptoTrader.Algorithms.Orders {
@@ -27,6 +28,10 @@ namespace CryptoTrader.Algorithms.Orders {
 
 		public override bool HasPriceBeenReached (Balances balances) {
 			return balances.GetBalanceForCurrency (Currency).BTCRate >= Price;
+		}
+
+		public override ICopyable Copy () {
+			return new LimitSellOrder (Currency, Value, Price, Time);
 		}
 
 		public LimitSellOrder (Currency currency, double value, double price, long time) {

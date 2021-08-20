@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Exceptions;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms.Orders {
 
@@ -31,6 +32,10 @@ namespace CryptoTrader.Algorithms.Orders {
 				// Just returning false because if the balance can't be found there will be no available currency anyway
 				return false;
 			}
+		}
+
+		public override ICopyable Copy () {
+			return new MarketBuyOrder (Currency, Value, Time);
 		}
 
 		public MarketBuyOrder (Currency currency, double value, long time) {

@@ -1,9 +1,10 @@
 ﻿using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms.Orders {
 
-	public abstract class Order {
+	public abstract class Order : ICopyableAbstract {
 
 		public Currency Currency { protected set; get; }
 		public double Value { protected set; get; }
@@ -28,6 +29,15 @@ namespace CryptoTrader.Algorithms.Orders {
 			return $"?market={market}&side={side}&type={type}&quantity={Value}";
 		}
 
+		public ICopyable CopyAbstractValues (ICopyable copy) {
+			Order order = (Order)copy;
+			order.Currency = Currency;
+			order.Value = Value;
+			order.Time = Time;
+			return order;
+		}
+
+		public abstract ICopyable Copy ();
 	}
 
 }

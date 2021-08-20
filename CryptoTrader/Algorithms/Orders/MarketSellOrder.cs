@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Exceptions;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms.Orders {
 
@@ -29,6 +30,10 @@ namespace CryptoTrader.Algorithms.Orders {
 			} catch (NoPricesFoundException) {
 				return false;
 			}
+		}
+
+		public override ICopyable Copy () {
+			return new MarketSellOrder (Currency, Value, Time);
 		}
 
 		public MarketSellOrder (Currency currency, double value, long time) {
