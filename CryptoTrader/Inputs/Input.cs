@@ -10,9 +10,13 @@ namespace CryptoTrader.Inputs {
 			{ "trader", "Trader" },
 			{ "accounting", "Accounting" },
 			{ "exchangepublic", "ExchangePublic" },
+			{ "algorithms", "Algorithm" }
 		};
 
 		public static void ProcessInput (string input) {
+			input = input.Trim ();
+			if (input == "")
+				return;
 			string command = IInput.GetNextSegment (ref input);
 			if (inputProcessors.TryGetValue (command, out string inputProcessorName)) {
 				IInput inputProcessor = Activator.CreateInstance (Type.GetType ($"CryptoTrader.Inputs.{inputProcessorName}Input")) as IInput;

@@ -36,3 +36,15 @@ Usage:     exchangepublic [read]
 
 Options:   read    prices      Retrieves current prices from exchange
 }
+{algorithms}
+{
+Usage:     algorithms [list/test/loss/add/remove/improve]
+
+Options:   list               Show all loaded algorithms
+           list types         Show a list of the different types of algorithms
+           test [-c]          Test the algorithms for a given currency
+           loss [-c]          Evaluates a improvable algorithms' loss
+           improve [-c] [-e]  Improves an improvable algorithm by -e epochs (CAUTION! Once started the operation cannot be canceled)
+           add [-c] [-t]      Add an algorithm for a currency
+           delete [-c]        Removes the algorithm for a currency
+}
