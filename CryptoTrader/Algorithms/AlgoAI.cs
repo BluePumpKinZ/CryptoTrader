@@ -74,7 +74,7 @@ namespace CryptoTrader.Algorithms {
 
 		}
 
-		public void Improve (int epochs, int threads) {
+		public void Improve (int epochs, int threads, bool autoSave) {
 
 			Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
 
@@ -85,14 +85,15 @@ namespace CryptoTrader.Algorithms {
 				long timeframe = AIDataConversion.TIMEFRAME;
 
 				for (int i = 0; i < epochs; i++) {
-					AIDataConversion.GetTrainingDataBatch (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
+					AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 					LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 					LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
 					network.TrainThreaded (inputs, outputs, 0.0002, threads);
 				}
 
 				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {PrimaryCurrency}");
-
+				if (autoSave)
+					Trader.SaveAlgorithms ();
 			});
 		}
 
