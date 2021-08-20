@@ -38,6 +38,38 @@ namespace CryptoTrader.Utils {
 			return output;
 		}
 
+		public static List<T> UpCast<TBase, T> (this List<TBase> list) where T : TBase {
+			int count = list.Count;
+			List<T> output = new List<T> (count);
+			for (int i = 0; i < count; i++)
+				output.Add ((T)list[i]);
+			return output;
+		}
+
+		public static List<TBase> DownCast<T, TBase> (this List<T> list) where T : TBase {
+			int count = list.Count;
+			List<TBase> output = new List<TBase> (count);
+			for (int i = 0; i < count; i++)
+				output.Add (list[i]);
+			return output;
+		}
+
+		public static T[] UpCast<TBase, T> (this TBase[] array) where T : TBase {
+			int length = array.Length;
+			T[] output = new T[length];
+			for (int i = 0; i < length; i++)
+				output[i] = (T)array[i];
+			return output;
+		}
+
+		public static TBase[] DownCast<T, TBase> (this T[] array) where T : TBase {
+			int length = array.Length;
+			TBase[] output = new TBase[length];
+			for (int i = 0; i < length; i++)
+				output[i] = array[i];
+			return output;
+		}
+
 	}
 
 }
