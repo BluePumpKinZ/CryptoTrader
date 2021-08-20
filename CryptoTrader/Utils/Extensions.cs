@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CryptoTrader.Utils;
 
 namespace CryptoTrader.Utils {
 
@@ -18,22 +17,19 @@ namespace CryptoTrader.Utils {
 			return copy;
 		}
 
-		public static ICopyable[] Copy (this ICopyable[] array) {
+		public static T[] CopyMembers<T> (this T[] array) where T : ICopyable {
 			int length = array.Length;
-			ICopyable[] output = new ICopyable[length];
-			for (int i = 0; i < length; i++) {
-				ICopyable item = array[i];
-				output[i] = item.Copy ();
-			}
+			T[] output = new T[length];
+			for (int i = 0; i < length; i++)
+				output[i] = (T)array[i].Copy ();
 			return output;
 		}
 
-		public static List<ICopyable> Copy (this List<ICopyable> list) {
+		public static List<T> CopyMembers<T> (this List<T> list) where T : ICopyable {
 			int count = list.Count;
-			List<ICopyable> output = new List<ICopyable> (count);
+			List<T> output = new List<T> (count);
 			for (int i = 0; i < count; i++) {
-				ICopyable item = list[i];
-				output.Add (item.Copy ());
+				output.Add ((T)list[i].Copy ());
 			}
 			return output;
 		}
