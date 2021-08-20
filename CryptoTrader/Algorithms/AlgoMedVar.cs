@@ -1,4 +1,5 @@
 ﻿using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms {
 
@@ -15,6 +16,10 @@ namespace CryptoTrader.Algorithms {
 				return;
 			}
 
+		}
+
+		public override ICopyable Copy () {
+			return CopyAbstractValues (new AlgoMedVar ());
 		}
 
 	}

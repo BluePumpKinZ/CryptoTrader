@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms {
 
@@ -24,6 +25,10 @@ namespace CryptoTrader.Algorithms {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * 0.5, time);
 				CreateOrder (order, ref balances);
 			}
+		}
+
+		public override ICopyable Copy () {
+			return CopyAbstractValues (new Algo80s ());
 		}
 	}
 }

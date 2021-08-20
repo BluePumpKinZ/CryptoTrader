@@ -3,6 +3,7 @@ using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.NicehashAPI.Utils;
+using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -11,6 +12,10 @@ namespace CryptoTrader.Algorithms {
 	public class AlgoAI : Algorithm, IImprovableAlgorithm {
 
 		public DeepLearningNetwork network;
+
+		private AlgoAI (DeepLearningNetwork network) {
+			this.network = network;
+		}
 
 		public AlgoAI () {
 			NetworkStructure structure = new NetworkStructure (new int[] { AIDataConversion.INPUT_LAYER_SAMPLES, 100, 16, 1 });
@@ -107,6 +112,10 @@ namespace CryptoTrader.Algorithms {
 				totalLoss += network.CalculateLossOnInputs (inputs[i], outputs[i]);
 
 			return totalLoss / examples;
+		}
+
+		public override ICopyable Copy () {
+			return CopyAbstractValues (new AlgoAI ((DeepLearningNetwork)network.Copy ()));
 		}
 	}
 }

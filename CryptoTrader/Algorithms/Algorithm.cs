@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace CryptoTrader.Algorithms {
 
-	public abstract class Algorithm : IStorable {
+	public abstract class Algorithm : IStorable, ICopyableAbstract {
 
 		private bool isTraining;
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
@@ -129,5 +129,16 @@ namespace CryptoTrader.Algorithms {
 			return true;
 		}
 
+		public ICopyable CopyAbstractValues (ICopyable copy) {
+			Algorithm algo = (Algorithm)copy;
+			algo.IsTraining = isTraining;
+			algo.PrimaryCurrency = PrimaryCurrency;
+			algo.trainingModeBalances = trainingModeBalances;
+			algo.trainingLimitOrders = trainingLimitOrders.CopyMembers ();
+			algo.totalBalancesRatioAssinged = totalBalancesRatioAssinged;
+			return algo;
+		}
+
+		public abstract ICopyable Copy ();
 	}
 }
