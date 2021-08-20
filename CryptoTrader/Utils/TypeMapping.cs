@@ -1,5 +1,7 @@
 ﻿using CryptoTrader.Algorithms;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace CryptoTrader.Utils {
@@ -22,6 +24,16 @@ namespace CryptoTrader.Utils {
 
 		public static string BytesToString (byte[] bytes) {
 			return Encoding.UTF8.GetString (bytes);
+		}
+
+		public static string[] GetAllDerivedTypes (Type type) {
+			List<string> output = new List<string> ();
+			Assembly assembly = Assembly.GetExecutingAssembly ();
+			Type[] types = assembly.GetTypes ();
+			for (int i = 0; i < types.Length; i++)
+				if (types[i].IsSubclassOf (type))
+					output.Add (types[i].Name);
+			return output.ToArray ();
 		}
 
 	}
