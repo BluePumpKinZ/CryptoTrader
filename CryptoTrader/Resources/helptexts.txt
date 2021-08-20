@@ -3,7 +3,7 @@
 {
 Usage:     keys [read/select]
 
-Options:   read    set           The loaded keyset
+Syntax:    read    set           The loaded keyset
                    name          The name of the keyset
                    apikey        Loaded api key
                    apisecret     Loaded api secret
@@ -16,7 +16,7 @@ Options:   read    set           The loaded keyset
 {
 Usage:     trader [start/stop/save/stopandsave/status]
 
-Options:   start          Activates all enabled algorithms
+Syntax:    start          Activates all enabled algorithms
            stop           Stops the program without saving
            save           Saves all data
            stopandsave    Saves all data and stops the program
@@ -27,24 +27,34 @@ Options:   start          Activates all enabled algorithms
 {
 Usage:     accounting [read]
 
-Options:   read    balances    Retrieves current balances from exchange
+Syntax:    read    balances    Retrieves current balances from exchange
 }
 
 {exchangepublic}
 {
 Usage:     exchangepublic [read]
 
-Options:   read    prices      Retrieves current prices from exchange
+Syntax:    read    prices      Retrieves current prices from exchange
 }
 {algorithms}
 {
-Usage:     algorithms [list/test/loss/add/remove/improve]
+Usage:     algorithms [list/test/loss/add/remove/enable/disable/improve] [-a/-c/-e/-t/-s]
 
-Options:   list               Show all loaded algorithms
-           list types         Show a list of the different types of algorithms
-           test [-c]          Test the algorithms for a given currency
-           loss [-c]          Evaluates a improvable algorithms' loss
-           improve [-c] [-e]  Improves an improvable algorithm by -e epochs (CAUTION! Once started the operation cannot be canceled)
-           add [-c] [-t]      Add an algorithm for a currency
-           delete [-c]        Removes the algorithm for a currency
+Syntax:    list                         Show all loaded algorithms
+           list types                   Show a list of the different types of algorithms
+           test [-c]                    Test the algorithms for a given currency
+           loss [-c]                    Evaluates an improvable algorithms' loss
+           enable                       Enables trading for all algorithms
+           enable [-c]                  Enables an algorithm
+           disable                      Disables trading for all algorithms
+           disable [-c]                 Disables an algorithm
+           improve [-c] [-e] [-t] [-s]  Improves an improvable algorithm by -e epochs (CAUTION! Once started the operation cannot be cancelled)
+           add [-c] [-a]                Add an algorithm for a currency
+           delete [-c]                  Removes the algorithm for a currency
+
+Options:   -a  Algorithm ('algorithms list types' for full list)
+           -c  Currency
+           -e  Epochs (Amount of times the operation is repeated)
+           -t  Threads (Not advised to go above the max amount of logical processors in your system)
+           -s  Autosave after an operation
 }

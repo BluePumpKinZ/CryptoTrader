@@ -63,11 +63,13 @@ namespace CryptoTrader {
 
 		public static void EnableTrading () {
 			IsTrading = true;
+			Console.WriteLine ("Enabled trading");
 			worthSaving = true;
 		}
 
 		public static void DisableTrading () {
 			IsTrading = false;
+			Console.WriteLine ("Disabled trading");
 			worthSaving = true;
 		}
 
@@ -96,20 +98,52 @@ namespace CryptoTrader {
 		}
 
 		public static void EnableAlgorithm (Currency currency) {
-			GetAlgorithmForCurrency (currency).IsTraining = false;
-			worthSaving = true;
+			try {
+				GetAlgorithmForCurrency (currency).IsTraining = false;
+				Console.WriteLine ($"Enabled algorithm for currency '{Currencies.GetCurrencyToken (currency)}'.");
+				worthSaving = true;
+			} catch (ApplicationException) {
+				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' exists.");
+			}
 		}
 
 		public static void DisableAlgorithm (Currency currency) {
-			GetAlgorithmForCurrency (currency).IsTraining = true;
+			try {
+				GetAlgorithmForCurrency (currency).IsTraining = true;
+				Console.WriteLine ($"Disabled algorithm for currency '{Currencies.GetCurrencyToken (currency)}'.");
+				worthSaving = true;
+			} catch (ApplicationException) {
+				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' exists.");
+			}
+		}
+
+		public static void AddAlgorithm (Algorithm algo) {
+			if (algo.PrimaryCurrency == Currency.Null)
+				throw new ArgumentException ("Algorithm must have a currency assigned.");
+			if (GetIndexForCurrency (algo.PrimaryCurrency) != -1) {
+				Console.WriteLine ($"Already an algorithm for currency '{Currencies.GetCurrencyToken (algo.PrimaryCurrency)}'.");
+				return;
+			}
+			algorithms.Add (algo);
 			worthSaving = true;
 		}
 
-		public static void SetAlgorithm (Algorithm algo) {
-			if (algo.PrimaryCurrency == Currency.Null)
-				throw new ArgumentException ("Algorithm mus have a currency assigned.");
-			algorithms.Add (algo);
-			worthSaving = true;
+		public static void DeleteAlgorithm (Currency currency) {
+			if (currency == Currency.Null) {
+				Console.WriteLine ("Currency cannot be null.");
+				return;
+			}
+			int index = GetIndexForCurrency (currency);
+			if (index != -1) {
+				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' could be found.");
+				return;
+			}
+			algorithms.RemoveAt (index);
+			Console.WriteLine ($"Deleted algorithm for currency '{Currencies.GetCurrencyToken (currency)}'.");
+		}
+
+		public static void SetDistributionForAlgorithm (Currency currency, double amountInUSD) {
+
 		}
 
 		public static bool GetImprovableAlgorithm (Currency currency, out IImprovableAlgorithm improvableAlgorithm) {
@@ -210,11 +244,11 @@ namespace CryptoTrader {
 			double totalBtc = balances.TotalBalance.ToCurrency (Currency.Tether, PriceWatcher.GetBTCPrice (Currency.Tether)).Total;
 			for (int i = 0; i < algorithms.Count; i++)
 				if (!algorithms[i].IsTraining)
-					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
-			sb.Append ("Inactive algorithms:");
+					sb.Append ($"\n\t{Currencies.GetCurrencyToken (algorithms[i].PrimaryCurrency)}\t | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+			sb.Append ("\nInactive algorithms:");
 			for (int i = 0; i < algorithms.Count; i++)
 				if (algorithms[i].IsTraining)
-					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+					sb.Append ($"\n\t{Currencies.GetCurrencyToken (algorithms[i].PrimaryCurrency)}\t | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
 			return sb.ToString ();
 		}
 

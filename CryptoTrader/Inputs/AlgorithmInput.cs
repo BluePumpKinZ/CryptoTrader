@@ -4,6 +4,7 @@ using CryptoTrader.Exceptions;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.Utils;
 using System;
+using System.Linq;
 
 namespace CryptoTrader.Inputs {
 
@@ -13,6 +14,7 @@ namespace CryptoTrader.Inputs {
 		private int epochs = 0;
 		private int threads = 0;
 		private bool autosaveAfterImprovement = false;
+		private string algorithmType = "";
 
 		private protected override bool Process (ref string input) {
 			switch (GetNextSegment (ref input)) {
@@ -36,7 +38,7 @@ namespace CryptoTrader.Inputs {
 			case "test":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {
-						function = () => Console.WriteLine ("Please specify a currency for which to test the algorithm.");
+						function = () => Console.WriteLine ("Please specify a currency.");
 						return false;
 					}
 					function = () => {
@@ -50,7 +52,7 @@ namespace CryptoTrader.Inputs {
 			case "loss":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {
-						function = () => Console.WriteLine ("Please specify a currency for which to test the loss.");
+						function = () => Console.WriteLine ("Please specify a currency.");
 						return false;
 					}
 					function = () => {
@@ -60,20 +62,77 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
+			case "enable":
+				if (input.Length == 0) {
+					function = () => Trader.EnableTrading ();
+					return true;
+				}
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					function = () => Trader.EnableAlgorithm (algorithmCurrency);
+					return true;
+				}
+				return false;
+			case "disable":
+				if (input.Length == 0) {
+					function = () => Trader.DisableTrading ();
+					return true;
+				}
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					function = () => Trader.DisableAlgorithm (algorithmCurrency);
+					return true;
+				}
+				return false;
 			case "improve":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {
-						function = () => Console.WriteLine ("Please specify a currency for which to test the loss.");
+						function = () => Console.WriteLine ("Please specify a currency.");
 						return false;
 					}
 					if (epochs == 0) {
-						function = () => Console.WriteLine ("Please specify a number of epochs.");
+						function = () => Console.WriteLine ("Please specify the number of epochs.");
 						return false;
 					}
 					function = () => {
 						if (Trader.GetImprovableAlgorithm (algorithmCurrency, out IImprovableAlgorithm algo))
 							algo.Improve (epochs, threads == 0 ? AIProcessTaskScheduler.ThreadCount : threads, autosaveAfterImprovement);
 					};
+					return true;
+				}
+				return false;
+			case "add":
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					if (algorithmType == "") {
+						function = () => Console.WriteLine ("Please specify an algorithm type.");
+						return false;
+					}
+					function = () => {
+						Algorithm algorithm = TypeMapping.AlgorithmFromName (algorithmType);
+						algorithm.SetPrimaryCurrency (algorithmCurrency);
+						algorithm.IsTraining = true;
+						Trader.AddAlgorithm (algorithm);
+					};
+					return true;
+				}
+				return false;
+			case "remove":
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					function = () => Trader.DeleteAlgorithm (algorithmCurrency);
 					return true;
 				}
 				return false;
@@ -85,6 +144,18 @@ namespace CryptoTrader.Inputs {
 			do {
 				string arg = GetNextSegment (ref input);
 				switch (arg) {
+				case "-a":
+					try {
+						string type = GetNextSegment (ref input);
+						if (TypeMapping.GetAllDerivedTypes (typeof (Algorithm)).Contains (type))
+							algorithmType = type;
+						else
+							function = () => Console.WriteLine ($"{type} is not a valid algorithm. For a full list execute 'algorithms list types'.");
+					} catch (OutOfArgumentsException) {
+						function = () => Console.WriteLine ("No argument was given for option '-a'.");
+						return true;
+					}
+					break;
 				case "-c":
 					try {
 						algorithmCurrency = Currencies.GetCurrencyFromToken (GetNextSegment (ref input));
@@ -101,13 +172,16 @@ namespace CryptoTrader.Inputs {
 						return false;
 					}
 					break;
-				case "-s":
+				case "-t":
 					try {
-						autosaveAfterImprovement = bool.Parse (GetNextSegment (ref input));
+						threads = int.Parse (GetNextSegment (ref input));
 					} catch (OutOfArgumentsException) {
-						function = () => Console.WriteLine ("No argument was given for option '-s'.");
+						function = () => Console.WriteLine ("No argument was given for option '-t'");
 						return false;
 					}
+					break;
+				case "-s":
+					autosaveAfterImprovement = true;
 					break;
 				default:
 					function = () => Console.WriteLine ($"Option '{arg}' not recognized.");
