@@ -7,13 +7,16 @@ namespace CryptoTrader {
 
 		static void Main () {
 
+			Config config = null;
 			try {
-				Config config = new Config ();
+				config = new Config ();
 				Trader.Initialize (config);
 			} catch (Exception) {
 				Console.WriteLine ("Config could not be loaded");
 				Environment.Exit (-1);
 			}
+			if (config.AutoStart)
+				Trader.Start ();
 
 			while (true) {
 				try {
