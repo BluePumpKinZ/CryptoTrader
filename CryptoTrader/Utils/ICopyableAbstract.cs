@@ -2,7 +2,7 @@
 
 	public interface ICopyableAbstract : ICopyable {
 
-		private protected ICopyable CopyAbstractValues (ICopyable copy);
+		public ICopyable CopyAbstractValues (ICopyable copy);
 
 	}
 
