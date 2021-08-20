@@ -123,16 +123,7 @@ namespace CryptoTrader.AISystem {
 			CheckTrainErrors (inputs, desiredOutputs);
 			step = -step;
 
-			if (threads > inputs.Length)
-				threads = inputs.Length;
-			int[] markers = new int[threads];
-			for (int i = 0; i < markers.Length; i++)
-				markers[i] = i * inputs.Length / threads;
-
-			int[] sizes = new int[threads];
-			for (int i = 0; i < sizes.Length - 1; i++)
-				sizes[i] = markers[i + 1] - markers[i];
-			sizes[^1] = inputs.Length - markers[^1];
+			Batching.GetBatchSplits (inputs.Length, threads, out int[] markers, out int[] sizes);
 
 			threadedAdjustments = new LayerAdjustments[threads][];
 
