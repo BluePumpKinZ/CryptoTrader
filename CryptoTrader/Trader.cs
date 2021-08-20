@@ -123,14 +123,10 @@ namespace CryptoTrader {
 			return true;
 		}
 
-		public static void LaunchAlgorithmImprovement (Currency currency, int epochs) {
+		public static double GetAlgorithmLoss (Currency currency) {
 			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
-				improvableAlgorithm.Improve (epochs, AIProcessTaskScheduler.ThreadCount);
-		}
-
-		public static void GetAlgorithmLoss (Currency currency) {
-			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
-				Console.WriteLine ($"{improvableAlgorithm.GetLoss ()}");
+				return improvableAlgorithm.GetLoss ();
+			return double.MaxValue;
 		}
 
 		public static void LoadAlgorithms () {
@@ -169,6 +165,7 @@ namespace CryptoTrader {
 
 			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
 			worthSaving = false;
+			Console.WriteLine ($"Saved algorithms to {algorithmStoragePath}");
 		}
 
 		public static void Start () {
@@ -207,6 +204,20 @@ namespace CryptoTrader {
 			KeyValues.SelectKeySet (setName);
 		}
 
+		public static string ListAlgorithms () {
+			StringBuilder sb = new StringBuilder ();
+			sb.Append ("Active algorithms:");
+			double totalBtc = balances.TotalBalance.ToCurrency (Currency.Tether, PriceWatcher.GetBTCPrice (Currency.Tether)).Total;
+			for (int i = 0; i < algorithms.Count; i++)
+				if (!algorithms[i].IsTraining)
+					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+			sb.Append ("Inactive algorithms:");
+			for (int i = 0; i < algorithms.Count; i++)
+				if (algorithms[i].IsTraining)
+					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+			return sb.ToString ();
+		}
+
 		public static string GetStatusPrintOut () {
 			Currency[] monitoredCurrencies = PriceWatcher.GetMonitoredCurrencies ();
 			StringBuilder sb = new StringBuilder ();
@@ -226,16 +237,8 @@ namespace CryptoTrader {
 			} else {
 				sb.Append ("Disabled");
 			}
-			sb.Append ("\nActive algorithms:");
-			double totalBtc = balances.TotalBalance.ToCurrency (Currency.Tether, PriceWatcher.GetBTCPrice (Currency.Tether)).Total;
-			for (int i = 0; i < algorithms.Count; i++)
-				if (!algorithms[i].IsTraining)
-					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
-			sb.Append ("\nInactive algorithms:");
-			for (int i = 0; i < algorithms.Count; i++)
-				if (algorithms[i].IsTraining)
-					sb.Append ($"\n\t{algorithms[i].PrimaryCurrency} | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
-
+			sb.Append ("\n");
+			sb.Append (ListAlgorithms ());
 			return sb.ToString ();
 		}
 
