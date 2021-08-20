@@ -1,6 +1,7 @@
 ﻿using CryptoTrader.Algorithms.Orders;
 using CryptoTrader.Utils;
 using System;
+using System.Threading;
 
 namespace CryptoTrader.AISystem {
 
@@ -37,6 +38,67 @@ namespace CryptoTrader.AISystem {
 				desiredOutput[i] = new double[] { output[i] };
 			}
 
+		}
+
+		private static double[][] threadedInput;
+		private static double[][] threadedOutput;
+		public static void GetTrainingDataBatchThreaded (PriceGraph graph, int batchSize, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
+			if (batchSize < 0)
+				throw new ArgumentException ("Batch size can't be negative.", "batchSize");
+
+			if (threadedInput != null || threadedOutput != null)
+				throw new OperationCanceledException ("Conflicting threads!");
+
+			threadedInput = new double[batchSize][];
+			threadedOutput = new double[batchSize][];
+
+			int minIndex = 0;
+			long minimumTime = graph.GetStartTime () + minimumTimeframe;
+			for (int i = 0; i < graph.GetLength (); i++) {
+				if (graph.GetTimeByIndex (i) > minimumTime) {
+					minIndex = i;
+					break;
+				}
+			}
+
+			double[] output = GetDesiredNetworkOutputFromPriceGraph (graph);
+			Random random = new Random ();
+
+			Batching.GetBatchSplits (batchSize, AIProcessTaskScheduler.ThreadCount, out int[] markers, out int[] sizes);
+
+			for (int i = 0; i < markers.Length; i++) {
+				int j = i;
+				AIProcessTaskScheduler.AddTask (() => {
+					for (int k = markers[j]; k < sizes[j] + markers[j]; k++) {
+
+						int randomIndex = random.Next (minIndex, graph.GetLength () - 1);
+
+						PriceGraph rangedGraph = graph.GetRange (randomIndex);
+						threadedInput[k] = GetNetworkInputFromPriceGraph (rangedGraph, minimumTimeframe);
+						threadedOutput[k] = new double[] { output[k] };
+					}
+				});
+			}
+
+			bool canContinue;
+			do {
+				canContinue = true;
+				for (int i = 0; i < threadedInput.Length; i++)
+					if (threadedInput[i] == null)
+						canContinue = false;
+
+				for (int i = 0; i < threadedOutput.Length; i++)
+					if (threadedOutput[i] == null)
+						canContinue = false;
+
+				Thread.Sleep (1);
+			} while (!canContinue);
+
+			input = threadedInput;
+			desiredOutput = threadedOutput;
+
+			threadedInput = null;
+			threadedOutput = null;
 		}
 
 		public static Tuple<double[], double[]> GetBuyAndSellsFromOrders (PriceGraph graph, MarketOrder[] orders) {
