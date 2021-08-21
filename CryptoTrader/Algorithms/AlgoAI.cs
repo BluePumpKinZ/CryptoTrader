@@ -88,7 +88,7 @@ namespace CryptoTrader.Algorithms {
 					AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 					LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 					LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
-					network.TrainThreaded (inputs, outputs, 0.0002, threads);
+					network.TrainThreaded (inputs, outputs, 0.00002, threads);
 				}
 
 				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {PrimaryCurrency}");
@@ -108,6 +108,7 @@ namespace CryptoTrader.Algorithms {
 			AIDataConversion.GetTrainingDataBatch (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 			LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 			LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
+
 
 			for (int i = 0; i < examples; i++)
 				totalLoss += network.CalculateLossOnInputs (inputs[i], outputs[i]);
