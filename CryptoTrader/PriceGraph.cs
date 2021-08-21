@@ -27,12 +27,10 @@ namespace CryptoTrader {
 			prices.Insert (insertionIndex + 1, new GraphUnit (milliTime, price));
 		}
 
-		public double GetPrice (long milliTime, bool raw = false) {
-
-			if (prices.Count == 0)
-				throw new NoPricesFoundException ($"Graph for currency \"{Currency}\" is empty.");
-
-			int min = 0, max = prices.Count - 1, searchIndex;
+		private void BinarySearchTimeIndex (long milliTime, out int min, out int max) {
+			min = 0;
+			max = prices.Count - 1;
+			int searchIndex;
 			while (max - min > 1) {
 				searchIndex = (min + max) / 2;
 				long time = prices[searchIndex].Time;
@@ -42,6 +40,14 @@ namespace CryptoTrader {
 					min = searchIndex;
 				}
 			}
+		}
+
+		public double GetPrice (long milliTime, bool raw = false) {
+
+			if (prices.Count == 0)
+				throw new NoPricesFoundException ($"Graph for currency \"{Currency}\" is empty.");
+
+			BinarySearchTimeIndex (milliTime, out int min, out int max);
 
 			GraphUnit minUnit = prices[min];
 			GraphUnit maxUnit = prices[max];
@@ -91,6 +97,28 @@ namespace CryptoTrader {
 
 		public long GetTimeLength () {
 			return GetLastTime () - GetStartTime ();
+		}
+
+		public void GetMinMaxPriceInRange (long startTime, long endTime, out double min, out double max) {
+			BinarySearchTimeIndex (startTime, out int startIndex1, out int startIndex2);
+			BinarySearchTimeIndex (endTime, out int endIndex1, out int endIndex2);
+
+			GraphUnit startUnit1 = prices[startIndex1];
+			GraphUnit startUnit2 = prices[startIndex2];
+			GraphUnit endUnit1 = prices[endIndex1];
+			GraphUnit endUnit2 = prices[endIndex2];
+
+			double firstPrice = MoreMath.Lerp (startUnit1.Value, startUnit2.Value, MoreMath.InverseLerp (startUnit1.Time, startUnit2.Time, startTime));
+			double lastPrice = MoreMath.Lerp (endUnit1.Value, endUnit2.Value, MoreMath.InverseLerp (endUnit1.Time, endUnit2.Time, endTime));
+
+			min = Math.Min (firstPrice, lastPrice);
+			max = Math.Max (firstPrice, lastPrice);
+
+			for (int i = startIndex2; i <= endIndex1; i++) {
+				double price = prices[i].Value;
+				min = Math.Min (min, price);
+				max = Math.Max (max, price);
+			}
 		}
 
 		public MarketOrder[] GetOptimalTrades (out double totalProfit) {
