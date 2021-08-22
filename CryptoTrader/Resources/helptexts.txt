@@ -38,12 +38,13 @@ Syntax:    read    prices      Retrieves current prices from exchange
 }
 {algorithms}
 {
-Usage:     algorithms [list/test/loss/add/remove/enable/disable/improve] [-a/-c/-e/-t/-s]
+Usage:     algorithms [list/test/loss/add/remove/enable/disable/improve] [-a/-c/-e/-t/-s/-r]
 
 Syntax:    list                         Show all loaded algorithms
            list types                   Show a list of the different types of algorithms
            test [-c]                    Test the algorithms for a given currency
            loss [-c]                    Evaluates an improvable algorithms' loss
+           assign [-c] [-r]             Assigns a certain amount of stakes onto an algorithm
            enable                       Enables trading for all algorithms
            enable [-c]                  Enables an algorithm
            disable                      Disables trading for all algorithms
@@ -57,4 +58,5 @@ Options:   -a  Algorithm ('algorithms list types' for full list)
            -e  Epochs (Amount of times the operation is repeated)
            -t  Threads (Not advised to go above the max amount of logical processors in your system)
            -s  Autosave after an operation
+           -r  Ratio (0..1)
 }

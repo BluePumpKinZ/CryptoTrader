@@ -117,6 +117,32 @@ namespace CryptoTrader {
 			}
 		}
 
+		public static void AssignRatio (Currency currency, double ratio) {
+
+			Algorithm algorithm;
+			try {
+				algorithm = GetAlgorithmForCurrency (currency);
+			} catch (ApplicationException) {
+				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' exists.");
+				return;
+			}
+			if (ratio < algorithm.TotalBalancesRatioAssinged) {
+				algorithm.TotalBalancesRatioAssinged = ratio;
+				return;
+			}
+
+			double ratioSum = 0;
+			for (int i = 0; i < algorithms.Count; i++)
+				ratioSum += algorithms[i].TotalBalancesRatioAssinged;
+
+			ratioSum += ratio - algorithm.TotalBalancesRatioAssinged;
+
+			for (int i = 0; i < algorithms.Count; i++)
+				algorithms[i].TotalBalancesRatioAssinged /= ratioSum;
+
+			algorithm.TotalBalancesRatioAssinged = ratio / ratioSum;
+		}
+
 		public static void AddAlgorithm (Algorithm algo) {
 			if (algo.PrimaryCurrency == Currency.Null)
 				throw new ArgumentException ("Algorithm must have a currency assigned.");
@@ -125,6 +151,7 @@ namespace CryptoTrader {
 				return;
 			}
 			algorithms.Add (algo);
+			Console.WriteLine ($"Added algorithm for currency '{Currencies.GetCurrencyToken (algo.PrimaryCurrency)}'.");
 			worthSaving = true;
 		}
 
@@ -140,10 +167,6 @@ namespace CryptoTrader {
 			}
 			algorithms.RemoveAt (index);
 			Console.WriteLine ($"Deleted algorithm for currency '{Currencies.GetCurrencyToken (currency)}'.");
-		}
-
-		public static void SetDistributionForAlgorithm (Currency currency, double amountInUSD) {
-
 		}
 
 		public static bool GetImprovableAlgorithm (Currency currency, out IImprovableAlgorithm improvableAlgorithm) {

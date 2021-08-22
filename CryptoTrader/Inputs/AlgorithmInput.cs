@@ -5,6 +5,7 @@ using CryptoTrader.NicehashAPI;
 using CryptoTrader.Utils;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace CryptoTrader.Inputs {
 
@@ -15,6 +16,7 @@ namespace CryptoTrader.Inputs {
 		private int threads = 0;
 		private bool autosaveAfterImprovement = false;
 		private string algorithmType = "";
+		private double assignRatio = -1;
 
 		private protected override bool Process (ref string input) {
 			switch (GetNextSegment (ref input)) {
@@ -107,6 +109,20 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
+			case "assign":
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					if (assignRatio == -1) {
+						function = () => Console.WriteLine ("Please specify an assignment ratio.");
+						return false;
+					}
+					function = () => Trader.AssignRatio (algorithmCurrency, assignRatio);
+					return true;
+				}
+				return false;
 			case "add":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {
@@ -126,7 +142,7 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
-			case "remove":
+			case "delete":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {
 						function = () => Console.WriteLine ("Please specify a currency.");
@@ -176,12 +192,24 @@ namespace CryptoTrader.Inputs {
 					try {
 						threads = int.Parse (GetNextSegment (ref input));
 					} catch (OutOfArgumentsException) {
-						function = () => Console.WriteLine ("No argument was given for option '-t'");
+						function = () => Console.WriteLine ("No argument was given for option '-t'.");
 						return false;
 					}
 					break;
 				case "-s":
 					autosaveAfterImprovement = true;
+					break;
+				case "-r":
+					try {
+						assignRatio = double.Parse (GetNextSegment (ref input).Replace (".", ","));
+						if (assignRatio < 0 || assignRatio > 1) {
+							function = () => Console.WriteLine ("Ratio should be in range (0..1).");
+							return false;
+						}
+					} catch (OutOfArgumentsException) {
+						function = () => Console.WriteLine ("No argument was given for option '-r'.");
+						return false;
+					}
 					break;
 				default:
 					function = () => Console.WriteLine ($"Option '{arg}' not recognized.");
