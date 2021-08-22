@@ -15,6 +15,13 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
+			case "update":
+				switch (GetNextSegment (ref input)) {
+				case "balances":
+					function = () => Trader.UpdateBalances ();
+					return true;
+				}
+				return false;
 			}
 			return false;
 		}

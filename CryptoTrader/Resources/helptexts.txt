@@ -25,9 +25,10 @@ Syntax:    start          Activates all enabled algorithms
 
 {accounting}
 {
-Usage:     accounting [read]
+Usage:     accounting [read/update]
 
 Syntax:    read    balances    Retrieves current balances from exchange
+           update  balances    Updates the internal reference to the online balances
 }
 
 {exchangepublic}
