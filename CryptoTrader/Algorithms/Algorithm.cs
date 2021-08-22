@@ -34,7 +34,7 @@ namespace CryptoTrader.Algorithms {
 		public virtual void LoadFromBytes (ref int index, byte[] data) {
 			PrimaryCurrency = Currencies.GetCurrencyFromHash (BitConverter.ToUInt32 (IStorable.GetDataRange (ref index, data)));
 			totalBalancesRatioAssinged = BitConverter.ToDouble (IStorable.GetDataRange (ref index, data));
-			IsTraining = BitConverter.ToBoolean (IStorable.GetDataRange (ref index, data));
+			isTraining = BitConverter.ToBoolean (IStorable.GetDataRange (ref index, data));
 		}
 
 		public virtual void SaveToBytes (ref List<byte> datalist) {
@@ -51,9 +51,11 @@ namespace CryptoTrader.Algorithms {
 		}
 
 		public double ExecuteOnPriceGraph (PriceGraph graph) {
-			SetTrainingMode (true);
+			isTraining = true;
 
-			const double startWalletValue = 10000; // USD
+			double originalRatio = totalBalancesRatioAssinged;
+			totalBalancesRatioAssinged = 1;
+			const double startWalletValue = 100; // USD
 			long startTime = graph.GetTimeByIndex (0);
 			long endTime = startTime + graph.GetTimeLength ();
 
@@ -69,12 +71,12 @@ namespace CryptoTrader.Algorithms {
 				newGraph.AddPriceValue (time, graph.GetPrice (time, true));
 				trainingModeBalances.UpdateBTCRateForCurrency (graph.Currency, newGraph.GetLastPrice ());
 				Iterate (newGraph, ref trainingModeBalances);
-				Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
+				// Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
 			}
 			double endBtc = trainingModeBalances.TotalBalance.Total;
 
-			SetTrainingMode (false);
-			Console.WriteLine (trainingModeBalances);
+			totalBalancesRatioAssinged = originalRatio;
+			isTraining = false;
 			return endBtc / startBtc;
 		}
 
@@ -131,7 +133,7 @@ namespace CryptoTrader.Algorithms {
 
 		public ICopyable CopyAbstractValues (ICopyable copy) {
 			Algorithm algo = (Algorithm)copy;
-			algo.IsTraining = isTraining;
+			algo.isTraining = isTraining;
 			algo.PrimaryCurrency = PrimaryCurrency;
 			algo.trainingModeBalances = trainingModeBalances;
 			algo.trainingLimitOrders = trainingLimitOrders.CopyMembers ();
