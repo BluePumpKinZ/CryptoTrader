@@ -134,7 +134,7 @@ namespace CryptoTrader {
 				return;
 			}
 			int index = GetIndexForCurrency (currency);
-			if (index != -1) {
+			if (index == -1) {
 				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' could be found.");
 				return;
 			}
