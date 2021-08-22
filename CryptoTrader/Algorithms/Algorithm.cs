@@ -15,7 +15,7 @@ namespace CryptoTrader.Algorithms {
 		private Balances trainingModeBalances = new Balances ();
 		public Currency PrimaryCurrency { private set; get; } = Currency.Null;
 		private double totalBalancesRatioAssinged;
-		public double TotalBalancesRatioAssinged { private protected set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
+		public double TotalBalancesRatioAssinged { internal set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
 
 		public void SetPrimaryCurrency (Currency currency) {
 			if (PrimaryCurrency == Currency.Null)
