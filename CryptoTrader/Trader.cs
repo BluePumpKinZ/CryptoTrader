@@ -146,6 +146,8 @@ namespace CryptoTrader {
 				algorithms[i].TotalBalancesRatioAssinged /= ratioSum;
 
 			algorithm.TotalBalancesRatioAssinged = ratio / ratioSum;
+
+			worthSaving = true;
 		}
 
 		public static void AddAlgorithm (Algorithm algo) {
@@ -172,6 +174,7 @@ namespace CryptoTrader {
 			}
 			algorithms.RemoveAt (index);
 			Console.WriteLine ($"Deleted algorithm for currency '{Currencies.GetCurrencyToken (currency)}'.");
+			worthSaving = true;
 		}
 
 		public static bool GetImprovableAlgorithm (Currency currency, out IImprovableAlgorithm improvableAlgorithm) {
