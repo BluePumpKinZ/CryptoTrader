@@ -40,11 +40,16 @@ namespace CryptoTrader {
 
 		private static void GetBalancesGuaranteed () {
 			try {
-				balances = Accounting.GetBalances ();
+				UpdateBalances ();
 			} catch (Exception) {
 				Thread.Sleep (1000);
 				GetBalancesGuaranteed ();
 			}
+			worthSaving = true;
+		}
+
+		public static void UpdateBalances () {
+			balances = Accounting.GetBalances ();
 			worthSaving = true;
 		}
 
