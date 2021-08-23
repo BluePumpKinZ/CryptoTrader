@@ -34,6 +34,7 @@ namespace CryptoTrader {
 			Currencies.GenerateLookUpTables ();
 			LoadAlgorithms ();
 			PriceWatcher.LoadPrices ();
+			PriceWatcher.AddToOnPriceUpdate (() => UpdateBalances ());
 			PriceWatcher.AddToOnPriceUpdate (() => IterateAlgorithms ());
 			Console.WriteLine ("Trader initialized.");
 		}
@@ -141,6 +142,8 @@ namespace CryptoTrader {
 				ratioSum += algorithms[i].TotalBalancesRatioAssinged;
 
 			ratioSum += ratio - algorithm.TotalBalancesRatioAssinged;
+
+			ratioSum = Math.Max (ratioSum, 1);
 
 			for (int i = 0; i < algorithms.Count; i++)
 				algorithms[i].TotalBalancesRatioAssinged /= ratioSum;
