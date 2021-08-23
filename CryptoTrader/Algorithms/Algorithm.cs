@@ -51,6 +51,7 @@ namespace CryptoTrader.Algorithms {
 		}
 
 		public double ExecuteOnPriceGraph (PriceGraph graph) {
+			bool wasTraining = isTraining;
 			isTraining = true;
 
 			double originalRatio = totalBalancesRatioAssinged;
@@ -76,7 +77,7 @@ namespace CryptoTrader.Algorithms {
 			double endBtc = trainingModeBalances.TotalBalance.Total;
 
 			totalBalancesRatioAssinged = originalRatio;
-			isTraining = false;
+			isTraining = wasTraining;
 			return endBtc / startBtc;
 		}
 
