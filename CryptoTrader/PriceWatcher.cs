@@ -30,7 +30,7 @@ namespace CryptoTrader {
 		}
 
 		public static void Start () {
-			if (priceWatchThread == null) {
+			if (priceWatchThread != null) {
 				Console.WriteLine ("Pricewatcher already started.");
 				return;
 			}
