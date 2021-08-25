@@ -42,7 +42,7 @@ namespace CryptoTrader.NicehashAPI.Utils {
 			request.AddHeader ("Content-type", "application/json");
 
 			string nonce = NicehashSystem.GenerateNonce ();
-			string digest = HashBySegments (KeyValues.ApiSecret, KeyValues.ApiKey, time, nonce, KeyValues.OrganizationID, "POST", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), payload);
+			string digest = HashBySegments (KeyValues.ApiSecret, KeyValues.ApiKey, time, nonce, KeyValues.OrganizationID, "POST", NicehashSystem.GetPath (url), NicehashSystem.GetQuery (url), payload ?? "");
 
 			if (payload != null) {
 				request.AddJsonBody (payload);
