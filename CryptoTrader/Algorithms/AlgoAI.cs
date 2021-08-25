@@ -38,11 +38,10 @@ namespace CryptoTrader.Algorithms {
 			LayerState networkOutput = network.Iterate (new LayerState (networkInput));
 			double networkSuggestion = networkOutput[0];
 
-			double totalBTC = balances.TotalBalance.Total;
-			double totalAvailableBTC = totalBTC * TotalBalancesRatioAssinged;
+			double totalBTC = GetAvailableBTC (balances);
 			double soldBTC = balances.GetBalanceForCurrency (PrimaryCurrency).ToBTCBalance ().Total;
-			double soldRatio = soldBTC / totalAvailableBTC;
-			double soldBtcSuggestion = networkSuggestion * totalAvailableBTC;
+			double soldRatio = soldBTC / totalBTC;
+			double soldBtcSuggestion = networkSuggestion * totalBTC;
 
 			double btcDiff = Math.Abs (soldBTC - soldBtcSuggestion);
 
@@ -52,12 +51,12 @@ namespace CryptoTrader.Algorithms {
 			}
 
 			if (networkSuggestion >= soldRatio) {
-				Order order = new MarketBuyOrder (PrimaryCurrency, totalAvailableBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());
+				Order order = new MarketBuyOrder (PrimaryCurrency, totalBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());
 				CreateOrder (order, ref balances);
 			}
 
 			if (networkSuggestion <= soldRatio) {
-				Order order = new MarketSellOrder (PrimaryCurrency, (totalAvailableBTC - btcDiff) / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
+				Order order = new MarketSellOrder (PrimaryCurrency, (totalBTC - btcDiff) / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
 				CreateOrder (order, ref balances);
 			}
 

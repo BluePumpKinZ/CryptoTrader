@@ -26,24 +26,23 @@ namespace CryptoTrader.Algorithms {
 
 			double price = graph.GetLastPrice ();
 
-			double valuebtc = balances.GetBalanceForCurrency (Currency.Bitcoin).Available;
+			double valuebtc = GetAvailableBTC (balances);
 			double valueCoin = balances.GetBalanceForCurrency (graph.Currency).Available;
-
-			double totalBtc = balances.TotalBalance.Total;
-			double maxBtc = totalBtc * TotalBalancesRatioAssinged;
-
-			valuebtc -= maxBtc - totalBtc;
 
 			if (price < MoreMath.Lerp (minPriceInRange, maxPriceInRange, minBound) - PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * transactionAmount, time);
-				if (balances.CanBuy (order))
-					CreateOrder (order, ref balances);
+				if (balances.CanBuy (order)) {
+					bool succes = CreateOrder (order, ref balances);
+					Console.WriteLine ("Buy: " + succes  + " | " + order);
+				}
 			}
 
 			if (price > MoreMath.Lerp (minPriceInRange, maxPriceInRange, maxBound) + PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * transactionAmount, time);
-				if (balances.CanSell (order))
-					CreateOrder (order, ref balances);
+				if (balances.CanSell (order)) {
+					bool succes = CreateOrder (order, ref balances);
+					Console.WriteLine ("Sell: " + succes + " | " + order);
+				}
 			}
 		}
 

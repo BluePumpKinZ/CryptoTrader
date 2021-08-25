@@ -50,6 +50,13 @@ namespace CryptoTrader.Algorithms {
 			IterateInternal (graph, ref balances);
 		}
 
+		private protected double GetAvailableBTC (Balances balances) {
+			double totalBtc = balances.TotalBalance.Available;
+			double maxBtcValue = totalBtc * totalBalancesRatioAssinged;
+			double maxAllowedBtc = maxBtcValue - balances.GetBalanceForCurrency (PrimaryCurrency).ToBTCBalance ().Available;
+			return Math.Min (maxAllowedBtc, totalBtc);
+		}
+
 		public double ExecuteOnPriceGraph (PriceGraph graph) {
 			bool wasTraining = isTraining;
 			isTraining = true;
