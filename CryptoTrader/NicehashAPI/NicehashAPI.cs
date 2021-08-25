@@ -55,7 +55,11 @@ namespace CryptoTrader.NicehashAPI {
 	public class ExchangePublic {
 
 		public static PriceFrame GetPrices () {
-			return new PriceFrame (NicehashWeb.Get (NicehashURLs.ExchangePublic.prices, true));
+			return new PriceFrame (NicehashWeb.Get (NicehashURLs.ExchangePublic.prices, false));
+		}
+
+		public static ExchangeStatus GetExchangeStatus () {
+			return new ExchangeStatus (NicehashWeb.Get (NicehashURLs.ExchangePublic.status, false));
 		}
 
 	}
