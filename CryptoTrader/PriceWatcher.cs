@@ -116,7 +116,7 @@ namespace CryptoTrader {
 				try {
 					onPriceUpdate[i].Invoke ();
 				} catch (Exception e) {
-					Console.WriteLine (e.StackTrace);
+					Console.WriteLine (e);
 				}
 			}
 		}
