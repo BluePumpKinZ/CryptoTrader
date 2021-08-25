@@ -33,7 +33,8 @@ namespace CryptoTrader.Algorithms {
 				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * transactionAmount, time);
 				if (balances.CanBuy (order)) {
 					bool succes = CreateOrder (order, ref balances);
-					Console.WriteLine ("Buy: " + succes  + " | " + order);
+					if (!IsTraining)
+						Console.WriteLine ("Buy: " + succes  + " | " + order);
 				}
 			}
 
@@ -41,7 +42,8 @@ namespace CryptoTrader.Algorithms {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * transactionAmount, time);
 				if (balances.CanSell (order)) {
 					bool succes = CreateOrder (order, ref balances);
-					Console.WriteLine ("Sell: " + succes + " | " + order);
+					if (!IsTraining)
+						Console.WriteLine ("Sell: " + succes + " | " + order);
 				}
 			}
 		}
