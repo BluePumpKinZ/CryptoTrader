@@ -2,7 +2,7 @@
 
 	public abstract class MarketOrder : Order {
 
-		new public string GetOrderUrl () {
+		public override string GetOrderUrl () {
 			return base.GetOrderUrl () + $"&secQuantity={0.9 * Value}";
 		}
 
