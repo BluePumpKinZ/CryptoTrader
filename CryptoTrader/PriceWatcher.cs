@@ -18,6 +18,7 @@ namespace CryptoTrader {
 		public static bool HasPrices { get { return graphs.Count != 0; } }
 		public static bool HasAddedPrices { private set; get; } = false;
 		public static FeeStatus FeeStatus { private set; get; } = new FeeStatus ();
+		public static ExchangeStatus ExchangeStatus { private set; get; } = new ExchangeStatus ();
 		private static readonly List<Action> onPriceUpdate = new List<Action> ();
 
 		public static void SetPath (string path) {
@@ -35,6 +36,7 @@ namespace CryptoTrader {
 				return;
 			}
 			UpdateFeeStatusGuaranteed ();
+			UpdateExchangeStatusGuaranteed ();
 			if (string.IsNullOrEmpty (priceStoragePath))
 				throw new FileLoadException ("The path given loading price data has not been set. Use SetPath () for assigning the path used for price data storage.");
 			if (File.Exists (priceStoragePath)) {
@@ -69,9 +71,10 @@ namespace CryptoTrader {
 						hour = DateTime.Now.Hour;
 					}
 
-					// Update fees every day
+					// Update fees and exchange status every day
 					if (day != DateTime.Now.Day) {
 						UpdateFeeStatus ();
+						UpdateExchangeStatus ();
 						day = DateTime.Now.Day;
 					}
 
@@ -100,6 +103,15 @@ namespace CryptoTrader {
 			} catch (Exception) {
 				Thread.Sleep (1000);
 				UpdateFeeStatusGuaranteed ();
+			}
+		}
+
+		public static void UpdateExchangeStatusGuaranteed () {
+			try {
+				UpdateExchangeStatus ();
+			} catch (Exception) {
+				Thread.Sleep (1000);
+				UpdateExchangeStatusGuaranteed ();
 			}
 		}
 
@@ -194,6 +206,10 @@ namespace CryptoTrader {
 
 		public static void UpdateFeeStatus () {
 			FeeStatus = ExchangePrivate.GetFees ();
+		}
+
+		public static void UpdateExchangeStatus () {
+			ExchangeStatus = ExchangePublic.GetExchangeStatus ();
 		}
 
 		private static void Clear () {

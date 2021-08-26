@@ -45,19 +45,16 @@ namespace CryptoTrader.Algorithms {
 
 			double btcDiff = Math.Abs (soldBTC - soldBtcSuggestion);
 
-			if (btcDiff < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC) {
-				Console.Write ($"\rDiff: {btcDiff}BTC");
-				return;
-			}
-
 			if (networkSuggestion >= soldRatio) {
 				Order order = new MarketBuyOrder (PrimaryCurrency, totalBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());
-				CreateOrder (order, ref balances);
+				if (balances.CanBuy (order))
+					CreateOrder (order, ref balances);
 			}
 
 			if (networkSuggestion <= soldRatio) {
 				Order order = new MarketSellOrder (PrimaryCurrency, (totalBTC - btcDiff) / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
-				CreateOrder (order, ref balances);
+				if (balances.CanSell (order))
+					CreateOrder (order, ref balances);
 			}
 
 		}

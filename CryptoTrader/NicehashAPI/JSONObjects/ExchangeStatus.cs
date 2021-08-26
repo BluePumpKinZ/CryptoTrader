@@ -7,6 +7,10 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 
 		private List<MarketStatus> markets;
 
+		public ExchangeStatus () {
+
+		}
+
 		public ExchangeStatus (string s) {
 			Parse (s);
 		}
@@ -31,7 +35,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 				if (markets[i].Currency == currency)
 					return markets[i];
 			}
-			throw new ArgumentException ($"No marketstatus could be found for currency '{Currencies.GetCurrencyToken (currency)}'.");
+			return new MarketStatus ();
 		}
 
 	}

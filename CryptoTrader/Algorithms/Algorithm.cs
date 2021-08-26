@@ -114,15 +114,18 @@ namespace CryptoTrader.Algorithms {
 				// Market Order
 
 				Balance source, dest;
+				MarketStatus marketStatus = PriceWatcher.ExchangeStatus.GetStatusForCurrency (PrimaryCurrency);
+				double minimumOrderQuantityBtc = marketStatus.SecMinAmount;
+				double minimumOrderQuantityCur = marketStatus.PriMinAmount;
 				if (order.IsBuyOrder) {
 					source = balances.GetBalanceForCurrency (Currency.Bitcoin);
 					dest = balances.GetBalanceForCurrency (order.Currency);
-					if (source.Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+					if (source.Available < minimumOrderQuantityBtc)
 						return false;
 				} else {
 					source = balances.GetBalanceForCurrency (order.Currency);
 					dest = balances.GetBalanceForCurrency (Currency.Bitcoin);
-					if (source.ToBTCBalance ().Available < ExchangePrivate.MINIMUM_ORDER_QUANTITY_BTC)
+					if (source.Available < minimumOrderQuantityCur)
 						return false;
 				}
 				if (source.Available < order.Value)

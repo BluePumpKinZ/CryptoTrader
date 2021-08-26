@@ -8,18 +8,22 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 
 	public class MarketStatus : IParsable {
 
-		public Currency Currency { private set; get; }
-		public MarketState State { private set; get; }
-		public int BaseAssetPrecision { private set; get; }
-		public int QuoteAssetPrecision { private set; get; }
-		public int PriceAssetPrecision { private set; get; }
-		public int PriceStep { private set; get; }
-		public double PriceMinAmount { private set; get; }
-		public double PriceMaxAmount { private set; get; }
-		public double SecMinAmount { private set; get; }
-		public double SecMaxAmount { private set; get; }
-		public double MinPrice { private set; get; }
-		public double MaxPrice { private set; get; }
+		public Currency Currency { private set; get; } = Currency.Null;
+		public MarketState State { private set; get; } = MarketState.Trading;
+		public int BaseAssetPrecision { private set; get; } = 8;
+		public int QuoteAssetPrecision { private set; get; } = 8;
+		public int PriceAssetPrecision { private set; get; } = 8;
+		public int PriceStep { private set; get; } = 8;
+		public double PriMinAmount { private set; get; } = 0.00010000;
+		public double PriMaxAmount { private set; get; } = 1e6;
+		public double SecMinAmount { private set; get; } = 0.00010000;
+		public double SecMaxAmount { private set; get; } = 1e6;
+		public double MinPrice { private set; get; } = 1e-8;
+		public double MaxPrice { private set; get; } = 1e6;
+
+		public MarketStatus () {
+
+		}
 
 		public MarketStatus (string s) {
 			Parse (s);
@@ -47,10 +51,10 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 				PriceStep = int.Parse (value);
 				break;
 			case "priMinAmount":
-				PriceMinAmount = double.Parse (value);
+				PriMinAmount = double.Parse (value);
 				break;
 			case "priMaxAmount":
-				PriceMaxAmount = double.Parse (value);
+				PriMaxAmount = double.Parse (value);
 				break;
 			case "secMinAmount":
 				SecMinAmount = double.Parse (value);
