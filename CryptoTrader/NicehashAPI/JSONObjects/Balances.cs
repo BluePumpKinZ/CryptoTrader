@@ -44,15 +44,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 			return balances[index];
 		}
 
-		public bool CanBuy (Order order) {
-			if (order.IsSellOrder)
-				throw new ArgumentException ("The order given was not a 'BUY' order");
-			return order.HasSufficientFunds (this);
-		}
-
-		public bool CanSell (Order order) {
-			if (order.IsBuyOrder)
-				throw new ArgumentException ("The order given was not a 'SELL' order");
+		public bool CanExecute (Order order) {
 			return order.HasSufficientFunds (this);
 		}
 

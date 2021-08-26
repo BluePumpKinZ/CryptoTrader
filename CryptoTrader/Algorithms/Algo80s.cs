@@ -31,7 +31,7 @@ namespace CryptoTrader.Algorithms {
 
 			if (price < MoreMath.Lerp (minPriceInRange, maxPriceInRange, minBound) - PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * transactionAmount, time);
-				if (balances.CanBuy (order)) {
+				if (balances.CanExecute (order)) {
 					bool succes = CreateOrder (order, ref balances);
 					if (!IsTraining)
 						Console.WriteLine ("Buy: " + succes  + " | " + order);
@@ -40,7 +40,7 @@ namespace CryptoTrader.Algorithms {
 
 			if (price > MoreMath.Lerp (minPriceInRange, maxPriceInRange, maxBound) + PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * transactionAmount, time);
-				if (balances.CanSell (order)) {
+				if (balances.CanExecute (order)) {
 					bool succes = CreateOrder (order, ref balances);
 					if (!IsTraining)
 						Console.WriteLine ("Sell: " + succes + " | " + order);

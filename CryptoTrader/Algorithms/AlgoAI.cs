@@ -47,13 +47,13 @@ namespace CryptoTrader.Algorithms {
 
 			if (networkSuggestion >= soldRatio) {
 				Order order = new MarketBuyOrder (PrimaryCurrency, totalBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());
-				if (balances.CanBuy (order))
+				if (balances.CanExecute (order))
 					CreateOrder (order, ref balances);
 			}
 
 			if (networkSuggestion <= soldRatio) {
 				Order order = new MarketSellOrder (PrimaryCurrency, (totalBTC - btcDiff) / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
-				if (balances.CanSell (order))
+				if (balances.CanExecute (order))
 					CreateOrder (order, ref balances);
 			}
 
