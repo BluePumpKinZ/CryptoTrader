@@ -5,7 +5,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 
 	public class ExchangeStatus : IParsable {
 
-		private List<MarketStatus> markets;
+		private List<MarketStatus> markets = new List<MarketStatus> ();
 
 		public ExchangeStatus () {
 
