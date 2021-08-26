@@ -17,7 +17,7 @@ namespace CryptoTrader.Algorithms.Orders {
 		}
 
 		new public string GetOrderUrl () {
-			return base.GetOrderUrl () + $"&price={Price}";
+			return base.GetOrderUrl () + $"&price={NumberFormatting.FormatAmount (Price, Currency)}";
 		}
 
 		private protected new ICopyable CopyAbstractValues (ICopyable copy) {

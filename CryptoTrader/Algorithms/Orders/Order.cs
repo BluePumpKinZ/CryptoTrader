@@ -26,7 +26,7 @@ namespace CryptoTrader.Algorithms.Orders {
 			string market = Currencies.GetPair (Currency);
 			string side = IsBuyOrder ? "BUY" : "SELL";
 			string type = IsMarketOrder ? "MARKET" : "LIMIT";
-			return $"?market={market}&side={side}&type={type}&quantity={Value}";
+			return $"?market={market}&side={side}&type={type}&quantity={NumberFormatting.FormatAmount (Value, Currency)}";
 		}
 
 		public ICopyable CopyAbstractValues (ICopyable copy) {

@@ -1,9 +1,11 @@
-﻿namespace CryptoTrader.Algorithms.Orders {
+﻿using CryptoTrader.Utils;
+
+namespace CryptoTrader.Algorithms.Orders {
 
 	public abstract class MarketOrder : Order {
 
 		public override string GetOrderUrl () {
-			return base.GetOrderUrl () + $"&secQuantity={0.9 * Value}";
+			return base.GetOrderUrl () + $"&secQuantity={NumberFormatting.FormatAmount (0.9 * Value, Currency)}";
 		}
 
 		public override string ToString () {
