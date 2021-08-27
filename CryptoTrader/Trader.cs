@@ -191,6 +191,21 @@ namespace CryptoTrader {
 			return true;
 		}
 
+		public static void ImproveImprovableAlgorithm (Currency currency, int epochs, int threads, bool autosave) {
+			if (!GetImprovableAlgorithm (currency, out IImprovableAlgorithm algorithm)) {
+				Console.WriteLine ();
+				return;
+			}
+			Console.WriteLine ($"Started algorithm improvement for currency {currency} for {epochs} epochs.");
+
+			AIProcessTaskScheduler.RunOnThread (() => {
+				algorithm.Improve (epochs, threads);
+				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {currency}");
+				if (autosave)
+					SaveAlgorithms ();
+			});
+		}
+
 		public static double GetAlgorithmLoss (Currency currency) {
 			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
 				return improvableAlgorithm.GetLoss ();

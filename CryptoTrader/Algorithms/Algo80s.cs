@@ -34,7 +34,7 @@ namespace CryptoTrader.Algorithms {
 				if (balances.CanExecute (order)) {
 					bool succes = CreateOrder (order, ref balances);
 					if (!IsTraining)
-						Console.WriteLine ("Buy: " + succes  + " | " + order);
+						Console.WriteLine ("Buy: " + succes + " | " + order);
 				}
 			}
 
@@ -77,78 +77,72 @@ namespace CryptoTrader.Algorithms {
 		private double[] trainingAlgoLosses;
 		private double trainingLastLoss;
 
-		public void Improve (int epochs, int threads, bool autoSave) {
+		public void Improve (int epochs, int threads) {
 
 			if (trainingAlgos != null || trainingAlgoLosses != null)
 				throw new OperationCanceledException ("Conflicting threads!");
 
 			Random random = new Random ();
-			Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
 
-			AIProcessTaskScheduler.RunOnThread (() => {
+			trainingLastLoss = GetLoss ();
 
-				trainingLastLoss = GetLoss ();
+			for (int i = 0; i < epochs; i++) {
 
-				for (int i = 0; i < epochs; i++) {
+				double currentLoss = trainingLastLoss;
+				trainingAlgos = new Algo80s[threads];
+				trainingAlgoLosses = new double[threads];
 
-					double currentLoss = trainingLastLoss;
-					trainingAlgos = new Algo80s[threads];
-					trainingAlgoLosses = new double[threads];
-
-					for (int j = 0; j < threads; j++) {
-						int k = j;
-						AIProcessTaskScheduler.AddTask (() => {
-							Algo80s algo = (Algo80s)Copy ();
-							switch (random.Next (4)) {
-							case 0:
-								algo.minBound = minBound * GetRandomAdjustment (ref random);
-								break;
-							case 1:
-								algo.maxBound = maxBound * GetRandomAdjustment (ref random);
-								break;
-							case 2:
-								algo.transactionAmount = transactionAmount * GetRandomAdjustment (ref random);
-								break;
-							case 3:
-								algo.timeframe = (long)(timeframe * GetRandomAdjustment (ref random));
-								break;
+				for (int j = 0; j < threads; j++) {
+					int k = j;
+					AIProcessTaskScheduler.AddTask (() => {
+						Algo80s algo = (Algo80s)Copy ();
+						switch (random.Next (4)) {
+						case 0:
+							algo.minBound = minBound * GetRandomAdjustment (ref random);
+							break;
+						case 1:
+							algo.maxBound = maxBound * GetRandomAdjustment (ref random);
+							break;
+						case 2:
+							algo.transactionAmount = transactionAmount * GetRandomAdjustment (ref random);
+							break;
+						case 3:
+							algo.timeframe = (long)(timeframe * GetRandomAdjustment (ref random));
+							break;
 						}
-							trainingAlgos[k] = algo;
-							trainingAlgoLosses[k] = algo.GetLoss ();
-						});
-					}
-
-					bool canContinue;
-					do {
-						canContinue = true;
-						for (int j = 0; j < threads; j++)
-							if (trainingAlgoLosses[j] == 0)
-								canContinue = false;
-						Thread.Sleep (1);
-					} while (!canContinue);
-
-					int bestIndex = 0;
-					for (int j = 1; j < threads; j++)
-						if (trainingAlgoLosses[j] < trainingAlgoLosses[bestIndex])
-							bestIndex = j;
-
-					if (trainingAlgoLosses[bestIndex] > currentLoss) {
-						Console.WriteLine ($"Skipped a step: currentloss = {currentLoss}, bestloss = {trainingAlgoLosses[bestIndex]}");
-						continue;
-					}
-
-					minBound = trainingAlgos[bestIndex].minBound;
-					maxBound = trainingAlgos[bestIndex].maxBound;
-					transactionAmount = trainingAlgos[bestIndex].transactionAmount;
-					timeframe = trainingAlgos[bestIndex].timeframe;
-					trainingLastLoss = trainingAlgoLosses[bestIndex];	
+						trainingAlgos[k] = algo;
+						trainingAlgoLosses[k] = algo.GetLoss ();
+					});
 				}
 
-				trainingAlgos = null;
-				trainingAlgoLosses = null;
+				bool canContinue;
+				do {
+					canContinue = true;
+					for (int j = 0; j < threads; j++)
+						if (trainingAlgoLosses[j] == 0)
+							canContinue = false;
+					Thread.Sleep (1);
+				} while (!canContinue);
 
-				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {PrimaryCurrency}");
-			});
+				int bestIndex = 0;
+				for (int j = 1; j < threads; j++)
+					if (trainingAlgoLosses[j] < trainingAlgoLosses[bestIndex])
+						bestIndex = j;
+
+				if (trainingAlgoLosses[bestIndex] > currentLoss) {
+					Console.WriteLine ($"Skipped a step: currentloss = {currentLoss}, bestloss = {trainingAlgoLosses[bestIndex]}");
+					continue;
+				}
+
+				minBound = trainingAlgos[bestIndex].minBound;
+				maxBound = trainingAlgos[bestIndex].maxBound;
+				transactionAmount = trainingAlgos[bestIndex].transactionAmount;
+				timeframe = trainingAlgos[bestIndex].timeframe;
+				trainingLastLoss = trainingAlgoLosses[bestIndex];
+			}
+
+			trainingAlgos = null;
+			trainingAlgoLosses = null;
 		}
 
 		public double GetLoss () {

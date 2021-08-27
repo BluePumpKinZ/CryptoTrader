@@ -105,8 +105,7 @@ namespace CryptoTrader.Inputs {
 						return false;
 					}
 					function = () => {
-						if (Trader.GetImprovableAlgorithm (algorithmCurrency, out IImprovableAlgorithm algo))
-							algo.Improve (epochs, threads == 0 ? AIProcessTaskScheduler.ThreadCount : threads, autosaveAfterImprovement);
+						Trader.ImproveImprovableAlgorithm (algorithmCurrency, epochs, threads == 0 ? AIProcessTaskScheduler.ThreadCount : threads, autosaveAfterImprovement);
 					};
 					return true;
 				}

@@ -70,27 +70,18 @@ namespace CryptoTrader.Algorithms {
 
 		}
 
-		public void Improve (int epochs, int threads, bool autoSave) {
+		public void Improve (int epochs, int threads) {
 
-			Console.WriteLine ($"Started algorithm improvement for currency {PrimaryCurrency} for {epochs} epochs.");
+			PriceGraph graph = PriceWatcher.GetGraphForCurrency (PrimaryCurrency);
+			int examples = graph.GetLength () / 100;
+			long timeframe = AIDataConversion.TIMEFRAME;
 
-			AIProcessTaskScheduler.RunOnThread (() => {
-
-				PriceGraph graph = PriceWatcher.GetGraphForCurrency (PrimaryCurrency);
-				int examples = graph.GetLength () / 100;
-				long timeframe = AIDataConversion.TIMEFRAME;
-
-				for (int i = 0; i < epochs; i++) {
-					AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
-					LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
-					LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
-					network.TrainThreaded (inputs, outputs, 0.00002, threads);
-				}
-
-				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {PrimaryCurrency}");
-				if (autoSave)
-					Trader.SaveAlgorithms ();
-			});
+			for (int i = 0; i < epochs; i++) {
+				AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
+				LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
+				LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
+				network.TrainThreaded (inputs, outputs, 0.00002, threads);
+			}
 		}
 
 		public double GetLoss () {

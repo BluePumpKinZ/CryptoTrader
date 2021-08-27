@@ -1,3 +1,2 @@
 ﻿Test flipped algo80s on server (buy when sell and vice versa)
-Remove duplicate code from Improving algorithms and move to trader
-Properly format all currency amounts when displayed to the user (0.00000001
+Properly format all currency amounts when displayed to the user (0.00000001)
