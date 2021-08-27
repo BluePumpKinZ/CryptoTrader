@@ -5,7 +5,6 @@ using CryptoTrader.NicehashAPI;
 using CryptoTrader.Utils;
 using System;
 using System.Linq;
-using System.Text;
 
 namespace CryptoTrader.Inputs {
 
@@ -37,6 +36,9 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
+			case "load":
+				function = () => Trader.LoadAlgorithms ();
+				return true;
 			case "test":
 				if (ProcessArguments (ref input)) {
 					if (algorithmCurrency == Currency.Null) {

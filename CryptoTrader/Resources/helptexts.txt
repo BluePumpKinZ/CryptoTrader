@@ -39,10 +39,11 @@ Syntax:    read    prices      Retrieves current prices from exchange
 }
 {algorithms}
 {
-Usage:     algorithms [list/test/loss/add/remove/enable/disable/improve] [-a/-c/-e/-t/-s/-r]
+Usage:     algorithms [list/load/test/loss/add/delete/enable/disable/improve] [-a/-c/-e/-t/-s/-r]
 
 Syntax:    list                         Show all loaded algorithms
            list types                   Show a list of the different types of algorithms
+           load                         Reload algorithms from storage
            test [-c]                    Test the algorithms for a given currency
            loss [-c]                    Evaluates an improvable algorithms' loss
            assign [-c] [-r]             Assigns a certain amount of stakes onto an algorithm
