@@ -77,7 +77,7 @@ namespace CryptoTrader.Algorithms {
 			long timeframe = AIDataConversion.TIMEFRAME;
 
 			for (int i = 0; i < epochs; i++) {
-				AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
+				AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, threads, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 				LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 				LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
 				network.TrainThreaded (inputs, outputs, 0.00002, threads);

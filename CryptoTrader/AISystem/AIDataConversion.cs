@@ -42,7 +42,7 @@ namespace CryptoTrader.AISystem {
 
 		private static double[][] threadedInput;
 		private static double[][] threadedOutput;
-		public static void GetTrainingDataBatchThreaded (PriceGraph graph, int batchSize, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
+		public static void GetTrainingDataBatchThreaded (PriceGraph graph, int batchSize, int threads, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
 			if (batchSize < 0)
 				throw new ArgumentException ("Batch size can't be negative.", "batchSize");
 
@@ -64,7 +64,7 @@ namespace CryptoTrader.AISystem {
 			double[] output = GetDesiredNetworkOutputFromPriceGraph (graph);
 			Random random = new Random ();
 
-			Batching.GetBatchSplits (batchSize, AIProcessTaskScheduler.ThreadCount, out int[] markers, out int[] sizes);
+			Batching.GetBatchSplits (batchSize, threads, out int[] markers, out int[] sizes);
 
 			for (int i = 0; i < markers.Length; i++) {
 				int j = i;
