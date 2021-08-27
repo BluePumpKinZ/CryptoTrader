@@ -1,2 +1,1 @@
 ﻿Test flipped algo80s on server (buy when sell and vice versa)
-Properly format all currency amounts when displayed to the user (0.00000001)

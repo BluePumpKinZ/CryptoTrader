@@ -1,4 +1,5 @@
-﻿using CryptoTrader.NicehashAPI.JSONObjects;
+﻿using CryptoTrader.NicehashAPI;
+using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms.Orders {
@@ -24,6 +25,10 @@ namespace CryptoTrader.Algorithms.Orders {
 			LimitOrder limitOrder = (LimitOrder)base.CopyAbstractValues (copy);
 			limitOrder.Price = Price;
 			return limitOrder;
+		}
+
+		public override string ToString () {
+			return $"Limit{(IsBuyOrder ? "Buy" : "Sell")} (Time: {Time} Currency: {Currencies.GetCurrencyToken (Currency)} Value: {NumberFormatting.FormatAmount (Value, Currency)} Price: {NumberFormatting.FormatAmount (Value, Currency)})";
 		}
 
 	}

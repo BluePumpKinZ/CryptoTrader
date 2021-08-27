@@ -1,4 +1,5 @@
-﻿using CryptoTrader.Utils;
+﻿using CryptoTrader.NicehashAPI;
+using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms.Orders {
 
@@ -9,7 +10,7 @@ namespace CryptoTrader.Algorithms.Orders {
 		}
 
 		public override string ToString () {
-			return $"Market{(IsBuyOrder ? "Buy" : "Sell")}Order (Time: {Time} Currency: {Currency} Value: {Value})";
+			return $"Market{(IsBuyOrder ? "Buy" : "Sell")} (Time: {Time} Currency: {Currencies.GetCurrencyToken (Currency)} Value: {NumberFormatting.FormatAmount (Value, Currency)})";
 		}
 
 	}
