@@ -16,6 +16,7 @@ namespace CryptoTrader.Inputs {
 		private bool autosaveAfterImprovement = false;
 		private string algorithmType = "";
 		private double assignRatio = -1;
+		private int trainingMinutes = 0;
 
 		private protected override bool Process (ref string input) {
 			switch (GetNextSegment (ref input)) {
@@ -100,12 +101,20 @@ namespace CryptoTrader.Inputs {
 						function = () => Console.WriteLine ("Please specify a currency.");
 						return false;
 					}
-					if (epochs == 0) {
-						function = () => Console.WriteLine ("Please specify the number of epochs.");
+					if (epochs == 0 && trainingMinutes == 0) {
+						function = () => Console.WriteLine ("Please specify the number of epochs or the time the improvement should last.");
+						return false;
+					}
+					if (epochs != 0 && trainingMinutes != 0) {
+						function = () => Console.WriteLine ("Please specify only the number of epochs or the time the improvement should last.");
 						return false;
 					}
 					function = () => {
-						Trader.ImproveImprovableAlgorithm (algorithmCurrency, epochs, threads == 0 ? AIProcessTaskScheduler.ThreadCount : threads, autosaveAfterImprovement);
+						int threads = this.threads == 0 ? AIProcessTaskScheduler.ThreadCount : this.threads;
+						if (epochs != 0)
+							Trader.ImproveImprovableAlgorithm (algorithmCurrency, epochs, threads, autosaveAfterImprovement);
+						else
+							Trader.ImproveImprovableAlgorithmForTime (algorithmCurrency, trainingMinutes, threads, autosaveAfterImprovement);
 					};
 					return true;
 				}
@@ -178,6 +187,21 @@ namespace CryptoTrader.Inputs {
 						algorithmCurrency = Currencies.GetCurrencyFromToken (GetNextSegment (ref input));
 					} catch (OutOfArgumentsException) {
 						function = () => Console.WriteLine ("No argument was given for option '-c'.");
+						return false;
+					}
+					break;
+				case "-d":
+					try {
+						string[] timeSplits = GetNextSegment (ref input).Split (":");
+						int hourSplit = int.Parse (timeSplits[0]);
+						int minuteSplit = int.Parse (timeSplits[1]);
+						if (minuteSplit >= 60) {
+							function = () => Console.WriteLine ("There is no such thing as more than 59 minutes in an hour.");
+							return false;
+						}
+						trainingMinutes = hourSplit * 60 + minuteSplit;
+					} catch (OutOfArgumentsException) {
+						function = () => Console.WriteLine ("No argument was given for option '-d'.");
 						return false;
 					}
 					break;

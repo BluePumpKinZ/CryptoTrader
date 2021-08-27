@@ -6,6 +6,7 @@ using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -192,15 +193,32 @@ namespace CryptoTrader {
 		}
 
 		public static void ImproveImprovableAlgorithm (Currency currency, int epochs, int threads, bool autosave) {
-			if (!GetImprovableAlgorithm (currency, out IImprovableAlgorithm algorithm)) {
-				Console.WriteLine ();
+			if (!GetImprovableAlgorithm (currency, out IImprovableAlgorithm algorithm))
 				return;
-			}
 			Console.WriteLine ($"Started algorithm improvement for currency {currency} for {epochs} epochs.");
 
 			AIProcessTaskScheduler.RunOnThread (() => {
 				algorithm.Improve (epochs, threads);
 				Console.WriteLine ($"Finished {epochs} epochs for algorithm for currency {currency}");
+				if (autosave)
+					SaveAlgorithms ();
+			});
+		}
+
+		public static void ImproveImprovableAlgorithmForTime (Currency currency, int durationInMinutes, int threads, bool autosave) {
+			if (!GetImprovableAlgorithm (currency, out IImprovableAlgorithm algorithm))
+				return;
+			string time = $"{durationInMinutes / 60} hours and {durationInMinutes % 60} minutes";
+			Console.WriteLine ($"Started algorithm improvement for currency {currency} for {time}.");
+			AIProcessTaskScheduler.RunOnThread (() => {
+				int totalIterations = 0;
+				Stopwatch sw = new Stopwatch ();
+				sw.Start ();
+				while (sw.Elapsed.TotalMinutes < durationInMinutes) {
+					algorithm.Improve (10, threads);
+					totalIterations += 10;
+				}
+				Console.WriteLine ($"Finished {totalIterations} epochs in {time} for algorithm for currency {currency}");
 				if (autosave)
 					SaveAlgorithms ();
 			});
