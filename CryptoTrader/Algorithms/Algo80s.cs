@@ -29,7 +29,8 @@ namespace CryptoTrader.Algorithms {
 			double valuebtc = GetAvailableBTC (balances);
 			double valueCoin = balances.GetBalanceForCurrency (graph.Currency).Available;
 
-			if (price < MoreMath.Lerp (minPriceInRange, maxPriceInRange, minBound) - PriceWatcher.FeeStatus.MakerCoefficient * price) {
+			// if (price < MoreMath.Lerp (minPriceInRange, maxPriceInRange, minBound) - PriceWatcher.FeeStatus.MakerCoefficient * price) {
+			if (price > MoreMath.Lerp (minPriceInRange, maxPriceInRange, maxBound) + PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketBuyOrder order = new MarketBuyOrder (graph.Currency, valuebtc * transactionAmount, time);
 				if (balances.CanExecute (order)) {
 					bool succes = CreateOrder (order, ref balances);
@@ -38,7 +39,8 @@ namespace CryptoTrader.Algorithms {
 				}
 			}
 
-			if (price > MoreMath.Lerp (minPriceInRange, maxPriceInRange, maxBound) + PriceWatcher.FeeStatus.MakerCoefficient * price) {
+			// if (price > MoreMath.Lerp (minPriceInRange, maxPriceInRange, maxBound) + PriceWatcher.FeeStatus.MakerCoefficient * price) {
+			if (price < MoreMath.Lerp (minPriceInRange, maxPriceInRange, minBound) - PriceWatcher.FeeStatus.MakerCoefficient * price) {
 				MarketSellOrder order = new MarketSellOrder (graph.Currency, valueCoin * transactionAmount, time);
 				if (balances.CanExecute (order)) {
 					bool succes = CreateOrder (order, ref balances);
