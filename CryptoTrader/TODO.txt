@@ -1,3 +1,2 @@
 ﻿Test flipped algo80s on server (buy when sell and vice versa)
 Fix ratio assigning of algorithms
-Add local path capability for key storage

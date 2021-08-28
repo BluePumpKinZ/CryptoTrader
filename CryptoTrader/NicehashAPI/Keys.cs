@@ -18,6 +18,8 @@ namespace CryptoTrader.Keys {
 		public static void SetPath (string path) {
 			keyPath = path;
 			string folderPath = Path.GetDirectoryName (keyPath);
+			if (folderPath == "")
+				folderPath = Directory.GetCurrentDirectory ();
 			if (!Directory.Exists (folderPath))
 				throw new DirectoryNotFoundException ($"The directory '{folderPath}' could not be found");
 		}
