@@ -134,24 +134,23 @@ namespace CryptoTrader {
 				Console.WriteLine ($"No algorithm for currency '{Currencies.GetCurrencyToken (currency)}' exists.");
 				return;
 			}
-			if (ratio < algorithm.TotalBalancesRatioAssinged) {
-				algorithm.TotalBalancesRatioAssinged = ratio;
-				return;
+
+			double oldRatio = algorithm.TotalBalancesRatioAssinged;
+			double ratioDiff = ratio - oldRatio;
+
+			double totalRatio = 0;
+			for (int i = 0; i < algorithms.Count; i++) {
+				totalRatio += algorithms[i].TotalBalancesRatioAssinged;
 			}
 
-			double ratioSum = 0;
-			for (int i = 0; i < algorithms.Count; i++)
-				ratioSum += algorithms[i].TotalBalancesRatioAssinged;
+			double multiplier = Math.Min ((1 - ratioDiff) / totalRatio, 1);
 
-			ratioSum += ratio - algorithm.TotalBalancesRatioAssinged;
+			for (int i = 0; i < algorithms.Count; i++) {
+				algorithms[i].TotalBalancesRatioAssinged *= multiplier;
+			}
 
-			ratioSum = Math.Max (ratioSum, 1);
-
-			for (int i = 0; i < algorithms.Count; i++)
-				algorithms[i].TotalBalancesRatioAssinged /= ratioSum;
-
-			algorithm.TotalBalancesRatioAssinged = ratio / ratioSum;
-
+			algorithm.TotalBalancesRatioAssinged = ratio;
+			Console.WriteLine ($"Assigned a ratio of {ratio} to currency '{Currencies.GetCurrencyToken (currency)}'.");
 			worthSaving = true;
 		}
 
@@ -223,6 +222,7 @@ namespace CryptoTrader {
 				if (autosave)
 					SaveAlgorithms ();
 			});
+			worthSaving = true;
 		}
 
 		public static double GetAlgorithmLoss (Currency currency) {
@@ -241,6 +241,7 @@ namespace CryptoTrader {
 			Algorithm algorithm = TypeMapping.AlgorithmFromName (TypeMapping.BytesToString (IStorable.GetDataRange (ref index, bytes)));
 			algorithm.LoadFromBytes (ref index, bytes);
 			AddAlgorithm (algorithm);
+			worthSaving = true;
 		}
 
 		public static void ExportAlgorithm (Currency currency) {
