@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -228,6 +229,41 @@ namespace CryptoTrader {
 			if (GetImprovableAlgorithm (currency, out IImprovableAlgorithm improvableAlgorithm))
 				return improvableAlgorithm.GetLoss ();
 			return double.MaxValue;
+		}
+
+		public static void ImportAlgorithm (string path) {
+			if (!File.Exists (path)) {
+				Console.WriteLine ($"No algorithm could be found at {path}");
+				return;
+			}
+			int index = 0;
+			byte[] bytes = File.ReadAllBytes (path);
+			Algorithm algorithm = TypeMapping.AlgorithmFromName (TypeMapping.BytesToString (IStorable.GetDataRange (ref index, bytes)));
+			algorithm.LoadFromBytes (ref index, bytes);
+			AddAlgorithm (algorithm);
+		}
+
+		public static void ExportAlgorithm (Currency currency) {
+			int index = GetIndexForCurrency (currency);
+			if (index == -1) {
+				Console.WriteLine ($"No algorithm to export for currency '{Currencies.GetCurrencyToken (currency)}'.");
+				return;
+			}
+			string[] files = Directory.GetFiles (Directory.GetCurrentDirectory ());
+			for (int i = 0; i < files.Length; i++)
+				files[i] = files[i].Split (new char[] { '\\', '/' })[^1];
+			string filename;
+			int counter = 0;
+			do {
+				filename = $"{Currencies.GetCurrencyToken (currency).ToLower ()}{(counter != 0 ? $"_{counter}" : "")}.algo";
+				counter++;
+			} while (files.Contains (filename));
+			List<byte> bytes = new List<byte> ();
+			IStorable.AddData (ref bytes, TypeMapping.NameToBytes (TypeMapping.NameFromAlgorithm (algorithms[index])));
+			algorithms[index].SaveToBytes (ref bytes);
+			string fullPath = $"{Directory.GetCurrentDirectory ()}{Path.DirectorySeparatorChar}{filename}";
+			File.WriteAllBytes (fullPath, bytes.ToArray ());
+			Console.WriteLine ($"Algorithm for currency '{Currencies.GetCurrencyToken (currency)}' exported at {fullPath}");
 		}
 
 		public static void LoadAlgorithms () {

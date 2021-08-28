@@ -39,7 +39,7 @@ Syntax:    read    prices      Retrieves current prices from exchange
 }
 {algorithms}
 {
-Usage:     algorithms [list/load/test/loss/add/delete/enable/disable/improve] [-a/-c/-e/-t/-s/-r]
+Usage:     algorithms [list/load/test/loss/add/delete/enable/disable/improve] [-a/-c/-d/-e/-p/-t/-s/-r]
 
 Syntax:    list                         Show all loaded algorithms
            list types                   Show a list of the different types of algorithms
@@ -51,13 +51,18 @@ Syntax:    list                         Show all loaded algorithms
            enable [-c]                  Enables an algorithm
            disable                      Disables trading for all algorithms
            disable [-c]                 Disables an algorithm
+           import [-p]                  Import an algorithm located at a path
+           export [-c]                  Export the algorithm for a currency
            improve [-c] [-e] [-t] [-s]  Improves an improvable algorithm by -e epochs (CAUTION! Once started the operation cannot be cancelled)
+           improve [-c] [-d] [-t] [-s]  Improves an improvable algorithm for -d time (CAUTION! Once started the operation cannot be cancelled)
            add [-c] [-a]                Add an algorithm for a currency
            delete [-c]                  Removes the algorithm for a currency
 
 Options:   -a  Algorithm ('algorithms list types' for full list)
-           -c  Currency
+           -c  Currency token (BTC, ETH, ...)
+           -d  Time (format = hh:mm)
            -e  Epochs (Amount of times the operation is repeated)
+           -p  Path
            -t  Threads (Not advised to go above the max amount of logical processors in your system)
            -s  Autosave after an operation
            -r  Ratio (0..1)

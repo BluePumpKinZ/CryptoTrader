@@ -17,6 +17,7 @@ namespace CryptoTrader.Inputs {
 		private string algorithmType = "";
 		private double assignRatio = -1;
 		private int trainingMinutes = 0;
+		private string path = "";
 
 		private protected override bool Process (ref string input) {
 			switch (GetNextSegment (ref input)) {
@@ -92,6 +93,26 @@ namespace CryptoTrader.Inputs {
 						return false;
 					}
 					function = () => Trader.DisableAlgorithm (algorithmCurrency);
+					return true;
+				}
+				return false;
+			case "import":
+				if (ProcessArguments (ref input)) {
+					if (path == "") {
+						function = () => Console.WriteLine ("Please specify a path.");
+						return false;
+					}
+					function = () => Trader.ImportAlgorithm (path);
+					return true;
+				}
+				return false;
+			case "export":
+				if (ProcessArguments (ref input)) {
+					if (algorithmCurrency == Currency.Null) {
+						function = () => Console.WriteLine ("Please specify a currency.");
+						return false;
+					}
+					function = () => Trader.ExportAlgorithm (algorithmCurrency);
 					return true;
 				}
 				return false;
@@ -179,7 +200,7 @@ namespace CryptoTrader.Inputs {
 							function = () => Console.WriteLine ($"{type} is not a valid algorithm. For a full list execute 'algorithms list types'.");
 					} catch (OutOfArgumentsException) {
 						function = () => Console.WriteLine ("No argument was given for option '-a'.");
-						return true;
+						return false;
 					}
 					break;
 				case "-c":
@@ -210,6 +231,14 @@ namespace CryptoTrader.Inputs {
 						epochs = int.Parse (GetNextSegment (ref input));
 					} catch (OutOfArgumentsException) {
 						function = () => Console.WriteLine ("No argument was given for option '-e'.");
+						return false;
+					}
+					break;
+				case "-p":
+					try {
+						path = GetNextSegment (ref input);
+					} catch (OutOfArgumentsException) {
+						function = () => Console.WriteLine ("No argument was given for option '-p'.");
 						return false;
 					}
 					break;
