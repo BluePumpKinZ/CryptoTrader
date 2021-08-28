@@ -1,1 +1,4 @@
 ﻿Test flipped algo80s on server (buy when sell and vice versa)
+Add import and export capability for algorithms
+Fix ratio assigning of algorithms
+Add local path capability for key storage
