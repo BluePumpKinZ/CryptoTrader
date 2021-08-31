@@ -314,15 +314,6 @@ namespace CryptoTrader.AISystem {
 			return inputIndex + InputSize * outputIndex;
 		}
 
-		public static double GetInfluence (double value, double max) {
-			// https://www.desmos.com/calculator/yebysmqg0d?lang=nl
-			return (value >= 0) ? (max / (1 + (max - 1) * value)) : (-max / (1 + (max - 1) * -value));
-		}
-
-		public static double GetInfluenceAbs (double value, double max) {
-			return max / (1 + (max - 1) * Math.Abs (value));
-		}
-
 		public void LoadFromBytes (ref int index, byte[] data) {
 			InputSize = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
 			OutputSize = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, data));
