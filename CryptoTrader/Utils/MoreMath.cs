@@ -25,8 +25,9 @@ namespace CryptoTrader.Utils {
 		}
 
 		public static double Sigmoid_Derivative (double s) {
-			double exp = Math.Exp (-s);
-			return exp / Square (1 + exp);
+			// double exp = Math.Exp (-s);
+			// return exp / Square (1 + exp);
+			return s * (1 - s);
 		}
 
 		public static double Square (double s) {
