@@ -276,6 +276,8 @@ namespace CryptoTrader {
 			byte[] bytes = File.ReadAllBytes (algorithmStoragePath);
 
 			int index = 0;
+			IsTrading = BitConverter.ToBoolean (IStorable.GetDataRange (ref index, bytes));
+
 			int algoCount = BitConverter.ToInt32 (IStorable.GetDataRange (ref index, bytes));
 			algorithms.Clear ();
 			for (int i = 0; i < algoCount; i++) {
@@ -292,6 +294,7 @@ namespace CryptoTrader {
 		public static void SaveAlgorithms () {
 			List<byte> bytes = new List<byte> ();
 
+			IStorable.AddData (ref bytes, BitConverter.GetBytes (IsTrading));
 			int algoCount = algorithms.Count;
 			IStorable.AddData (ref bytes, BitConverter.GetBytes (algoCount));
 			for (int i = 0; i < algoCount; i++) {
