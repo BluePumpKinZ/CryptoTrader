@@ -79,7 +79,7 @@ namespace CryptoTrader.Algorithms {
 				AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, threads, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 				LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 				LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
-				network.TrainThreaded (inputs, outputs, 0.0001, threads);
+				network.TrainThreaded (inputs, outputs, 0.00002, threads);
 			}
 		}
 
