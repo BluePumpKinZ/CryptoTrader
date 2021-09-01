@@ -109,7 +109,6 @@ namespace CryptoTrader.AISystem {
 		public void Train (LayerState[] inputs, LayerState[] desiredOutputs, double step) {
 
 			CheckTrainErrors (inputs, desiredOutputs);
-			step = -step;
 
 			LayerAdjustments[] networkAdjustments = GetNetworkAdjustmentsBatch (inputs, desiredOutputs, step);
 			ApplyNetworkAdjustments (networkAdjustments);
@@ -121,7 +120,6 @@ namespace CryptoTrader.AISystem {
 				throw new InvalidOperationException ("Threaded training is already active. Cannot train the same network twice at the same time.");
 
 			CheckTrainErrors (inputs, desiredOutputs);
-			step = -step;
 
 			Batching.GetBatchSplits (inputs.Length, threads, out int[] markers, out int[] sizes);
 
