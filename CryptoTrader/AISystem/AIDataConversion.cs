@@ -149,7 +149,7 @@ namespace CryptoTrader.AISystem {
 				long time = lastTime - timeDelta;
 				times[i] = timeDelta;
 				double price = graph.GetPrice (time);
-				double adjustedprice = -MoreMath.Sigmoid (3 * (price / lastPrice - 1));
+				double adjustedprice = MoreMath.Sigmoid (3 * (price / lastPrice - 1));
 				values[i] = adjustedprice;
 			}
 
