@@ -10,7 +10,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		}
 
 		internal override void ParsePart (string key, string value) {
-			Limits.Add (double.Parse(key), double.Parse(value));
+			Limits.Add (double.Parse (key), double.Parse (value));
 		}
 	}
 }

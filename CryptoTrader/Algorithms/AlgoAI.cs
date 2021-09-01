@@ -66,7 +66,6 @@ namespace CryptoTrader.Algorithms {
 		public override void SaveToBytes (ref List<byte> datalist) {
 			base.SaveToBytes (ref datalist);
 			network.SaveToBytes (ref datalist);
-
 		}
 
 		public void Improve (int epochs, int threads) {
@@ -94,7 +93,6 @@ namespace CryptoTrader.Algorithms {
 			AIDataConversion.GetTrainingDataBatch (graph, examples, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 			LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 			LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
-
 
 			for (int i = 0; i < examples; i++)
 				totalLoss += network.CalculateLossOnInputs (inputs[i], outputs[i]);

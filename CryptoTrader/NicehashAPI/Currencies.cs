@@ -147,8 +147,7 @@ namespace CryptoTrader.NicehashAPI {
 			if (pair == "BTCUSDT") {
 				currency = Currency.Tether;
 				return true;
-			}
-			else if (pair.Contains ("USDT")) {
+			} else if (pair.Contains ("USDT")) {
 				currency = Currency.Null;
 				return false;
 			}
@@ -184,7 +183,7 @@ namespace CryptoTrader.NicehashAPI {
 
 		public static string GetPair (Currency c) {
 			if (c == Currency.Bitcoin)
-				return GetCurrencyToken(c) + GetCurrencyToken(Currency.Tether);
+				return GetCurrencyToken (c) + GetCurrencyToken (Currency.Tether);
 			return GetCurrencyToken (c) + "BTC";
 		}
 

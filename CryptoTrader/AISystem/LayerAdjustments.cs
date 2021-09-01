@@ -9,7 +9,7 @@ namespace CryptoTrader.AISystem {
 		private LayerAdjustment adjustments;
 		private int totalAdjustments;
 
-		private LayerAdjustments (int inputSize, int outputSize, LayerAdjustment adjustments, int totalAdjustments) : this(inputSize, outputSize) {
+		private LayerAdjustments (int inputSize, int outputSize, LayerAdjustment adjustments, int totalAdjustments) : this (inputSize, outputSize) {
 			this.adjustments = adjustments;
 			this.totalAdjustments = totalAdjustments;
 		}

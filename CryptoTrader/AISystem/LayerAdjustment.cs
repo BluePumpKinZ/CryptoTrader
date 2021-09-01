@@ -70,7 +70,7 @@ namespace CryptoTrader.AISystem {
 					fixed (double* fixedOtherWeightPtr = other.weightAdjustment) {
 						fixed (double* fixedSelfBiasPtr = biasAdjustment) {
 							fixed (double* fixedOtherBiasPtr = other.biasAdjustment) {
-								
+
 								double* selfWeightPtr = fixedSelfWeightPtr;
 								double* otherWeightPtr = fixedOtherWeightPtr;
 								double* selfBiasPtr = fixedSelfBiasPtr;

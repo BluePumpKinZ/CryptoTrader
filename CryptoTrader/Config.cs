@@ -17,7 +17,7 @@ namespace CryptoTrader {
 
 		public Config () {
 			if (!File.Exists (CONFIG_PATH)) {
-				Console.WriteLine ($"Could not load prices at {Directory.GetCurrentDirectory()}\\{CONFIG_PATH}");
+				Console.WriteLine ($"Could not load prices at {Directory.GetCurrentDirectory ()}\\{CONFIG_PATH}");
 				Environment.Exit (-1);
 			}
 

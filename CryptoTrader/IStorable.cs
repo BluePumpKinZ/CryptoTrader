@@ -50,7 +50,7 @@ namespace CryptoTrader {
 				newInt += data[index] & 0x7F;
 				if (data[index] >> 7 != 1)
 					break;
-				index++;					
+				index++;
 			} while (true);
 			index++;
 			return newInt;

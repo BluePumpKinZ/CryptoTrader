@@ -27,7 +27,7 @@ namespace CryptoTrader.Keys {
 		public static void ReadKeys () {
 			string data = File.ReadAllText (keyPath);
 			// data = data.Replace ("\t\r ", "");
-			data = Regex.Replace (data, "[\\t\\r ]","");
+			data = Regex.Replace (data, "[\\t\\r ]", "");
 			keySets = new Dictionary<string, KeySet> ();
 			foreach (string keySet in data.Split ('\n')) {
 				string[] split = keySet.Split (':');

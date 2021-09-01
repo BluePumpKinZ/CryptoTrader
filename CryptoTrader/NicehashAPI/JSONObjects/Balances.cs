@@ -39,7 +39,7 @@ namespace CryptoTrader.NicehashAPI.JSONObjects {
 		public Balance GetBalanceForCurrency (Currency currency) {
 			int index = GetBalanceIndex (currency);
 			if (index == -1) {
-				throw new NoPricesFoundException ($"No balance could be found for currency {Currencies.GetCurrencyToken(currency)}");
+				throw new NoPricesFoundException ($"No balance could be found for currency {Currencies.GetCurrencyToken (currency)}");
 			}
 			return balances[index];
 		}
