@@ -1,1 +1,1 @@
-﻿
+﻿Include Trader.IsTrading in algorithms storage
