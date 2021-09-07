@@ -94,7 +94,7 @@ namespace CryptoTrader.AISystem {
 			for (int i = 0; i < inputs.Length; i++) {
 				LayerAdjustment[] layerAdjustment = GetNetworkAdjustments (inputs[i], desiredOutputs[i], step);
 				for (int j = 0; j < layerAdjustment.Length; j++) {
-					layerAdjustments[j].AddAdjustment (layerAdjustment[j]);
+					layerAdjustments[j].AddAdjustment (ref layerAdjustment[j]);
 				}
 			}
 			return layerAdjustments;

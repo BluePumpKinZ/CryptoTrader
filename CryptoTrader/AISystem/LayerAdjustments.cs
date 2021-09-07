@@ -26,8 +26,8 @@ namespace CryptoTrader.AISystem {
 			Clear ();
 		}
 
-		public void AddAdjustment (LayerAdjustment layerAdjustment) {
-			adjustments.AddSelf (layerAdjustment);
+		public void AddAdjustment (ref LayerAdjustment layerAdjustment) {
+			adjustments.AddSelf (ref layerAdjustment);
 			totalAdjustments++;
 		}
 
@@ -52,7 +52,7 @@ namespace CryptoTrader.AISystem {
 
 		public void AddSelf (LayerAdjustments layerAdjustments) {
 
-			adjustments.AddSelf (layerAdjustments.adjustments);
+			adjustments.AddSelf (ref layerAdjustments.adjustments);
 			totalAdjustments += layerAdjustments.totalAdjustments;
 
 		}

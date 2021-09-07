@@ -48,7 +48,7 @@ namespace CryptoTrader.AISystem {
 			return output;
 		}
 
-		public unsafe void AddSelf (LayerAdjustment other) {
+		public unsafe void AddSelf (ref LayerAdjustment other) {
 
 			if (WeightSize != other.WeightSize || BiasSize != other.BiasSize)
 				throw new ArgumentException ("The dimensions of the added layer must match.");
