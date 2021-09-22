@@ -144,10 +144,10 @@ namespace CryptoTrader.AISystem {
 				throw new ArgumentException ("The dimensions of the given layer adjustment do not fit the networklayer.");
 
 			for (int i = 0; i < layerAdjustment.WeightSize; i++) {
-				weights[i] += layerAdjustment.GetWeight (i);
+				weights[i] += layerAdjustment.weightAdjustment[i];
 			}
 			for (int i = 0; i < layerAdjustment.BiasSize; i++) {
-				biases[i] += layerAdjustment.GetBias (i);
+				biases[i] += layerAdjustment.biasAdjustment[i];
 			}
 		}
 
