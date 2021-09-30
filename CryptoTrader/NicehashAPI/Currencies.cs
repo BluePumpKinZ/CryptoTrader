@@ -72,7 +72,7 @@ namespace CryptoTrader.NicehashAPI {
 		ZRX
 	}
 
-	public class Currencies {
+	public static class Currencies {
 
 		private static readonly SortedDictionary<Currency, string> coinTokens = new SortedDictionary<Currency, string> () {
 			{ Currency.AaveToken,          "AAVE"},
