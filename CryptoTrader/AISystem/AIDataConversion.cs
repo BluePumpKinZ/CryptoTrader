@@ -172,8 +172,7 @@ namespace CryptoTrader.AISystem {
 
 			for (int i = 0; i < length; i++) {
 
-				if (buying)
-					amountsInvested[i] = 1;
+				amountsInvested[i] = buying ? 1 : 0;
 
 				long time = graph.GetTimeByIndex (i);
 
@@ -185,6 +184,7 @@ namespace CryptoTrader.AISystem {
 
 				order = orders[++orderCount];
 				buying = order.IsBuyOrder;
+				i--;
 			}
 
 			return amountsInvested;
