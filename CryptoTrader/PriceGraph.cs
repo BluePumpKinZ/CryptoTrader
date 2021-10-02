@@ -177,7 +177,7 @@ namespace CryptoTrader {
 					if (maxPrice > 1 + backAndForthFee && price < maxPrice - backAndForthFee) {
 						// Buy
 
-						MarketOrder order = new MarketSellOrder (Currency, 1, frameStartTime);
+						MarketOrder order = new MarketBuyOrder (Currency, 1, frameStartTime);
 						orders.Add (order);
 
 						i = maxPriceIndex - 1;
@@ -188,7 +188,7 @@ namespace CryptoTrader {
 					if (minPrice < 1 - backAndForthFee && price > minPrice + backAndForthFee) {
 						// Sell
 
-						MarketOrder order = new MarketBuyOrder (Currency, 1, frameStartTime);
+						MarketOrder order = new MarketSellOrder (Currency, 1, frameStartTime);
 						orders.Add (order);
 
 						i = minPriceIndex - 1;
