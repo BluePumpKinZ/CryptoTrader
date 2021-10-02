@@ -162,32 +162,18 @@ namespace CryptoTrader.AISystem {
 				orders = graph.GetOptimalTrades (out _);
 
 			int length = graph.GetLength ();
+			double[] output = new double[length];
 
-			double[] amountsInvested = new double[length];
-
-			int orderCount = 0;
-			MarketOrder order = orders[0];
-
-			bool buying = order.IsBuyOrder;
-
-			for (int i = 0; i < length; i++) {
-
-				amountsInvested[i] = buying ? 1 : 0;
-
-				long time = graph.GetTimeByIndex (i);
-
-				if (order.Time > time)
-					continue;
-
-				if (orderCount + 1 >= orders.Length)
-					break;
-
-				order = orders[++orderCount];
-				buying = order.IsBuyOrder;
-				i--;
+			int graphIndex = 0;
+			for (int i = 0; i < orders.Length - 1; i++) {
+				long endTime = orders[i + 1].Time;
+				double value = orders[i].IsBuyOrder ? 1 : 0;
+				while (graph.GetTimeByIndex (graphIndex) < endTime) {
+					output[graphIndex] = value;
+					graphIndex++;
+				}
 			}
-
-			return amountsInvested;
+			return output;
 		}
 
 		// As made here: https://www.desmos.com/calculator/szflobahzg
