@@ -64,8 +64,6 @@ namespace CryptoTrader.Algorithms {
 			double originalRatio = totalBalancesRatioAssinged;
 			totalBalancesRatioAssinged = 1;
 			const double startWalletValue = 100; // USD
-			long startTime = graph.GetTimeByIndex (0);
-			long endTime = startTime + graph.GetTimeLength ();
 
 			PriceGraph newGraph = new PriceGraph (graph.Currency);
 			trainingModeBalances = new Balances ();
@@ -73,10 +71,10 @@ namespace CryptoTrader.Algorithms {
 			Balance balance = new Balance (Currency.Tether, startWalletValue, tetherGraph.GetPrice (tetherGraph.GetTimeByIndex (0))).ToCurrency (Currency.Bitcoin, 1);
 			double startBtc = balance.Total;
 			trainingModeBalances.AddBalance (balance);
-			trainingModeBalances.AddEmptyBalance (graph.Currency, graph.GetPrice (startTime));
+			trainingModeBalances.AddEmptyBalance (graph.Currency, graph.GetPriceByIndex (0));
 
-			for (long time = startTime; time < endTime; time += 60 * 1000) {
-				newGraph.AddPriceValue (time, graph.GetPrice (time, true));
+			for (int i = 0; i < graph.GetLength (); i++) {
+				newGraph.AddPriceValue (graph.GetTimeByIndex (i), graph.GetPriceByIndex (i, true));
 				trainingModeBalances.UpdateBTCRateForCurrency (graph.Currency, newGraph.GetLastPrice ());
 				Iterate (newGraph, ref trainingModeBalances);
 				// Console.Title = $"{10000 * (time - startTime) / (endTime - startTime) / 100.0}% {time}";
