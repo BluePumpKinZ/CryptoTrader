@@ -5,6 +5,7 @@ using CryptoTrader.NicehashAPI.Utils;
 using CryptoTrader.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CryptoTrader.Algorithms {
 
@@ -29,7 +30,6 @@ namespace CryptoTrader.Algorithms {
 				throw new ArgumentException ("Graph must have the same currency as PrimaryCurrency when running is live mode.", "graph");
 
 			long timeframe = AIDataConversion.TIMEFRAME;
-
 			if (graph.GetTimeLength () < timeframe)
 				return;
 
@@ -37,21 +37,21 @@ namespace CryptoTrader.Algorithms {
 			LayerState networkOutput = network.Iterate (new LayerState (networkInput));
 			double networkSuggestion = networkOutput[0];
 
-			double totalBTC = GetAvailableBTC (balances);
+			double totalBTC = GetTotalBTC (balances); ;
 			double soldBTC = balances.GetBalanceForCurrency (PrimaryCurrency).ToBTCBalance ().Total;
 			double soldRatio = soldBTC / totalBTC;
 			double soldBtcSuggestion = networkSuggestion * totalBTC;
 
 			double btcDiff = Math.Abs (soldBTC - soldBtcSuggestion);
 
-			if (networkSuggestion >= soldRatio) {
-				Order order = new MarketBuyOrder (PrimaryCurrency, totalBTC - btcDiff, NicehashSystem.GetUTCTimeMillis ());
+			if (networkSuggestion > soldRatio) {
+				Order order = new MarketBuyOrder (PrimaryCurrency, btcDiff, NicehashSystem.GetUTCTimeMillis ());
 				if (balances.CanExecute (order))
 					CreateOrder (order, ref balances);
 			}
 
-			if (networkSuggestion <= soldRatio) {
-				Order order = new MarketSellOrder (PrimaryCurrency, (totalBTC - btcDiff) / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
+			if (networkSuggestion < soldRatio) {
+				Order order = new MarketSellOrder (PrimaryCurrency, btcDiff / graph.GetLastPrice (), NicehashSystem.GetUTCTimeMillis ());
 				if (balances.CanExecute (order))
 					CreateOrder (order, ref balances);
 			}
@@ -78,7 +78,7 @@ namespace CryptoTrader.Algorithms {
 				AIDataConversion.GetTrainingDataBatchThreaded (graph, examples, threads, timeframe, out double[][] inputArrays, out double[][] outputArrays);
 				LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 				LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
-				network.TrainThreaded (inputs, outputs, 0.00002, threads);
+				network.TrainThreaded (inputs, outputs, -0.00002, threads);
 			}
 		}
 

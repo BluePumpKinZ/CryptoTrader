@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Security.Cryptography;
-using CryptoTrader.Keys;
 
 namespace CryptoTrader.NicehashAPI.Utils {
 

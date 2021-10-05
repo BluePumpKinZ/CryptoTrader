@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace CryptoTrader.Keys {
+namespace CryptoTrader.NicehashAPI {
 
 	public static class KeyValues {
 

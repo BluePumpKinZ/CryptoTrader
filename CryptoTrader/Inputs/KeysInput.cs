@@ -1,5 +1,5 @@
-﻿using CryptoTrader.Keys;
-using System;
+﻿using System;
+using CryptoTrader.NicehashAPI;
 
 namespace CryptoTrader.Inputs {
 

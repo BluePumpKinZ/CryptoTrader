@@ -1,5 +1,4 @@
-﻿using CryptoTrader.Keys;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace CryptoTrader.NicehashAPI.Utils {

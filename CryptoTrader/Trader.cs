@@ -1,6 +1,5 @@
 ﻿using CryptoTrader.AISystem;
 using CryptoTrader.Algorithms;
-using CryptoTrader.Keys;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
