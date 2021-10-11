@@ -10,6 +10,36 @@ namespace CryptoTrader.AISystem {
 		public const int INPUT_LAYER_SAMPLES = 5000;
 		public const long TIMEFRAME = 1000L * 60 * 60 * 24 * 30; // One month
 
+		public static void GetAllTrainingData (PriceGraph graph, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
+
+			int minIndex = 0;
+			long minimumTime = graph.GetStartTime () + minimumTimeframe;
+			for (int i = 0; i < graph.GetLength (); i++) {
+				if (graph.GetTimeByIndex (i) > minimumTime) {
+					minIndex = i;
+					break;
+				}
+			}
+
+			int batchSize = graph.GetLength () - minIndex;
+
+			if (batchSize < 0)
+				throw new ArgumentException ("Batch size can't be negative.", "batchSize");
+
+			input = new double[batchSize][];
+			desiredOutput = new double[batchSize][];
+
+			double[] output = GetDesiredNetworkOutputFromPriceGraph (graph);
+			for (int i = 0; i < batchSize; i++) {
+
+				int randomIndex = minIndex + i;
+
+				PriceGraph rangedGraph = graph.GetRange (randomIndex);
+				input[i] = GetNetworkInputFromPriceGraph (rangedGraph, minimumTimeframe);
+				desiredOutput[i] = new double[] { output[i] };
+			}
+		}
+
 		public static void GetTrainingDataBatch (PriceGraph graph, int batchSize, long minimumTimeframe, out double[][] input, out double[][] desiredOutput) {
 
 			if (batchSize < 0)
