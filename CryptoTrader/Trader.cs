@@ -1,4 +1,5 @@
 ﻿using CryptoTrader.AISystem;
+using CryptoTrader.AISystem.ML.NET;
 using CryptoTrader.Algorithms;
 using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
@@ -306,6 +307,10 @@ namespace CryptoTrader {
 			File.WriteAllBytes (algorithmStoragePath, bytes.ToArray ());
 			worthSaving = false;
 			Console.WriteLine ($"Saved algorithms to {algorithmStoragePath}");
+		}
+
+		public static void GenerateDataAISet () {
+			DataLoader.LoadAllDataToDataSet (PriceWatcher.GetAllGraphs (), "dataset.csv", 100000000L);
 		}
 
 		public static void Start () {

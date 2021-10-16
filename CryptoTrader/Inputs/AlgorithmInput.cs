@@ -183,6 +183,13 @@ namespace CryptoTrader.Inputs {
 					return true;
 				}
 				return false;
+			case "create":
+				switch (GetNextSegment (ref input)) {
+				case "dataset":
+					function = () => Trader.GenerateDataAISet ();
+					return true;
+				}
+				return false;
 			}
 			return false;
 		}
