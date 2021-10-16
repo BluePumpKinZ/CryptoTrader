@@ -217,6 +217,10 @@ namespace CryptoTrader {
 			HasAddedPrices = false;
 		}
 
+		public static PriceGraph[] GetAllGraphs () {
+			return graphs.ToArray ();
+		}
+
 		// Currency (4 bytes)
 		// Time (8 bytes)
 		// Price (8 bytes)
