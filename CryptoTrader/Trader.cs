@@ -355,12 +355,17 @@ namespace CryptoTrader {
 			double totalBtc = balances.TotalBalance.ToCurrency (Currency.Tether, PriceWatcher.GetBTCPrice (Currency.Tether)).Total;
 			for (int i = 0; i < algorithms.Count; i++)
 				if (!algorithms[i].IsTraining)
-					sb.Append ($"\n\t{Currencies.GetCurrencyToken (algorithms[i].PrimaryCurrency)}\t | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+					sb.Append (GetAlgorithmString (algorithms[i], totalBtc));
 			sb.Append ("\nInactive algorithms:");
 			for (int i = 0; i < algorithms.Count; i++)
 				if (algorithms[i].IsTraining)
-					sb.Append ($"\n\t{Currencies.GetCurrencyToken (algorithms[i].PrimaryCurrency)}\t | {Math.Round (algorithms[i].TotalBalancesRatioAssinged * totalBtc, 2)} USD");
+					sb.Append (GetAlgorithmString (algorithms[i], totalBtc));
 			return sb.ToString ();
+		}
+
+		private static string GetAlgorithmString (Algorithm algorithm, double totalBtc) {
+
+			return $"\n\t{Currencies.GetCurrencyToken (algorithm.PrimaryCurrency)}\t | {algorithm.GetType ().Name}\t | {Math.Round (algorithm.TotalBalancesRatioAssinged * totalBtc, 2)} USD";
 		}
 
 		public static string GetStatusPrintOut () {
