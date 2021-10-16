@@ -12,7 +12,8 @@
 			sizes = new int[batches];
 			for (int i = 0; i < sizes.Length - 1; i++)
 				sizes[i] = markers[i + 1] - markers[i];
-			sizes[^1] = size - markers[^1];
+			if (size != 0)
+				sizes[^1] = size - markers[^1];
 		}
 
 	}
