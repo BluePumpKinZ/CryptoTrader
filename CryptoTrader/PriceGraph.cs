@@ -200,6 +200,8 @@ namespace CryptoTrader {
 
 					index++;
 				}
+				if (index == endIndex)
+					break;
 			}
 
 			totalProfit = profit;
