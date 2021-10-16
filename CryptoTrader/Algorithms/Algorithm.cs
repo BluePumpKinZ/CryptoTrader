@@ -21,7 +21,7 @@ namespace CryptoTrader.Algorithms {
 			PrimaryCurrency = primaryCurrency;
 		}
 
-		public void SetPrimaryCurrency (Currency currency) {
+		public virtual void SetPrimaryCurrency (Currency currency) {
 			if (PrimaryCurrency == Currency.Null)
 				PrimaryCurrency = currency;
 			else
