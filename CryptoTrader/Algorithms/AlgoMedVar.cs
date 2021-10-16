@@ -1,9 +1,14 @@
-﻿using CryptoTrader.NicehashAPI.JSONObjects;
+﻿using CryptoTrader.NicehashAPI;
+using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
 
 namespace CryptoTrader.Algorithms {
 
 	public class AlgoMedVar : Algorithm {
+
+		public AlgoMedVar (Currency primaryCurrency) : base (primaryCurrency) {
+
+		}
 
 		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
@@ -19,7 +24,7 @@ namespace CryptoTrader.Algorithms {
 		}
 
 		public override ICopyable Copy () {
-			return CopyAbstractValues (new AlgoMedVar ());
+			return CopyAbstractValues (new AlgoMedVar (PrimaryCurrency));
 		}
 
 	}

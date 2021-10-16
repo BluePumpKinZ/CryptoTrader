@@ -13,9 +13,13 @@ namespace CryptoTrader.Algorithms {
 		public bool IsTraining { get { return isTraining; } set { SetTrainingMode (value); } }
 		internal List<LimitOrder> trainingLimitOrders = new List<LimitOrder> ();
 		private Balances trainingModeBalances = new Balances ();
-		public Currency PrimaryCurrency { private set; get; } = Currency.Null;
+		public Currency PrimaryCurrency { private set; get; }
 		private double totalBalancesRatioAssinged;
 		public double TotalBalancesRatioAssinged { internal set { totalBalancesRatioAssinged = MoreMath.Clamp01 (value); } get { return totalBalancesRatioAssinged; } }
+
+		protected Algorithm (Currency primaryCurrency) {
+			PrimaryCurrency = primaryCurrency;
+		}
 
 		public void SetPrimaryCurrency (Currency currency) {
 			if (PrimaryCurrency == Currency.Null)

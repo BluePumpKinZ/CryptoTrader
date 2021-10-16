@@ -1,5 +1,6 @@
 ﻿using CryptoTrader.AISystem;
 using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.NicehashAPI.Utils;
 using CryptoTrader.Utils;
@@ -13,11 +14,11 @@ namespace CryptoTrader.Algorithms {
 
 		public DeepLearningNetwork network;
 
-		private AlgoAI (DeepLearningNetwork network) {
+		private AlgoAI (Currency primaryCurrency, DeepLearningNetwork network) : base (primaryCurrency) {
 			this.network = network;
 		}
 
-		public AlgoAI () {
+		public AlgoAI (Currency primaryCurrency) : base (primaryCurrency) {
 			NetworkStructure structure = new NetworkStructure (new int[] { AIDataConversion.INPUT_LAYER_SAMPLES, 100, 16, 1 });
 			network = new DeepLearningNetwork (structure);
 			network.Randomize ();
@@ -79,6 +80,8 @@ namespace CryptoTrader.Algorithms {
 				LayerState[] inputs = AIDataConversion.ConvertToLayerStates (ref inputArrays);
 				LayerState[] outputs = AIDataConversion.ConvertToLayerStates (ref outputArrays);
 				network.TrainThreaded (inputs, outputs, -0.00002, threads);
+				/* if (i % 10 == 0)
+					File.AppendAllText (Environment.GetFolderPath (Environment.SpecialFolder.DesktopDirectory) + "/log.txt", GetLoss ().ToString () + "\n");*/
 			}
 		}
 
@@ -101,7 +104,7 @@ namespace CryptoTrader.Algorithms {
 		}
 
 		public override ICopyable Copy () {
-			return CopyAbstractValues (new AlgoAI ((DeepLearningNetwork)network.Copy ()));
+			return CopyAbstractValues (new AlgoAI (PrimaryCurrency, (DeepLearningNetwork)network.Copy ()));
 		}
 	}
 }

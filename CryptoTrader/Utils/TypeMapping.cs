@@ -1,4 +1,5 @@
 ﻿using CryptoTrader.Algorithms;
+using CryptoTrader.NicehashAPI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace CryptoTrader.Utils {
 
 		public static Algorithm AlgorithmFromName (string algoName) {
 			Type type = Type.GetType ($"CryptoTrader.Algorithms.{algoName}");
-			return Activator.CreateInstance (type) as Algorithm;
+			return Activator.CreateInstance (type, Currency.Null) as Algorithm;
 		}
 
 		public static string NameFromAlgorithm (Algorithm algorithm) {

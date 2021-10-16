@@ -1,5 +1,6 @@
 ﻿using CryptoTrader.AISystem;
 using CryptoTrader.Algorithms.Orders;
+using CryptoTrader.NicehashAPI;
 using CryptoTrader.NicehashAPI.JSONObjects;
 using CryptoTrader.Utils;
 using System;
@@ -14,6 +15,10 @@ namespace CryptoTrader.Algorithms {
 		private double maxBound = 0.8;
 		private double transactionAmount = 0.5;
 		private long timeframe = 1000 * 60 * 30;
+
+		public Algo80s (Currency primaryCurrency) : base (primaryCurrency) {
+
+		}
 
 		private protected override void IterateInternal (PriceGraph graph, ref Balances balances) {
 
@@ -64,7 +69,7 @@ namespace CryptoTrader.Algorithms {
 		}
 
 		public override ICopyable Copy () {
-			Algo80s algorithm = new Algo80s ();
+			Algo80s algorithm = new Algo80s (PrimaryCurrency);
 			algorithm.minBound = minBound;
 			algorithm.maxBound = maxBound;
 			algorithm.transactionAmount = transactionAmount;
