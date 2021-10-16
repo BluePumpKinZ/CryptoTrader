@@ -25,14 +25,23 @@ namespace CryptoTrader.Utils {
 			return Encoding.UTF8.GetString (bytes);
 		}
 
-		public static string[] GetAllDerivedTypes (Type type) {
-			List<string> output = new List<string> ();
+		public static Type[] GetAllDerivedTypes (Type type) {
+			List<Type> output = new List<Type> ();
 			Assembly assembly = Assembly.GetExecutingAssembly ();
 			Type[] types = assembly.GetTypes ();
 			for (int i = 0; i < types.Length; i++)
 				if (types[i].IsSubclassOf (type))
-					output.Add (types[i].Name);
+					output.Add (types[i]);
+
 			return output.ToArray ();
+		}
+
+		public static string[] GetAllDerivedTypeNames (Type type) {
+			Type[] types = GetAllDerivedTypes (type);
+			string[] output = new string[types.Length];
+			for (int i = 0; i < types.Length; i++)
+				output[i] = types[i].Name;
+			return output;
 		}
 
 	}

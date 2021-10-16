@@ -28,7 +28,7 @@ namespace CryptoTrader.Inputs {
 					return true;
 				case "types":
 					function = () => {
-						string[] algorithms = TypeMapping.GetAllDerivedTypes (typeof (Algorithm));
+						string[] algorithms = TypeMapping.GetAllDerivedTypeNames (typeof (Algorithm));
 						Console.WriteLine ("Algorithm types:");
 						foreach (string algo in algorithms) {
 							bool isImprovable = typeof (IImprovableAlgorithm).IsAssignableFrom (Type.GetType ($"CryptoTrader.Algorithms.{algo}"));
@@ -201,7 +201,7 @@ namespace CryptoTrader.Inputs {
 				case "-a":
 					try {
 						string type = GetNextSegment (ref input);
-						if (TypeMapping.GetAllDerivedTypes (typeof (Algorithm)).Contains (type))
+						if (TypeMapping.GetAllDerivedTypeNames (typeof (Algorithm)).Contains (type))
 							algorithmType = type;
 						else
 							function = () => Console.WriteLine ($"{type} is not a valid algorithm. For a full list execute 'algorithms list types'.");
