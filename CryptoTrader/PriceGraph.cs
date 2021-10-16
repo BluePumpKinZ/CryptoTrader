@@ -228,10 +228,10 @@ namespace CryptoTrader {
 			return sb.ToString ();
 		}
 
-		protected struct GraphUnit : IComparable<GraphUnit> {
+		protected readonly struct GraphUnit : IComparable<GraphUnit> {
 
-			internal long Time { private set; get; }
-			internal double Value { private set; get; }
+			internal long Time { get; }
+			internal double Value { get; }
 
 			public GraphUnit (long time, double value) {
 				Time = time;
