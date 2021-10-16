@@ -1,7 +1,7 @@
 ﻿using Microsoft.ML.Data;
 
 namespace CryptoTrader.AISystem.ML.NET {
-	public class AlgoAI2ModelData {
+	public class AlgoAI2ModelInput {
 
 		[ColumnName ("PastPrices")]
 		[LoadColumn (0, 9999)]
