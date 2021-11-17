@@ -237,6 +237,7 @@ namespace CryptoTrader {
 
 				AddPriceUnit (new PriceUnit (Currencies.GetCurrencyFromHash (hash), milliTime, price));
 			}
+			// Graphs.ForEach (t => t.RemoveExtraData ());
 			Console.WriteLine ($"Loaded prices from {priceStoragePath}");
 		}
 

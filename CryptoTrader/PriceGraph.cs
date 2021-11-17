@@ -27,6 +27,17 @@ namespace CryptoTrader {
 			prices.Insert (insertionIndex + 1, new GraphUnit (milliTime, price));
 		}
 
+		/*public void RemoveExtraData () {
+			for (int i = prices.Count - 3; i >= 0; i--) {
+				double price = prices[i].Value;
+				double pricePlusOne = prices[i + 1].Value;
+				double pricePlusTwo = prices[i + 2].Value;
+				if (price == pricePlusOne && price == pricePlusTwo) {
+					prices.RemoveAt (i + 1);
+				}
+			}
+		}*/
+
 		private void BinarySearchTimeIndex (long milliTime, out int min, out int max) {
 			min = 0;
 			max = prices.Count - 1;
