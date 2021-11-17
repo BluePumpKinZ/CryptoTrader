@@ -34,10 +34,10 @@ namespace CryptoTrader {
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler (AutoSave);
 			Currencies.GenerateLookUpTables ();
-			LoadAlgorithms ();
 			PriceWatcher.LoadPrices ();
 			PriceWatcher.AddToOnPriceUpdate (() => UpdateBalances ());
 			PriceWatcher.AddToOnPriceUpdate (() => IterateAlgorithms ());
+			LoadAlgorithms ();
 			Console.WriteLine ("Trader initialized.");
 		}
 
