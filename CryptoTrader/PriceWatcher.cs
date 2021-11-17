@@ -11,11 +11,11 @@ namespace CryptoTrader {
 
 	public class PriceWatcher {
 
-		private static readonly List<PriceGraph> graphs = new List<PriceGraph> ();
+		private static readonly List<PriceGraph> Graphs = new List<PriceGraph> ();
 		private static string priceStoragePath;
 		private static Thread priceWatchThread;
 		private static bool stopPriceWatchThread = false;
-		public static bool HasPrices { get { return graphs.Count != 0; } }
+		public static bool HasPrices { get { return Graphs.Count != 0; } }
 		public static bool HasAddedPrices { private set; get; } = false;
 		public static FeeStatus FeeStatus { private set; get; } = new FeeStatus ();
 		public static ExchangeStatus ExchangeStatus { private set; get; } = new ExchangeStatus ();
@@ -134,9 +134,9 @@ namespace CryptoTrader {
 		}
 
 		public static Currency[] GetMonitoredCurrencies () {
-			Currency[] currencies = new Currency[graphs.Count];
-			for (int i = 0; i < graphs.Count; i++) {
-				currencies[i] = graphs[i].Currency;
+			Currency[] currencies = new Currency[Graphs.Count];
+			for (int i = 0; i < Graphs.Count; i++) {
+				currencies[i] = Graphs[i].Currency;
 			}
 			return currencies;
 		}
@@ -193,14 +193,14 @@ namespace CryptoTrader {
 		}
 
 		public static PriceGraph GetGraphForCurrency (Currency currency) {
-			if (graphs == null)
+			if (Graphs == null)
 				throw new NoPricesFoundException ($"Graph for currency \"{currency}\" does not exist.");
-			for (int i = 0; i < graphs.Count; i++) {
-				if (graphs[i].Currency == currency)
-					return graphs[i];
+			for (int i = 0; i < Graphs.Count; i++) {
+				if (Graphs[i].Currency == currency)
+					return Graphs[i];
 			}
 			PriceGraph graph = new PriceGraph (currency);
-			graphs.Add (graph);
+			Graphs.Add (graph);
 			return graph;
 		}
 
@@ -213,12 +213,12 @@ namespace CryptoTrader {
 		}
 
 		private static void Clear () {
-			graphs.Clear ();
+			Graphs.Clear ();
 			HasAddedPrices = false;
 		}
 
 		public static PriceGraph[] GetAllGraphs () {
-			return graphs.ToArray ();
+			return Graphs.ToArray ();
 		}
 
 		// Currency (4 bytes)
@@ -248,8 +248,8 @@ namespace CryptoTrader {
 			}
 
 			List<PriceUnit> priceUnits = new List<PriceUnit> ();
-			for (int i = 0; i < graphs.Count; i++) {
-				priceUnits.AddRange (graphs[i].ConvertToPriceUnits ());
+			for (int i = 0; i < Graphs.Count; i++) {
+				priceUnits.AddRange (Graphs[i].ConvertToPriceUnits ());
 			}
 
 			byte[] data = new byte[20 * priceUnits.Count];
